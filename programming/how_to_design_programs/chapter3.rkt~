@@ -1,0 +1,95 @@
+;; The first three lines of this file were inserted by DrRacket. They record metadata
+;; about the language level of this file in a form that our tools can easily process.
+#reader(lib "htdp-beginner-reader.ss" "lang")((modname chapter3) (read-case-sensitive #t) (teachpacks ()) (htdp-settings #(#t constructor repeating-decimal #f #t none #f () #f)))
+(require 2htdp/universe)
+(require 2htdp/image)
+(require 2htdp/batch-io)
+
+
+(define (distance-of-points x y)
+  (sqrt (+ (expt x 2) (expt y 2))))
+
+
+(distance-of-points 4 5)
+
+(define (cvolume length)
+  (* length length length))
+
+(define (get-first-char char)
+  (substring char 0 1))
+
+
+
+(define (not-valid-string str)
+  (= 0 (string-length str)))
+
+(define (string-first str)
+  (if (not-valid-string str) (error "submit valid string")  (get-first-char str)))
+
+(define (get-last-char str)
+  (substring str (- (string-length str) 1)))
+
+(define (string-last str)
+  (if (not-valid-string str) (error "submit valid string")  (get-last-char str)))
+
+
+(define (ff a)
+  (* a 10))
+
+
+
+(define (letter fst lst signature-name)
+  (string-append (opening fst) "\n" (body fst lst) "\n\n" (closing signature-name)))
+
+(define (opening first)
+  (string-append "Dear " first ", " "\n\n"))
+
+(define (body fst lst)
+  (string-append "We have discovered that all people with the" "\n"
+    "last name " lst " have won our loterry. So, " "\n"
+    fst ", " "huerry and pick up your prize!"))
+
+(define (closing signature-name)
+  (string-append "Sincerely," "\n\n" signature-name "\n"))
+
+
+(define average-attendance 120)
+(define average-ticket-price 5)
+(define price-change .1)
+(define average-customer-attendance-shift 15)
+(define ticket-price 5)
+(define cost-per-customer .04)
+(define fixed-costs 180)
+
+
+(define price-sensitive-attendance (* (/ (- ticket-price average-ticket-price) price-change) average-customer-attendance-shift))
+
+(define (attendees ticket-price)
+  (- average-attendance price-sensitive-attendance))
+
+
+(define (revenue attendees ticket-price)
+  (* attendees ticket-price))
+
+
+(define (cost ticket-price)
+  (+ fixed-costs (* (attendees ticket-price) cost-per-customer)))
+
+
+(define (profit ticket-price)
+  (- (revenue (attendees ticket-price) ticket-price) (cost ticket-price)))
+
+
+(define (C f)
+  (* 5/9 (- f 32)))
+
+(define (convert in out)
+  (write-file out
+      (string-append
+       (number->string
+        (C
+         (string->number
+          (read-file in)))) "\n")))
+
+(write-file 'stdout (letter "Carney" "Bernard" "Mia"))
+
