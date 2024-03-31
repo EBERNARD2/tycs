@@ -1,0 +1,1 @@
+Not the biggest fan of this book. It's a little more suited for beginners and I want something more challenging. Just picked up SICP so will be studying that instead.
