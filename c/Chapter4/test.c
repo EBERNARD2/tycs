@@ -39,7 +39,7 @@ void test_show_bytes(int val){
 
  int main(void){
 
-    test_show_bytes(12345);
+    show_bytes("12345", 6);
     return 0; 
 
  }
