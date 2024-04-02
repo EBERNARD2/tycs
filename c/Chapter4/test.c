@@ -39,7 +39,14 @@ void test_show_bytes(int val){
 
  int main(void){
 
-    show_bytes("12345", 6);
+    short x = 12345;
+
+    // because this is a two's complement we need to add one to get the negative
+    short mx = ~x + 1;
+
+    show_bytes((byte_pointer) &x, sizeof(short));
+    show_bytes((byte_pointer) &mx, sizeof(short));
+
     return 0; 
 
  }
