@@ -39,13 +39,28 @@ void test_show_bytes(int val){
 
  int main(void){
 
-    short x = 12345;
+    //short x = 12345;
 
     // because this is a two's complement we need to add one to get the negative
-    short mx = ~x + 1;
+    //short mx = ~x + 1;
 
-    show_bytes((byte_pointer) &x, sizeof(short));
-    show_bytes((byte_pointer) &mx, sizeof(short));
+    // Expansion of integers 
+    short sx = -12345;
+    unsigned short usx = sx; // should be 53191
+    int x = sx; // -12345
+    unsigned ux = usx;
+
+    printf("sx = %d\t", sx);
+    show_bytes((byte_pointer) &sx, sizeof(short));
+    printf("usx =  %u\t", usx);
+    show_bytes((byte_pointer) &usx, sizeof(unsigned short));
+    printf("x = %d\t", x);
+    show_bytes((byte_pointer) &x, sizeof(int));
+    printf("ux = %d\t", ux);
+    show_bytes((byte_pointer) &ux, sizeof(unsigned int));
+
+    //show_bytes((byte_pointer) &x, sizeof(short));
+    //show_bytes((byte_pointer) &mx, sizeof(short));
 
     return 0; 
 
