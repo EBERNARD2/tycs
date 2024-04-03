@@ -5,7 +5,7 @@ int uadd_ok(unsigned int x, unsigned int y);
 
 int main(void){
 
-    uadd_ok(4294967295u, 1u);
+    printf("result %d\n", uadd_ok(4294967295u, 1u));
 
     return 0;
 }
