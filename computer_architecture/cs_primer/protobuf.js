@@ -1,63 +1,85 @@
 const fs = require('node:fs');
 const { Buffer } = require('node:buffer');
-const binaryData = '/Users/estradabernard/Documents/tyscs/computer_architecture/cs_primer/maxint.uint64';
+const binaryData = '/Users/estradabernard/Documents/tyscs/computer_architecture/cs_primer/150.uint64';
+const test = require('node:test');
+const { assert } = require('node:console');
 
-// read binary files
-try {
-  data = fs.readFileSync(binaryData);
-} catch(err){
-  console.log(err);
+const getData = (path) => {
+  // read binary files
+  let data;
+  try {
+    data = fs.readFileSync(path);
+  } catch(err){
+    console.log(err);
+  }
+  return data;
+};
+
+
+
+function getNumberFromBuffer(data) {
+  const bytes = [];
+  // get variable byte size
+  for (let i = 0; i < data.length; i++){
+    const nonZeroByte = data[i] != 0;
+    if (nonZeroByte) bytes.push(data[i]);
+  }
+  const uInt8Array = new Uint8Array(data);
+  const arrBuffer = new ArrayBuffer(data.length, { maxByteLength: 10 });
+  const dataView = new DataView(arrBuffer);
+  for (let i = 0; i < uInt8Array.length; i++){
+    dataView.setUint8(i, uInt8Array[i]);
+  }
+  // need atleast 4 bytes for Uint32 
+  const byteOffset = bytes.length > 4 ? bytes.length : 4;
+
+  return dataView.getUint32(byteOffset, false);
+
 }
 
-const bytes = [];
-// get variable byte size
-for (let i = 0; i < data.length; i++){
-  const nonZeroByte = data[i] != 0;
-  if (nonZeroByte) bytes.push(data[i]);
+
+
+function encode(num, binaryData){
+
+  let numberFromBuffer; 
+  if (!num){
+    const data = getData(binaryData);
+    numberFromBuffer = getNumberFromBuffer(data);
+
+  } else numberFromBuffer = num;
+  
+
+
+  const finalBytes = [];
+
+  while (numberFromBuffer > 0){
+    let isolated7bits = numberFromBuffer & 0x7f;
+    numberFromBuffer >>= 7;
+    if (numberFromBuffer > 0) isolated7bits |= 0x80;
+    finalBytes.push(isolated7bits);
+  }
+
+  return Buffer.from(finalBytes);
+
 }
 
-const buffer = Buffer.from(bytes)
-console.log(buffer);
 
-for(let b of buffer) console.log((b & 0x7F));
+function decode(bytes){
 
+  let num = 0;
+  for(let i = bytes.length - 1; i >= 0 ; i--){
+    num <<= 7; 
+    const byte = bytes[i] & 0x7f;
+    num += byte;
+  }
 
-
-// // seperate 7 bits at a time... If there is a carry bit use with next byte 
-// bytes.map((b, idx) => {
-//   if (idx + 1 <= bytes.length){
-//     bytes[idx] = b & 0x7F;
-//     const carryBit = b & 0x80;
-//     if (!!carryBit) addCarryBitToNextValue(idx);
-//   }
-// });
+  return num;
+}
 
 
-// function addCarryBitToNextValue(idx){
-//   if (idx > bytes.length - 1){
-//     // create new hex number to bytes
-//     bytes.push(0x01);
-//   } else {
-//     bytes[idx + 1] = bytes[idx + 1] + 0x01;
-//     console.log()
-//   }
-//   return;
-// }
-
-
-// console.log(bytes);
-
-
-// // create new array buffer in memory with Typed array so we can directly modify data
-// // should be variable length (between 1 and 10 bytes per: https://protobuf.dev/programming-guides/encoding/#varints) 
-// const byteData = new ArrayBuffer(bytes.length, { maxByteLength: 10 });
-// const values = new Uint8Array(byteData);
-// //copy values to array with 8 bit unsigned interger array
-// bytes.map((val, idx) =>  values[idx] = val);
+console.log(decode(encode(150)));
 
 
  
-
-
 
 
