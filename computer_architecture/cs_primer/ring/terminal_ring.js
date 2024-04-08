@@ -11,6 +11,7 @@ function createBellSound(value){
   if (valueToNum === NaN) return;
   
   for (let i = 0; i < valueToNum; i++){
+    // need to solve for stdout
     process.stdout.write();
   }  
 }
