@@ -1,8 +1,6 @@
 const readline = require('node:readline');
-
 const { stdin: input, stdout: output } = require('node:process');
-const process = require('node:process');
-
+const process = require('node:process'); 
 
 const rl = readline.createInterface({ input, output });
 
@@ -11,9 +9,9 @@ function createBellSound(value){
   if (valueToNum === NaN) return;
   
   for (let i = 0; i < valueToNum; i++){
-    // need to solve for stdout
-    process.stdout.write();
-  }  
+    process.stdout.write("\x07");
+
+  }
 }
 process.stdin.on("keypress", createBellSound);
 
