@@ -143,7 +143,11 @@ NOTES:
  *   Rating: 1
  */
 int bitXor(int x, int y) {
-  return 2;
+  // basically using 4 nand gates 
+  int nand1 = ~(x & y);
+  int nand2 = ~(x & nand1);
+  int nand3 = ~(y and nand1);
+  return ~(nand2 & nand3);
 }
 /* 
  * tmin - return minimum two's complement integer 
@@ -152,8 +156,9 @@ int bitXor(int x, int y) {
  *   Rating: 1
  */
 int tmin(void) {
-
-  return 2;
+  // if we do a logical left shift of 0b1 31 places this should get us to the 2**32 
+  // place thus representing the largest possible number number that can fit in the int data type
+  return (1 << 31);
 
 }
 //2
@@ -165,7 +170,11 @@ int tmin(void) {
  *   Rating: 1
  */
 int isTmax(int x) {
-  return 2;
+  // we can flip tmin to get the max 
+  // if x and max are the same value Xor to them will zero everything out
+  // then we can take the opposite of what the Xor function returns
+  int max = ~(1 << 31);
+  return !(max ^ x);
 }
 /* 
  * allOddBits - return 1 if all odd-numbered bits in word set to 1
@@ -176,7 +185,19 @@ int isTmax(int x) {
  *   Rating: 2
  */
 int allOddBits(int x) {
-  return 2;
+  // I'm going to assume that word size will always equal the full 32 bits
+  int cmp = 0xAA;
+  // for each byte, we want to grab the 8 and 2 position for each hex value
+  int byte1 = x & cmp;
+  x >>= 8;
+  int byte2 = x & cmp;
+  x >>= 8;
+  int byte3 = x & cmp;
+  x >>= 8;
+  int byte4 = x & cmp;
+  x >>= 8;
+  // if the odd values are present, we should always get AA which we can then zero out with XOR
+  return !(((byte1 ^ byte2) ^ byte3) ^ byte4);
 }
 /* 
  * negate - return -x 
@@ -186,7 +207,9 @@ int allOddBits(int x) {
  *   Rating: 2
  */
 int negate(int x) {
-  return 2;
+  // flip all bits first then add one - works for both positive and negative numbers at a bit level
+  // adding 1 to the not x will completely negate x
+  return (~x) + 1;
 }
 //3
 /* 
