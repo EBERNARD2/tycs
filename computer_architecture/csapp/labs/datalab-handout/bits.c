@@ -213,6 +213,7 @@ int negate(int x) {
 }
 //3
 /* 
+ * 0x30 -> 0b0011 0000 0x39 -> 0b0011 1001 
  * isAsciiDigit - return 1 if 0x30 <= x <= 0x39 (ASCII codes for characters '0' to '9')
  *   Example: isAsciiDigit(0x35) = 1.
  *            isAsciiDigit(0x3a) = 0.
@@ -220,8 +221,13 @@ int negate(int x) {
  *   Legal ops: ! ~ & ^ | + << >>
  *   Max ops: 15
  *   Rating: 3
+ *   
  */
 int isAsciiDigit(int x) {
+  // seperate first 4 bits compare to 0x3
+  int last_four_bits = x & 0xf;
+  x >>= 4;
+
   return 2;
 }
 /* 
