@@ -6,15 +6,23 @@
 
 
 bool ispangram(char *s) {
-  // TODO implement this!
-  char t = *s;
-  // iterate through entire line
-  printf("%c", tolower(t));
   
-  // keep track of 
-  // 
+  int bitmap = 0x00 << 26;
 
-  return false;
+  // iterate through entire line
+  while (*s != '\0'){
+    int curr_char = (int) tolower(*s);
+    // check if valid character if not continue
+    if (97 <=curr_char && curr_char <= 122){
+      int bit_index = curr_char - 97;
+      int temp_bitmap = 0x01 << bit_index;
+      bitmap |= temp_bitmap;
+    }
+    s = s +1;
+  }
+
+  // compare expected bitmap value
+  return bitmap == 0x03ffffff;
 }
 
 int main() {
