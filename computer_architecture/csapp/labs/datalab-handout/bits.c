@@ -146,7 +146,7 @@ int bitXor(int x, int y) {
   // basically using 4 nand gates 
   int nand1 = ~(x & y);
   int nand2 = ~(x & nand1);
-  int nand3 = ~(y and nand1);
+  int nand3 = ~(y & nand1);
   return ~(nand2 & nand3);
 }
 /* 
@@ -225,8 +225,9 @@ int negate(int x) {
  */
 int isAsciiDigit(int x) {
   // seperate first 4 bits compare to 0x3
-  int last_four_bits = x & 0xf;
-  x >>= 4;
+  int first_four_bits = x & 0xf0;
+  int last_for_bits = x & 0x0f;
+ 
 
   return 2;
 }
@@ -276,7 +277,6 @@ int logicalNeg(int x) {
  *  Rating: 4
  */
 int howManyBits(int x) {
-  int count = 0; 
   
   return 0;
 }
