@@ -1,30 +1,26 @@
 const fs = require('node:fs');
-  
 
-let data; 
+const image = fs.readFileSync("./teapot.bmp")
+const start = image.readUIntLE(10, 4);
+const width = image.readUintLE(18,4);
+const height = image.readUintLE(22, 4);
 
-try {
-  data = fs.readFileSync("./teapot.bmp");
-} catch(err){
-  console.log(err);
+function copyHeader(img, stop){
+  const header = [];
+  for (let byte of img) header.push(byte);
+  return header;
 }
 
-const widthBuff = data.subarray(18,22);
-const arrBuffer = new ArrayBuffer(widthBuff.length);
-const heightBuff = data.subarray(18,22);
-const dataView = new DataView(arrBuffer);
+// copy header
+const head = copyHeader(image, start);
 
-for (let i = 0; i < widthBuff.length; i++){
-  dataView.setInt8(i, widthBuff[i]);
-}
+// function createMatrix()
+// turn image pixels to a matrix 
 
-const width = dataView.getInt32(0, true);
 
-for (let i = 0; i < heightBuff.length; i++){
-  dataView.setInt8(i, heightBuff[i]);
-}
+// rotate pixels 90 degress
 
-const height = dataView.getInt32(0, true);
-console.log(height, width);
 
-// copy contents of header to new bmp file
+// write new orentation to new bmp file
+
+console.log(head);
