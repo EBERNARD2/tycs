@@ -227,7 +227,6 @@ int isAsciiDigit(int x) {
   // seperate first 4 bits compare to 0x3
   int first_four_bits = x & 0xf0;
   int last_for_bits = x & 0x0f;
- 
 
   return 2;
 }
