@@ -23,8 +23,9 @@ function rotateImage(rowSize, imgSize, image, offset){
   for (let i = rowsToBuild; i > 0; i--){
     let currentRowIdx = (i * rowSize - rowSize) + offset;
     const currentRowEnd = i * rowSize + offset;
+    console.log(`Current row start: ${currentRowIdx} row end: ${currentRowEnd}`);
 
-    while (currentRowIdx != currentRowEnd){
+    while (currentRowIdx > currentRowEnd){
       rotatedImage.writeUintLE(image[currentRowIdx], 0, 1);
       currentRowIdx++; 
     }
@@ -47,6 +48,6 @@ const rotatedImageBody = rotateImage(rowSize, imgSize, image, start);
 const finalImage = Buffer.concat([head, rotatedImageBody]);
 
 fs.writeFileSync("./rotated_image.bmp", finalImage);
-console.log(finalImage.length);
+console.log(finalImage.length === image.length);
 
 
