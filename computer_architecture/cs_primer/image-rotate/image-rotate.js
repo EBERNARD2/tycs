@@ -4,7 +4,7 @@ const { Buffer } = require('node:buffer');
 function copyHeader(img, stop){
   const header = Buffer.alloc(stop);
   for (let i = 0; i < stop; i++){
-    header.writeUintLE(img[i], 0, 1);
+    header.writeUintLE(img[i], i, 1);
   }
   return header;
 }
@@ -19,15 +19,17 @@ function rotateImage(rowSize, imgSize, image, offset){
   const rowsToBuild = Math.floor(imgSize / rowSize);
   
   const rotatedImage = Buffer.alloc(imgSize);
+  let count = 0;
 
   for (let i = rowsToBuild; i > 0; i--){
     let currentRowIdx = (i * rowSize - rowSize) + offset;
     const currentRowEnd = i * rowSize + offset;
-    console.log(`Current row start: ${currentRowIdx} row end: ${currentRowEnd}`);
 
-    while (currentRowIdx > currentRowEnd){
-      rotatedImage.writeUintLE(image[currentRowIdx], 0, 1);
+    while (currentRowIdx < currentRowEnd){
+
+      rotatedImage.writeUintLE(image[currentRowIdx], count, 1);
       currentRowIdx++; 
+      count++;
     }
   }
   return rotatedImage;
@@ -48,6 +50,6 @@ const rotatedImageBody = rotateImage(rowSize, imgSize, image, start);
 const finalImage = Buffer.concat([head, rotatedImageBody]);
 
 fs.writeFileSync("./rotated_image.bmp", finalImage);
-console.log(finalImage.length === image.length);
+
 
 
