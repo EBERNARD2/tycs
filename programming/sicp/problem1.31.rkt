@@ -11,10 +11,30 @@
 (define (prod x y) (* x y))
 ;; take product
 
-(define (product term a next b)
-  (if (> a b)
+;;
+
+(define (greater x y) (> x y))
+
+(define (product term a next b comparison)
+  (if (comparison a b)
       1
-      (* (current a) (product term (next a) next b))))
+      (* (term a) (product term (next a) next b comparison))))
 
 
-(product current 1 inc 10)
+(product current 1 inc 10 greater)
+
+
+
+;; use product for factorial function
+
+;; add a decrement function
+
+(define (dec x) (- x 1))
+
+(define (equal? x y) (= x y))
+
+(product current 7 dec 1 equal?)
+
+
+
+
