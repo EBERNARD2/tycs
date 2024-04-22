@@ -64,7 +64,7 @@
 
 
 
-;  range
+; range
 
 
 ;is prime function
