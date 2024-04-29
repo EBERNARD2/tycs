@@ -262,8 +262,7 @@ int isLessOrEqual(int x, int y) {
  *   Rating: 4 
  */
 int logicalNeg(int x) {
-  int not_x = ~x;
-  return not_x == 0xFFFFFFFF;
+  return ~x == 0xFFFFFFFF;
 }
 /* howManyBits - return the minimum number of bits required to represent x in
  *             two's complement
@@ -273,7 +272,8 @@ int logicalNeg(int x) {
  *            howManyBits(0)  = 1
  *            howManyBits(-1) = 1
  *            howManyBits(0x80000000) = 32
- *  12 = 110
+ *  12 = 01100
+ * -5  = 1011
  *  Legal ops: ! ~ & ^ | + << >>
  *  Max ops: 90
  *  Rating: 4
