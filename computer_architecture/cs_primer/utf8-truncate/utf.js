@@ -5,7 +5,6 @@ const cases = fs.readFileSync('./cases');
 
 const length = cases.length;
 
-
 const processLine = (line) => {
   const bytesToTruncate = line[0];
   console.log(bytesToTruncate);

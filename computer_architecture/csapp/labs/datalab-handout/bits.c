@@ -238,6 +238,7 @@ int isAsciiDigit(int x) {
  *   Rating: 3
  */
 int conditional(int x, int y, int z) {
+
   return 2;
 }
 /* 
@@ -261,7 +262,8 @@ int isLessOrEqual(int x, int y) {
  *   Rating: 4 
  */
 int logicalNeg(int x) {
-  return 2;
+  int not_x = ~x;
+  return not_x == 0xFFFFFFFF;
 }
 /* howManyBits - return the minimum number of bits required to represent x in
  *             two's complement
@@ -271,12 +273,21 @@ int logicalNeg(int x) {
  *            howManyBits(0)  = 1
  *            howManyBits(-1) = 1
  *            howManyBits(0x80000000) = 32
+ *  12 = 110
  *  Legal ops: ! ~ & ^ | + << >>
  *  Max ops: 90
  *  Rating: 4
  */
 int howManyBits(int x) {
-  
+  int count = 0; 
+
+  count = x & 0x1;
+  count = x & 0x2 ;
+  count = x & 0x4;
+  count = x & 0x8;
+  count = x & 0x10;
+  count = x & 0x20;
+  count = x & 0x30;
   return 0;
 }
 //float
