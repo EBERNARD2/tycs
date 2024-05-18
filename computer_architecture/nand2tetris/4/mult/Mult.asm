@@ -7,38 +7,33 @@
 // (R0, R1, R2 refer to RAM[0], RAM[1], and RAM[2], respectively.)
 // The algorithm is based on repetitive addition.
 
-//// set r2 to zero 
-@R2
-M=0 
+////
 
-// If r0 is zero go to end
-@R0
-D=M
-@END
-D;JEQ
-// if r1 is zero go to end
+@R2
+M=0
+
 @R1
 D=M
-@END
-D;JEQ
+@i 
+M=D // Set i to r1
 
-// Loop to add numbers
 (LOOP)
-// add r0 to sum 
-@R0
-D=M
-@R2
-D=D+M
+  @i // check if i is 0
+  D=M
+  @END
+  D;JLE
 
-//subtract 1 from r1
-@R1
-M=M-1
-
-// if r1 is greater than zero run loop again 
-D=M
-@LOOP
-D;JGT
+  // add r0 to r2
+  @R0
+  D=M
+  @R2
+  M=D+M
+  // subtract 1 from i
+  @i
+  M=M-1
+  @LOOP
+  0;JMP
 
 (END)
-@END
-0;JMP
+  @END
+  0;JMP
