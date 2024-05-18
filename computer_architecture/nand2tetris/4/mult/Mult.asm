@@ -8,3 +8,9 @@
 // The algorithm is based on repetitive addition.
 
 //// Replace this comment with your code.
+@R0
+D=M
+@R1
+D=D*M
+0;JMP
+
