@@ -10,18 +10,43 @@
 
 // screen starts at address RAM[16384] or just call screen 
 // 
+
+(INIT)
+  @8192 // this is the register that maps back to the end of the screeen 
+  D=A
+  @i
+  M=D
+
 (LOOP)
-  // check if there is a value in keyboard register
+  @i
+  M=M-1
+  @INIT
+  M;JLT
+  // get value in keyboard
   @KBD
   D=M
-  // restart loop if there isn't a value
-  @LOOP
+  // if value is zero turn screen white
+  @WHITE
   D;JEQ
-
-  // turn screen black
-  @SCREEN
-  M=-1
-
-
-  @LOOP
+  // if there is a value turn screen black
+  @BLACK
   0;JMP
+
+  (WHITE)
+    // grab correct register address
+    @SCREEN
+    D=A
+    @i
+    A=D+M
+    M=0
+    @LOOP
+    0;JMP
+
+  (BLACK)
+    @SCREEN
+    D=A
+    @i
+    A=D+M
+    M=-1
+    @LOOP
+    0;JMP
