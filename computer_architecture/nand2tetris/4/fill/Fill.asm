@@ -8,4 +8,20 @@
 // i.e. writes "black" in every pixel. When no key is pressed, 
 // the screen should be cleared.
 
-//// Replace this comment with your code.
+// screen starts at address RAM[16384] or just call screen 
+// 
+(LOOP)
+  // check if there is a value in keyboard register
+  @KBD
+  D=M
+  // restart loop if there isn't a value
+  @LOOP
+  D;JEQ
+
+  // turn screen black
+  @SCREEN
+  M=-1
+
+
+  @LOOP
+  0;JMP
