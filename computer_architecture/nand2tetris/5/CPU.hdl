@@ -32,5 +32,31 @@ CHIP CPU {
         pc[15];          // address of next instruction
 
     PARTS:
-	//// Replace this comment with your code.
+	 
+    // If MSB of instruction is 0 then we have an address if it's 1 we have a compute instruction for the ALU 
+    // Mux 16 needs to be connected to ALU output as we may need to save value into A register
+
+
+    //If instruction[5] is on (pointing to A register destination bit from ALU output) or the instruction is an address then load into A register
+
+
+    //If instruction[12] is on (for c instructions) then we serve the ALU the inM value. If it is off we serve the value in register a
+
+
+    // Serve ALU bits 6 to 11 from C instruction to determine which computation will take place. X comes from D register, Y comes from MUX 16
+
+
+    // Use instruction[4] to determine if ALU output will be stored in D register (also link back up to Mux 16 gate)
+
+
+    // If Instruction[3] is on and it is a c instruction write to output address
+
+
+    // Emit output Address from A register
+
+    // 
+
+
+
+
 }
