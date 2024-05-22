@@ -35,26 +35,47 @@ CHIP CPU {
 	 
     // If MSB of instruction is 0 then we have an address if it's 1 we have a compute instruction for the ALU 
     // Mux 16 needs to be connected to ALU output as we may need to save value into A register
-
+    Not(in=instruction[15], out=controlbit);
+    Mux16(a=outalu, b=instruction, sel=controlbit, out=torega);
 
     //If instruction[5] is on (pointing to A register destination bit from ALU output) or the instruction is an address then load into A register
+    Or(a=instruction[5], b=controlbit, out=aload);
 
+    ARegister(in=torega, load=aload, out=aregout, out[0..14]=addressM);
 
     //If instruction[12] is on (for c instructions) then we serve the ALU the inM value. If it is off we serve the value in register a
+    And(a=instruction[15], b=instruction[12], out=addyormem);
 
+    Mux16(a=aregout, b=inM, sel=addyormem, out=feedalu);
 
     // Serve ALU bits 6 to 11 from C instruction to determine which computation will take place. X comes from D register, Y comes from MUX 16
-
+    ALU(x=dregout, y=feedalu, zx =instruction[11], nx=instruction[10], zy=instruction[9], ny=instruction[8], f=instruction[7], no=instruction[6], out=outalu, out=outM, zr=zr, ng=ng);
 
     // Use instruction[4] to determine if ALU output will be stored in D register (also link back up to Mux 16 gate)
-
+    DRegister(in=outalu, load=instruction[4], out=dregout);
 
     // If Instruction[3] is on and it is a c instruction write to output address
-
+    And(a=instruction[3], b=instruction[15], out=writeM);
 
     // Emit output Address from A register
+    //
 
-    // 
+    Not(in=ng, out=pos);
+    Not(in=zr, out=notz);
+    And(a=instruction[0], b=instruction[15], out=jgt);
+    And(a=instruction[1], b=instruction[15], out=jeq);
+    And(a=instruction[2], b=instruction[15], out=jlt);
+
+    And(a=pos, b=notz, out=positiveint);
+    And(a=jgt, b=positiveint, out=jumpdecision1);
+    And(a=jeq, b=zr, out=jumpdecision2);
+    And(a=jlt, b=ng, out=jumpdecision3);
+
+    Or(a=jumpdecision1, b=jumpdecision2, out=j1);
+    Or(a=j1, b=jumpdecision3, out=j2);
+
+    PC(in=aregout, load=j2, inc=true, reset=reset, out[0..14]=pc);
+    
 
 
 
