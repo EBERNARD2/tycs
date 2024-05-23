@@ -1,7 +1,13 @@
 const fs = require('node:fs');
 const { Buffer } = require('node:buffer');
 
-const SYMBOL_INSTRUCTIONS = ['@', '('];
+const A_SYMBOL= '@';
+const L_SYMBOL = '(';
+const A_INSTRUCTION = 'A_INSTRUCTION';
+const L_INSTRUCTION = 'L_INSTRUCTION';
+const C_INSTRUCTION = 'C_INSTRUCTION';
+
+
 
 if (process.argv.length === 2) {
     console.error('Please add file to parse');
@@ -20,23 +26,46 @@ class Assembler {
     const line = [];
     while(this.assemblyCode[this.index] != '\n'){
       const comment = (this.assemblyCode[this.index] === '/') && this.assemblyCode[this.index+1] === '/';
-      const currentValue = this.assemblyCode[this.index];
       if (comment){
         this.skipLine();
         continue;
+
       } else {
-        if (currentValue != ' ') line.push(currentValue);
+
+        const currentValue = this.assemblyCode[this.index];
+        const charCode = currentValue.charCodeAt;
+        const validChar = currentValue != ' ' && charCode != 13 && charCode && currentValue != '\r'; 
+        
+        if (validChar) line.push(currentValue);
       }
+
       this.index++;
     }
-    this.currentInstruction = line.join('');
+
+    if (line.length) this.currentInstruction = line.join('');
+    else this.currentInstruction = null;
   }
 
   code(){}
 
   comp(){}
 
-  dest() {}
+  dest() {
+    const destination = this.currentInstruction.split('');
+
+    const hasDestination = destination.includes('=');
+
+    if (!hasDestination) return 'the value is not stored';
+    let destinationSymbol = '';
+    let index = 0;
+
+    while(destination[index] != '='){
+      destinationSymbol += destination[index];
+      index++;
+    }
+
+    return destinationSymbol;
+  }
   
   hasMoreLines() {
     return !(this.assemblyCode.length - 1 == this.index);
@@ -46,22 +75,40 @@ class Assembler {
     // determines type of instruction.. This design won't be very sophisticated with error checking / hadnling but could be an improvement for the future
 
     // A instruction lead with @ followed by integer or symbol name
-    const symbolInstruction = SYMBOL_INSTRUCTIONS.includes(this.currentInstruction[0]);
+    const aSymbol = A_SYMBOL === this.currentInstruction[0];
+    const lSymbol = L_SYMBOL === this.currentInstruction[0];
 
-    if (symbolInstruction){
-      const symbol = this.symbol();
-      console.log(symbol,);
-    }
+    if (aSymbol) return A_INSTRUCTION;
+    if (lSymbol) return L_INSTRUCTION;
+    return C_INSTRUCTION;
   } 
 
-  jump(){}
+  jump(){
+    if(this.currentInstruction[1] === ';'){
+      return this.currentInstruction[0];
+    }
+    return 'no jump';
+  }
 
   parser(){
     while (this.assemblyCode[this.index]){
       // if there are more lines advance
       if (this.hasMoreLines()) {
         this.advance();
-        this.instructionType();
+
+        if (this.currentInstruction) {
+          const typeOfInstruction = this.instructionType();
+
+          if (typeOfInstruction === A_INSTRUCTION || typeOfInstruction === L_INSTRUCTION){
+            const currentSymbol = this.symbol();
+          } else {
+            const destination = this.dest();
+            const computation = this.comp();
+            const jump = this.jump();
+            console.log(destination);
+          }
+
+        }
       }
       this.index++;
     }
@@ -75,6 +122,9 @@ class Assembler {
     return;
   }
 
+  start(){
+    this.parser();
+  }
   symbol(){
     let extractSymbol = '';
     for (const char of this.currentInstruction){
@@ -87,4 +137,4 @@ class Assembler {
 }
 
 const assembler = new Assembler();
-assembler.parser();
+assembler.start();

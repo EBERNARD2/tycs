@@ -10,7 +10,7 @@
   @R0
   D=M
   @R1
-  D=D-M
+  ADM=D-M
   // If (D > 0) goto ITSR0
   @ITSR0
   D;JGT
@@ -21,7 +21,7 @@
   0;JMP
 (ITSR0)
   @R0
-  D=M
+  A=M
 (OUTPUT_D)
   @R2
   M=D
