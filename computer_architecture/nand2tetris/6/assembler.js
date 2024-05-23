@@ -85,7 +85,8 @@ class Assembler {
 
   jump(){
     if(this.currentInstruction[1] === ';'){
-      return this.currentInstruction[0];
+      const jumpInstruction = this.currentInstruction.split('');
+      return jumpInstruction.slice('2').join('');
     }
     return 'no jump';
   }
@@ -105,7 +106,6 @@ class Assembler {
             const destination = this.dest();
             const computation = this.comp();
             const jump = this.jump();
-            console.log(destination);
           }
 
         }
