@@ -1,24 +1,12 @@
 const fs = require('node:fs');
 const { Buffer } = require('node:buffer');
 
+const SYMBOL_INSTRUCTIONS = ['@', '('];
 
 if (process.argv.length === 2) {
     console.error('Please add file to parse');
     process.exit(1);
 }
-
-
-
-const instructionType = () => {};
-
-const symbol = () => {};
-
-const dest = () => {};
-
-const comp = () => {};
-
-const jump = () => {};
-
  
 class Assembler {
   constructor(){
@@ -42,26 +30,37 @@ class Assembler {
       this.index++;
     }
     this.currentInstruction = line.join('');
-    return;
   }
 
-  code(){
-  }
+  code(){}
+
+  comp(){}
+
+  dest() {}
   
   hasMoreLines() {
     return !(this.hackCode.length - 1 == this.index);
   }
 
   instructionType(){
-    // determines type of instruction
-  }
+    // determines type of instruction.. This design won't be very sophisticated with error checking / hadnling but could be an improvement for the future
+
+    // A instruction lead with @ followed by integer or symbol name
+    const symbolInstruction = SYMBOL_INSTRUCTIONS.includes(this.currentInstruction[0]);
+
+    if (symbolInstruction){
+      const symbol = this.symbol();
+    }
+  } 
+
+  jump(){}
 
   parser(){
     while (this.hackCode[this.index]){
       // if there are more lines advance
       if (this.hasMoreLines()) {
         this.advance();
-        console.log(this.currentInstruction);
+        this.instructionType();
       }
       this.index++;
     }
@@ -73,6 +72,10 @@ class Assembler {
     }
     this.index++;
     return;
+  }
+
+  symbol(){
+    
   }
 
 }
