@@ -16,7 +16,7 @@
   D;JGT
   // Its R1
   @R1
-  D=M
+  D=A+B
   @OUTPUT_D
   0;JMP
 (ITSR0)

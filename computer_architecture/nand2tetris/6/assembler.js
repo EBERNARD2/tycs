@@ -48,7 +48,21 @@ class Assembler {
 
   code(){}
 
-  comp(){}
+  comp(){
+    const currentInstruction = this.currentInstruction.split('');
+
+    const hasDestination = currentInstruction.includes('=');
+
+    if (hasDestination){
+      const eqlIdx = currentInstruction.indexOf('=');
+      return currentInstruction.slice(eqlIdx+1).join('');
+    }
+
+    const jmpIdx = currentInstruction.indexOf(';');
+    return currentInstruction.slice(0,jmpIdx).join('');
+    
+
+  }
 
   dest() {
     const destination = this.currentInstruction.split('');
@@ -104,8 +118,8 @@ class Assembler {
             const currentSymbol = this.symbol();
           } else {
             const destination = this.dest();
-            const computation = this.comp();
             const jump = this.jump();
+            const computation = this.comp();
           }
 
         }
