@@ -50,6 +50,7 @@ class Assembler {
 
     if (symbolInstruction){
       const symbol = this.symbol();
+      console.log(symbol,);
     }
   } 
 
@@ -75,7 +76,12 @@ class Assembler {
   }
 
   symbol(){
-    
+    let extractSymbol = '';
+    for (const char of this.currentInstruction){
+      const validChar = char != '@' && char != '(' && char != ')';
+      if (validChar) extractSymbol += char;
+    }
+    return extractSymbol;
   }
 
 }
