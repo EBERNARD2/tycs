@@ -11,16 +11,16 @@ if (process.argv.length === 2) {
 class Assembler {
   constructor(){
     const fileName = process.argv[2];
-    this.hackCode = fs.readFileSync(`./${fileName}`).toString();
+    this.assemblyCode = fs.readFileSync(`./${fileName}`).toString();
     this.index = 0; 
     this.currentInstruction = null;
   }
 
   advance(){
     const line = [];
-    while(this.hackCode[this.index] != '\n'){
-      const comment = (this.hackCode[this.index] === '/') && this.hackCode[this.index+1] === '/';
-      const currentValue = this.hackCode[this.index];
+    while(this.assemblyCode[this.index] != '\n'){
+      const comment = (this.assemblyCode[this.index] === '/') && this.assemblyCode[this.index+1] === '/';
+      const currentValue = this.assemblyCode[this.index];
       if (comment){
         this.skipLine();
         continue;
@@ -39,7 +39,7 @@ class Assembler {
   dest() {}
   
   hasMoreLines() {
-    return !(this.hackCode.length - 1 == this.index);
+    return !(this.assemblyCode.length - 1 == this.index);
   }
 
   instructionType(){
@@ -57,7 +57,7 @@ class Assembler {
   jump(){}
 
   parser(){
-    while (this.hackCode[this.index]){
+    while (this.assemblyCode[this.index]){
       // if there are more lines advance
       if (this.hasMoreLines()) {
         this.advance();
@@ -68,7 +68,7 @@ class Assembler {
   }
 
   skipLine(){
-    while(this.hackCode[this.index] != '\n'){
+    while(this.assemblyCode[this.index] != '\n'){
       this.index++;
     }
     this.index++;
