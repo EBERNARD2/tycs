@@ -48,7 +48,7 @@ class Assembler {
     this.index = 0; 
     this.currentInstruction = null;
     this.typeOfInstruction = null;
-    this.symbolTable = SYMBOL_TABLE;
+    this.symbolTable = {  ...SYMBOL_TABLE };
     this.currentSymbol = null;
     this.currentJmp = null;
     this.currentDest = null;
