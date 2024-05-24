@@ -6,7 +6,7 @@ const L_SYMBOL = '(';
 const A_INSTRUCTION = 'A_INSTRUCTION';
 const L_INSTRUCTION = 'L_INSTRUCTION';
 const C_INSTRUCTION = 'C_INSTRUCTION';
-const SYMBOL_TABLE = {
+const BASE_SYMBOL_TABLE = {
   '0': '101010',
   '1': '111111',
   '-1': '111010',
@@ -49,21 +49,62 @@ const SYMBOL_TABLE = {
   'JNE': '101',
   'JLE': '110',
   'JMP': '111',
+  'R0': '000000000000000',
+  'R1': '000000000000001',
+  'R2': '000000000000010',
+  'R3': '000000000000011',
+  'R4': '000000000000100',
+  'R5': '000000000000101',
+  'R6': '000000000000110',
+  'R7': '000000000000111',
+  'R8': '000000000001000',
+  'R9': '000000000001001',
+  'R10': '000000000001010',
+  'R11': '000000000001011',
+  'R12': '000000000001100',
+  'R13': '000000000001101',
+  'R14': '000000000001110',
+  'R15': '000000000001111',
+  'SP': '000000000000000',
+  'LCL': '000000000000001',
+  'ARG': '000000000000010', 
+  'THIS': '000000000000011', 
+  'THAT': '000000000000100',
+  'KBD': '110000000000000',
+  'SCREEN': '011111111111111',
 };
 
 if (process.argv.length === 2) {
     console.error('Please add file to parse');
     process.exit(1);
 }
+
+const buildAddresses = () => {
+  const addressTable = {};
+  
+  for(let i = 0; i <= 24576; i++){
+      let key = i.toString(2);
+      
+      while(key.length < 15){
+          key = '0' + key;
+      }
+      
+      addressTable[i] = key;
+  }  
+  
+  return addressTable;
+};
+
  
 class Assembler {
   constructor(){
     const fileName = process.argv[2];
+    const addresses = buildAddresses();
     this.assemblyCode = fs.readFileSync(`./${fileName}`).toString();
     this.index = 0; 
     this.currentInstruction = null;
     this.typeOfInstruction = null;
-    this.symbolTable = {  ...SYMBOL_TABLE };
+    this.symbolTable = {  ...BASE_SYMBOL_TABLE, ...addresses };
     this.currentSymbol = null;
     this.currentJmp = null;
     this.currentDest = null;
@@ -99,6 +140,7 @@ class Assembler {
     const comp = () => {};
     const jump = () => {};
 
+    // for addresses we'll need a complete table representing the entire address space from 0 to 24576. Also will need registers. Each number should be a 15 bit representation
     if (this.typeOfInstruction === A_INSTRUCTION || this.typeOfInstruction === C_INSTRUCTION){
       // build outputstring
     } else {
@@ -165,11 +207,12 @@ class Assembler {
   }
 
   parser(){
+    console.log(this.symbolTable);
+
     while (this.assemblyCode[this.index]){
       // if there are more lines advance
       if (this.hasMoreLines()) {
         this.advance();
-
         if (this.currentInstruction) {
           this.typeOfInstruction = this.instructionType();
 
@@ -180,7 +223,7 @@ class Assembler {
             this.currentJmp = this.jump();
             this.currentCmp= this.comp();
           }
-          this.code();
+          // this.code();
         }
       }
       this.index++;
