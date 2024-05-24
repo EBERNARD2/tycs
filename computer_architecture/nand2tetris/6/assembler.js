@@ -6,8 +6,35 @@ const L_SYMBOL = '(';
 const A_INSTRUCTION = 'A_INSTRUCTION';
 const L_INSTRUCTION = 'L_INSTRUCTION';
 const C_INSTRUCTION = 'C_INSTRUCTION';
-
-
+const SYMBOL_TABLE = {
+  '0': '101010',
+  '1': '111111',
+  '-1': '111010',
+  'D': '001100',
+  'A': '110000',
+  'M': '110000',
+  '!D': '001101',
+  '!A': '110001',
+  '!M': '110001',
+  '-D': '001111',
+  '-A': '110011',
+  '-M': '110011',
+  'D+1': '011111',
+  'A+1': '110111',
+  'M+1': '110111',
+  'D-1': '001110',
+  'A-1': '110010',
+  'D+A': '000010',
+  'D+M': '000010',
+  'D-A': '010011',
+  'D-M': '010011',
+  'A-D': '000111',
+  'M-D': '000111',
+  'D&A': '000000',
+  'D&M': '000000',
+  'D|A': '010101',
+  'D|M': '010101',
+};
 
 if (process.argv.length === 2) {
     console.error('Please add file to parse');
@@ -20,6 +47,12 @@ class Assembler {
     this.assemblyCode = fs.readFileSync(`./${fileName}`).toString();
     this.index = 0; 
     this.currentInstruction = null;
+    this.typeOfInstruction = null;
+    this.symbolTable = SYMBOL_TABLE;
+    this.currentSymbol = null;
+    this.currentJmp = null;
+    this.currentDest = null;
+    this.currentCmp = null;
   }
 
   advance(){
@@ -46,7 +79,18 @@ class Assembler {
     else this.currentInstruction = null;
   }
 
-  code(){}
+  code(){
+    const dest = () => {};
+    const comp = () => {};
+    const jump = () => {};
+
+    if (this.typeOfInstruction === A_INSTRUCTION || this.typeOfInstruction === C_INSTRUCTION){
+      // build outputstring
+    } else {
+
+    }
+  
+  }
 
   comp(){
     const currentInstruction = this.currentInstruction.split('');
@@ -112,16 +156,16 @@ class Assembler {
         this.advance();
 
         if (this.currentInstruction) {
-          const typeOfInstruction = this.instructionType();
+          this.typeOfInstruction = this.instructionType();
 
-          if (typeOfInstruction === A_INSTRUCTION || typeOfInstruction === L_INSTRUCTION){
-            const currentSymbol = this.symbol();
+          if (this.typeOfInstruction === A_INSTRUCTION || this.typeOfInstruction === L_INSTRUCTION){
+            this.currentSymbol = this.symbol();
           } else {
-            const destination = this.dest();
-            const jump = this.jump();
-            const computation = this.comp();
+            this.currentDest = this.dest();
+            this.currentJmp = this.jump();
+            this.currentCmp= this.comp();
           }
-
+          this.code();
         }
       }
       this.index++;
