@@ -136,17 +136,23 @@ class Assembler {
   }
 
   code(){
-    const dest = () => {};
-    const comp = () => {};
-    const jump = () => {};
+    const dest = () => {
+      return this.symbolTable[this.currentDest];
+    };
+    const comp = () => {
+      return this.symbolTable[this.currentCmp];
+    };
+    const jump = () => {
+      return this.symbolTable[this.currentJmp];
+    };
+
+    const getControlBitA = () => {
+    }
 
     // for addresses we'll need a complete table representing the entire address space from 0 to 24576. Also will need registers. Each number should be a 15 bit representation
-    if (this.typeOfInstruction === A_INSTRUCTION || this.typeOfInstruction === C_INSTRUCTION){
+    
+    if (this.typeOfInstruction === A_INSTRUCTION) console.log(this.currentSymbol);
       // build outputstring
-    } else {
-
-    }
-  
   }
 
   comp(){
@@ -207,8 +213,6 @@ class Assembler {
   }
 
   parser(){
-    console.log(this.symbolTable);
-
     while (this.assemblyCode[this.index]){
       // if there are more lines advance
       if (this.hasMoreLines()) {
@@ -223,7 +227,7 @@ class Assembler {
             this.currentJmp = this.jump();
             this.currentCmp= this.comp();
           }
-          // this.code();
+          this.code();
         }
       }
       this.index++;
@@ -254,3 +258,12 @@ class Assembler {
 
 const assembler = new Assembler();
 assembler.start();
+
+
+class Parser {}
+
+class SymbolStorage {
+  constructor(){
+    this.table = {};
+  }
+}
