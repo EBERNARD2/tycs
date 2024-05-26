@@ -134,16 +134,17 @@ class Assembler {
 
   code(){
     const dest = () => {
-      return this.symbolTable[this.currentDest];
+      return this.currentDest;
     };
     const comp = () => {
       return this.symbolTable[this.currentCmp];
     };
     const jump = () => {
-      return this.symbolTable[this.currentJmp];
+      return this.currentJmp;
     };
 
     const getControlBitA = () => {
+      
     }
 
     const contains = () => {
@@ -162,11 +163,14 @@ class Assembler {
       }
 
       const address = this.getAddress();
-
       return `0${address}`;
 
     };
 
+    console.log(comp());
+
+
+    // build c instruction
     return 'building c instruction';
 
 
@@ -244,7 +248,7 @@ class Assembler {
             this.currentJmp = this.jump();
             this.currentCmp= this.comp();
           }
-          console.log(this.code());
+          this.code();
         }
       }
       this.index++;
