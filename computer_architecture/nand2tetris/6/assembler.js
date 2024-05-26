@@ -83,12 +83,10 @@ const buildAddresses = () => {
   const addressTable = {};
   
   for(let i = 0; i <= 24576; i++){
-      let key = i.toString(2);
-      
-      while(key.length < 15){
-          key = '0' + key;
+    let key = i.toString(2);
+    while(key.length < 15){
+       key = '0' + key;
       }
-      
       addressTable[i] = key;
   }  
   
@@ -264,6 +262,6 @@ class Parser {}
 
 class SymbolStorage {
   constructor(){
-    this.table = {};
+    this.table = {...BASE_SYMBOL_TABLE};
   }
 }
