@@ -79,21 +79,6 @@ if (process.argv.length === 2) {
     process.exit(1);
 }
 
-const buildAddresses = () => {
-  const addressTable = {};
-  
-  for(let i = 0; i <= 24576; i++){
-    let key = i.toString(2);
-    while(key.length < 15){
-       key = '0' + key;
-      }
-      addressTable[i] = key;
-  }  
-  
-  return addressTable;
-};
-
- 
 class Assembler {
   constructor(){
     const fileName = process.argv[2];
@@ -107,6 +92,7 @@ class Assembler {
     this.currentJmp = null;
     this.currentDest = null;
     this.currentCmp = null;
+    this.nextAvailableAddress = 16;
   }
 
   advance(){
@@ -133,6 +119,20 @@ class Assembler {
     else this.currentInstruction = null;
   }
 
+  buildBinaryString(num){
+    let bin = num.toString(2);
+
+    while(key.length < 15){
+      bin = '0' + bin;
+    }
+
+    return bin;
+  }  
+
+  getAddress(){
+    return this.symbolTable[this.symbol];
+  }
+
   code(){
     const dest = () => {
       return this.symbolTable[this.currentDest];
@@ -147,9 +147,25 @@ class Assembler {
     const getControlBitA = () => {
     }
 
+    const contains = () => {
+      return this.symbolTable[this.symbol];
+    }
+
     // for addresses we'll need a complete table representing the entire address space from 0 to 24576. Also will need registers. Each number should be a 15 bit representation
     
-    if (this.typeOfInstruction === A_INSTRUCTION) console.log(this.currentSymbol);
+    if (this.typeOfInstruction === A_INSTRUCTION) {
+      const containSymbol = contains();
+
+      if (!containSymbol) {
+        const binaryValue = contains(this.nextAvailableAddress);
+        this.nextAvailableAddress++;
+        this.symbolTable[this.symbol] = binaryValue;
+      }
+
+      const address = this.getAddress();
+      
+      return `0${address}`;
+    };
       // build outputstring
   }
 
@@ -262,6 +278,6 @@ class Parser {}
 
 class SymbolStorage {
   constructor(){
-    this.table = {...BASE_SYMBOL_TABLE};
+    this.table = {...Bas};
   }
 }
