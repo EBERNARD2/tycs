@@ -153,7 +153,7 @@ class Assembler {
 
     // for addresses we'll need a complete table representing the entire address space from 0 to 24576. Also will need registers. Each number should be a 15 bit representation
     
-    if (this.typeOfInstruction === A_INSTRUCTION) {
+    if (this.typeOfInstruction === A_INSTRUCTION || this.typeOfInstruction === L_INSTRUCTION) {
       const containSymbol = contains();
 
       if (!containSymbol) {
@@ -163,7 +163,7 @@ class Assembler {
       }
 
       const address = this.getAddress();
-      
+
       return `0${address}`;
     };
       // build outputstring
