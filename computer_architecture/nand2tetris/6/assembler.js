@@ -134,18 +134,21 @@ class Assembler {
 
   code(){
     const dest = () => {
-      if (this.currentDest) return this.currentDest;
+      if (this.currentDest) return this.symbolTable[this.currentDest];
       return '000';
     };
+
     const comp = () => {
       return this.symbolTable[this.currentCmp];
     };
+
     const jump = () => {
-      return this.currentJmp;
+      if (this.currentJmp) return this.symbolTable[this.currentJmp];
+      return '000';
     };
 
     const getControlBitA = () => {
-      
+      return this.currentCmp.includes('M') ? '1' : '0';
     }
 
     const contains = () => {
@@ -168,11 +171,13 @@ class Assembler {
 
     };
 
-    console.log(dest());
+    const controlBitString = getControlBitA();
+    const computeBinaryString = comp();
+    const jumpInstructionBinaryString = jump();
+    const destinationBinaryString = dest();
 
-
-    // build c instruction
-    return 'building c instruction';
+    const cInstructionBinary = `111` + controlBitString + computeBinaryString + destinationBinaryString + jumpInstructionBinaryString;
+    return cInstructionBinary;
 
 
   }
@@ -231,7 +236,7 @@ class Assembler {
       const jumpInstruction = this.currentInstruction.split('');
       return jumpInstruction.slice('2').join('');
     }
-    return 'no jump';
+    return null;
   }
 
   parser(){
@@ -249,7 +254,8 @@ class Assembler {
             this.currentJmp = this.jump();
             this.currentCmp= this.comp();
           }
-          this.code();
+          console.log(this.code());
+
         }
       }
       this.index++;
