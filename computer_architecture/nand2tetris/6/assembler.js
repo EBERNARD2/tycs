@@ -82,12 +82,11 @@ if (process.argv.length === 2) {
 class Assembler {
   constructor(){
     const fileName = process.argv[2];
-    const addresses = buildAddresses();
     this.assemblyCode = fs.readFileSync(`./${fileName}`).toString();
     this.index = 0; 
     this.currentInstruction = null;
     this.typeOfInstruction = null;
-    this.symbolTable = {  ...BASE_SYMBOL_TABLE, ...addresses };
+    this.symbolTable = {  ...BASE_SYMBOL_TABLE };
     this.currentSymbol = null;
     this.currentJmp = null;
     this.currentDest = null;
@@ -122,7 +121,7 @@ class Assembler {
   buildBinaryString(num){
     let bin = num.toString(2);
 
-    while(key.length < 15){
+    while(bin.length < 15){
       bin = '0' + bin;
     }
 
@@ -130,7 +129,7 @@ class Assembler {
   }  
 
   getAddress(){
-    return this.symbolTable[this.symbol];
+    return this.symbolTable[this.currentSymbol];
   }
 
   code(){
@@ -148,7 +147,7 @@ class Assembler {
     }
 
     const contains = () => {
-      return this.symbolTable[this.symbol];
+      return this.symbolTable[this.currentSymbol];
     }
 
     // for addresses we'll need a complete table representing the entire address space from 0 to 24576. Also will need registers. Each number should be a 15 bit representation
@@ -157,16 +156,20 @@ class Assembler {
       const containSymbol = contains();
 
       if (!containSymbol) {
-        const binaryValue = contains(this.nextAvailableAddress);
+        const binaryValue = this.buildBinaryString(this.nextAvailableAddress);
         this.nextAvailableAddress++;
-        this.symbolTable[this.symbol] = binaryValue;
+        this.symbolTable[this.currentSymbol] = binaryValue;
       }
 
       const address = this.getAddress();
 
       return `0${address}`;
+
     };
-      // build outputstring
+
+    return 'building c instruction';
+
+
   }
 
   comp(){
@@ -241,7 +244,7 @@ class Assembler {
             this.currentJmp = this.jump();
             this.currentCmp= this.comp();
           }
-          this.code();
+          console.log(this.code());
         }
       }
       this.index++;
@@ -274,10 +277,3 @@ const assembler = new Assembler();
 assembler.start();
 
 
-class Parser {}
-
-class SymbolStorage {
-  constructor(){
-    this.table = {...Bas};
-  }
-}
