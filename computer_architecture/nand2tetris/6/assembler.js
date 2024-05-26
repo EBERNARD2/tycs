@@ -134,7 +134,8 @@ class Assembler {
 
   code(){
     const dest = () => {
-      return this.currentDest;
+      if (this.currentDest) return this.currentDest;
+      return '000';
     };
     const comp = () => {
       return this.symbolTable[this.currentCmp];
@@ -167,7 +168,7 @@ class Assembler {
 
     };
 
-    console.log(comp());
+    console.log(dest());
 
 
     // build c instruction
@@ -197,7 +198,7 @@ class Assembler {
 
     const hasDestination = destination.includes('=');
 
-    if (!hasDestination) return 'the value is not stored';
+    if (!hasDestination) return null;
     let destinationSymbol = '';
     let index = 0;
 
