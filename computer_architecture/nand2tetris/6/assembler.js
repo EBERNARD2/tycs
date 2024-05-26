@@ -1,5 +1,4 @@
 const fs = require('node:fs');
-const { Buffer } = require('node:buffer');
 
 const A_SYMBOL= '@';
 const L_SYMBOL = '(';
@@ -7,34 +6,6 @@ const A_INSTRUCTION = 'A_INSTRUCTION';
 const L_INSTRUCTION = 'L_INSTRUCTION';
 const C_INSTRUCTION = 'C_INSTRUCTION';
 const BASE_SYMBOL_TABLE = {
-  '0': '101010',
-  '1': '111111',
-  '-1': '111010',
-  'D': '001100',
-  'A': '110000',
-  'M': '110000',
-  '!D': '001101',
-  '!A': '110001',
-  '!M': '110001',
-  '-D': '001111',
-  '-A': '110011',
-  '-M': '110011',
-  'D+1': '011111',
-  'A+1': '110111',
-  'M+1': '110111',
-  'D-1': '001110',
-  'A-1': '110010',
-  'D+A': '000010',
-  'D+M': '000010',
-  'D-A': '010011',
-  'D-M': '010011',
-  'A-D': '000111',
-  'M-D': '000111',
-  'D&A': '000000',
-  'D&M': '000000',
-  'D|A': '010101',
-  'D|M': '010101',
-  null: '000',
   'M': '001',
   'D': '010',
   'DM': '011',
@@ -72,7 +43,39 @@ const BASE_SYMBOL_TABLE = {
   'THAT': '000000000000100',
   'KBD': '110000000000000',
   'SCREEN': '011111111111111',
+  null: '000',
 };
+
+const computeLabels = {
+  '0': '101010',
+  '1': '111111',
+  '-1': '111010',
+  'D': '001100',
+  'A': '110000',
+  'M': '110000',
+  '!D': '001101',
+  '!A': '110001',
+  '!M': '110001',
+  '-D': '001111',
+  '-A': '110011',
+  '-M': '110011',
+  'D+1': '011111',
+  'A+1': '110111',
+  'M+1': '110111',
+  'D-1': '001110',
+  'A-1': '110010',
+  'D+A': '000010',
+  'D+M': '000010',
+  'D-A': '010011',
+  'D-M': '010011',
+  'A-D': '000111',
+  'M-D': '000111',
+  'D&A': '000000',
+  'D&M': '000000',
+  'D|A': '010101',
+  'D|M': '010101',
+  null: '000',
+}
 
 if (process.argv.length === 2) {
     console.error('Please add file to parse');
@@ -81,8 +84,8 @@ if (process.argv.length === 2) {
 
 class Assembler {
   constructor(){
-    const fileName = process.argv[2];
-    this.assemblyCode = fs.readFileSync(`./${fileName}`).toString();
+    this.filePath = process.argv[2];
+    this.assemblyCode = fs.readFileSync(`./${this.filePath}`).toString();
     this.index = 0; 
     this.currentInstruction = null;
     this.typeOfInstruction = null;
@@ -92,6 +95,7 @@ class Assembler {
     this.currentDest = null;
     this.currentCmp = null;
     this.nextAvailableAddress = 16;
+    this.fileData = [];
   }
 
   advance(){
@@ -139,7 +143,7 @@ class Assembler {
     };
 
     const comp = () => {
-      return this.symbolTable[this.currentCmp];
+      return computeLabels[this.currentCmp];
     };
 
     const jump = () => {
@@ -254,8 +258,11 @@ class Assembler {
             this.currentJmp = this.jump();
             this.currentCmp= this.comp();
           }
-          console.log(this.code());
+          const binaryEncodedLine = this.code();
+          
 
+          // wirte binary encoding string to file
+          this.fileData.push(binaryEncodedLine);
         }
       }
       this.index++;
@@ -272,6 +279,7 @@ class Assembler {
 
   start(){
     this.parser();
+    this.writeFileData();
   }
   symbol(){
     let extractSymbol = '';
@@ -280,6 +288,16 @@ class Assembler {
       if (validChar) extractSymbol += char;
     }
     return extractSymbol;
+  }
+
+  writeFileData(){
+    const fileName = this.filePath.substring(0, this.filePath.indexOf('.'));
+    const file = fs.createWriteStream(`${fileName}.hack`);
+    debugger;
+    file.on('error', function(err) { console.log(err) });
+    this.fileData.forEach(function(v) { file.write(v + '\n'); });
+    file.end();
+
   }
 
 }
