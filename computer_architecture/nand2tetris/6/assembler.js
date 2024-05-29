@@ -306,3 +306,15 @@ const assembler = new Assembler();
 assembler.start();
 
 
+
+class Parser {
+  constructor(){}
+}
+
+class Code {
+  constructor (){}
+}
+
+class SymbolTable {
+  constructor(){}
+}
