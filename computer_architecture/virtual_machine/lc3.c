@@ -102,9 +102,36 @@ int main(int argc, const char* argv[]){
     // get the operation 
     u_int16_t op = instruction >> 12;
 
+    // operation instruction bit values comes from resource: https://www.jmeiners.com/lc3-vm/supplies/lc3-isa.pdf
     switch(op){
       case OP_ADD:
-        
+        // get destination register
+        uint16_t dest = (instruction & 0x0E00) >> 9;
+
+        // get source register 1
+        uint16_t src1 = (instruction & 0x01C0) >> 6;
+        // determine if it is an immediate value or has source register 2
+
+        uint16_t src2 = 0x0000; 
+
+        uint16_t immediate = ( instruction & 0x0020 ) >> 5;
+
+         if (immediate){
+          // if has immediate value get value and convert to 16 bit int
+          uint16_t immediate_val = instruction & 0x1F; 
+          
+          src2 = sign_extend(immediate_val, 5);
+
+        } else { 
+          // if has src 2 get address 
+          src2 = instruction & 0x7; 
+        }
+      
+        // get values and do opeation 
+
+        reg[dest] = reg[src1] + immediate ? src2 : reg[src2];
+        update_flags(dest);
+
       break;
 
       case OP_AND:
