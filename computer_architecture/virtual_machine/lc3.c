@@ -42,3 +42,4 @@ enum
   OP_LEA, /* LOAD EFFECTIVE ADDRESS OP*/
   OP_TRAP, /* execute trap */
 };
+
