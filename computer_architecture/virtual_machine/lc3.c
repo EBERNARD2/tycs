@@ -110,8 +110,8 @@ int main(int argc, const char* argv[]){
 
         // get source register 1
         uint16_t src1 = (instruction & 0x01C0) >> 6;
-        // determine if it is an immediate value or has source register 2
 
+        // determine if it is an immediate value or has source register 2
         uint16_t src2 = 0x0000; 
 
         uint16_t immediate = ( instruction & 0x0020 ) >> 5;
@@ -129,12 +129,29 @@ int main(int argc, const char* argv[]){
       
         // get values and do opeation 
 
-        reg[dest] = reg[src1] + immediate ? src2 : reg[src2];
+        reg[dest] = reg[src1] + (immediate ? src2 : reg[src2]);
         update_flags(dest);
 
       break;
 
       case OP_AND:
+        uint16_t dest = (instruction >> 9) & 0x7;
+        uint16_t src1 = (instruction >> 6) & 0x7;
+        uint16_t imm = (instruction >> 5) & 0x1;
+
+        if (imm) {
+          uint16_t imm_val = instruction & 0x1F;
+
+          imm_val = sign_extend(imm_val, 5);
+
+          reg[dest] = src1 & imm_val;
+        } else {
+          uint16_t src2 = instruction & 0x7; 
+
+          reg[dest] =  reg[src1] & reg[src2];
+        }
+
+        update_flags(dest);
 
       break;
     }
