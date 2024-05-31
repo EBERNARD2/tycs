@@ -127,8 +127,6 @@ int main(int argc, const char* argv[]){
           src2 = instruction & 0x7; 
         }
       
-        // get values and do opeation 
-
         reg[dest] = reg[src1] + (immediate ? src2 : reg[src2]);
         update_flags(dest);
 
@@ -152,6 +150,24 @@ int main(int argc, const char* argv[]){
         }
 
         update_flags(dest);
+
+      break;
+
+      case OP_BR:
+
+
+      break;
+
+      case OP_LDI:
+        uint16_t dest = (instruction >> 9) & 0x7; 
+        uint16_t pc_offset = sign_extend(instruction & 0xFF, 9);
+        
+        reg[dest] = mem_read(reg[R_PC]);
+
+      break;
+
+      case OP_NOT: 
+
 
       break;
     }
