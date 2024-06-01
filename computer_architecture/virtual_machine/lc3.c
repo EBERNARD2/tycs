@@ -236,6 +236,14 @@ int main(int argc, const char* argv[]){
       uint16_t src = (instruction >> 9) & 0x7;
       uint16_t offset = sign_extend(instruction & 0x1FF, 9);
       mem_write(reg[R_PC] + offset, reg[src]);
+
+    break;
+
+    case OP_STI:
+      uint16_t src = (instruction >> 9) & 0x7;
+      uint16_t offset = sign_extend(instruction & 0x1FF, 9);
+
+      mem_write(mem_read(reg[R_PC] + offset), reg[src]);
     break;
 
   }
