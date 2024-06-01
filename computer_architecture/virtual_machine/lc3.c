@@ -183,7 +183,9 @@ int main(int argc, const char* argv[]){
         
         reg[dest] = mem_read(mem_read(reg[R_PC] + pc_offset));
         update_flags(dest);
+
       break;
+
 
     case OP_JSR:
       reg[R_R7] = reg[R_PC];
@@ -196,6 +198,14 @@ int main(int argc, const char* argv[]){
         uint16_t base_reg = (instruction >> 6) & 0x7;
         reg[R_PC] = reg[base_reg];
       }
+
+    break;
+
+    case OP_LD:
+      u_int16_t dest = (instruction >> 9) & 0x7;
+      u_int16_t offset = sign_extend(instruction & 0x1FF, 9);
+      reg[dest] = mem_read(reg[R_PC] + offset);
+      update_flags(dest);
       
     break;
     }
