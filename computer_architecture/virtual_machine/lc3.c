@@ -217,10 +217,16 @@ int main(int argc, const char* argv[]){
       reg[dest] = mem_read(reg[base_reg] + offset);
 
       update_flags(dest);
-
-    
     break;
-    }
+
+    case OP_LEA:
+
+      uint16_t dest = (instruction >> 9) & 0x7;
+      uint16_t offset = sign_extend(instruction & 0x1FF, 9);
+
+      reg[dest] = reg[R_PC] + offset;
+      update_flags(dest);
+    break;
 
   }
 }
