@@ -162,8 +162,9 @@ int main(int argc, const char* argv[]){
         uint16_t dest = (instruction >> 9) & 0x7; 
         uint16_t pc_offset = sign_extend(instruction & 0xFF, 9);
         
-        reg[dest] = mem_read(reg[R_PC]);
-
+        reg[dest] = mem_read(mem_read(reg[R_PC] + pc_offset));
+        update_flags(dest);
+        
       break;
 
       case OP_NOT: 
