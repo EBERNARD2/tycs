@@ -254,6 +254,10 @@ int main(int argc, const char* argv[]){
       mem_write(reg[base_reg] + offset, reg[src]);
     break;
 
+    case OP_TRAP:
+      reg[R_R7] = reg[R_PC];
+    break;
+
     case OP_RES:
     break;
 
