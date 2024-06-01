@@ -183,9 +183,21 @@ int main(int argc, const char* argv[]){
         
         reg[dest] = mem_read(mem_read(reg[R_PC] + pc_offset));
         update_flags(dest);
-
       break;
 
+    case OP_JSR:
+      reg[R_R7] = reg[R_PC];
+      uint16_t selection_bit  = (instruction >> 11) & 0x1;
+
+      if (selection_bit){
+        uint16_t offset = sign_extend((instruction & 0x7FF), 11);
+        reg[R_PC] += offset;
+      } else {
+        uint16_t base_reg = (instruction >> 6) & 0x7;
+        reg[R_PC] = reg[base_reg];
+      }
+      
+    break;
     }
 
   }
