@@ -77,6 +77,10 @@ void update_flags(uint16_t r){
   }
 }
 
+void mem_write(uint16_t address, uint16_t val){
+  memory[address] = val;
+}
+
 int main(int argc, const char* argv[]){
   // load arguments
 
@@ -226,6 +230,12 @@ int main(int argc, const char* argv[]){
 
       reg[dest] = reg[R_PC] + offset;
       update_flags(dest);
+    break;
+
+    case OP_ST:
+      uint16_t src = (instruction >> 9) & 0x7;
+      uint16_t offset = sign_extend(instruction & 0x1FF, 9);
+      mem_write(reg[R_PC] + offset, reg[src]);
     break;
 
   }
