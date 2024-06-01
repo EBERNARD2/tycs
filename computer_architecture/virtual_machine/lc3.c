@@ -154,7 +154,17 @@ int main(int argc, const char* argv[]){
       break;
 
       case OP_BR:
+        uint16_t n = (instruction >> 11) & 0x1;
+        uint16_t z = (instruction >> 10) & 0x1;
+        uint16_t p = (instruction >> 9) & 0x1;
 
+        uint16_t jmp = n || z || p; 
+
+        if (jmp & R_COND){
+
+          uint16_t offset = instruction & 0x1FF;
+          reg[R_PC] += sign_extend(offset, 9);
+        }
 
       break;
 
