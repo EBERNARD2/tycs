@@ -246,5 +246,13 @@ int main(int argc, const char* argv[]){
       mem_write(mem_read(reg[R_PC] + offset), reg[src]);
     break;
 
+    case OP_STR:
+      uint16_t src = (instruction >> 9) & 0x7;
+      uint16_t base_reg = (instruction >> 6) & 0x7;
+      uint16_t offset = instruction & 0x3F;
+
+      mem_write(reg[base_reg] + offset, reg[src]);
+    break;
+
   }
 }
