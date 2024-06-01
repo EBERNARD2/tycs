@@ -254,5 +254,11 @@ int main(int argc, const char* argv[]){
       mem_write(reg[base_reg] + offset, reg[src]);
     break;
 
+    case OP_RES:
+    break;
+
+    case OP_RTI:
+    break;
+
   }
 }
