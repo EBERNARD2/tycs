@@ -11,35 +11,42 @@ const fs = require('node:fs');
 
 */
 class Parser {
-  constructor(){
+  constructor(filePath){
     
-    const filePath = process.argv[2];
     const hasVmFileType = filePath.includes('.vm');
 
-    if (!filePath || !hasVmFileType || process.argv.length < 2){
-      if(process.argv.length < 2) console.error('Please add file to parse');
+    if (!filePath || !hasVmFileType){
       if (!filePath)  console.error('Please add file to parse. Pass file path in when initializing new Parser');
       if (!hasVmFileType) console.error('Must have a .vm file extension');
 
       process.exit(1);
     }
+
     this.file = fs.readFileSync(filePath).toString();
     this.lines = this.calculateLines();
-    this.currentInstruction = null;
-    this.currentInsructionType = null;
+
     this.currentCommand = null;
-    this.index;
-  }
+    this.currentInsructionType = null;
+    this.currentIndex = 0;
+   }
 
   hasMoreLines(){
-    // a file has more lines if the current index is not the length of the file
     return this.lines > 0 ? true : false;
   }
 
   advance(){
+    // set current command
     this.currentCommand = '';
 
+    //parse line
+    let startingIdx = this.currentIndex;
 
+    while(this.file[this.currentIndex] != '\n'){
+      this.currentIndex++;
+    }
+
+    this.currentCommand = this.file.substring(startingIdx, this.currentIndex);
+    this.lines--;
   }
 
   calculateLines(){
@@ -50,7 +57,7 @@ class Parser {
       if(this.file[index] === '\n') lines++;
       index++
     }
-    return lines;
+    return ++lines;
   }
 
   commandType(){}
@@ -61,4 +68,7 @@ class Parser {
 }
 
 
-const parse = new Parser('')
+const parse = new Parser('StackArithmetic/SimpleAdd/SimpleAdd.vm');
+parse.advance();
+console.log(parse.currentCommand);
+
