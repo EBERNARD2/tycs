@@ -307,6 +307,8 @@ int main(int argc, const char* argv[]){
 
       case TRAP_GETC:
         /* code */
+        reg[R_R0] = (uint16_t) getchar();
+        update_flags(R_R0);
         break;
       
       case TRAP_OUT:
