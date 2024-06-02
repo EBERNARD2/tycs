@@ -1,6 +1,9 @@
 #include <stdint.h>
 #include <stdio.h>
 #include <signal.h>
+#include <stdlib.h>
+
+
 
 #define MEMORY_MAX (1 << 16)
 
@@ -47,6 +50,15 @@ enum
   FL_POS = 1 << 0,
   FL_ZRO = 1 << 1,
   FL_NEG = 1 << 2
+};
+
+enum {
+  TRAP_GETC = 0x20, /* get character from keyboard, not echoed onto the terminal */
+  TRAP_OUT = 0x21, /* output a character */
+  TRAP_PUTS = 0x22, /* output a word string */
+  TRAP_IN = 0x23, /* get character from keyboard, echoed onto the terminal */
+  TRAP_PUTSP = 0x24, /* output a byte string */
+  TRAP_HALT = 0x25  /* halt the program */
 };
 
 
@@ -256,6 +268,42 @@ int main(int argc, const char* argv[]){
 
     case OP_TRAP:
       reg[R_R7] = reg[R_PC];
+
+      switch (instruction & 0xFF)
+      {
+
+      case TRAP_GETC:
+        /* code */
+        break;
+      
+      case TRAP_OUT:
+
+      break;
+
+      case TRAP_PUTS:
+        uint16_t* c = memory + reg[R_R0];
+
+        while(*c){
+          putc((char) *c, stdout);
+          ++c;
+        }
+        
+        fflush(stdout);
+      break;
+
+      case TRAP_IN:
+
+      break;
+
+      case TRAP_PUTSP:
+
+      break;
+
+      case TRAP_HALT:
+
+      break;
+
+      }
     break;
 
     case OP_RES:
