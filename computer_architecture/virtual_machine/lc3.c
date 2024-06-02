@@ -311,13 +311,17 @@ int main(int argc, const char* argv[]){
       
       case TRAP_OUT:
 
+        uint16_t c = reg[R_R7];
+        putc((char) c, stdout);
+        fflush(stdout);
+
       break;
 
       case TRAP_PUTS:
-        uint16_t* c = memory + reg[R_R0];
+        uint16_t *c = memory + reg[R_R0];
 
         while(*c){
-          putc((char) *c, stdout);
+          putc((char)*c, stdout);
           ++c;
         }
 
