@@ -287,7 +287,7 @@ int main(int argc, const char* argv[]){
           putc((char) *c, stdout);
           ++c;
         }
-        
+
         fflush(stdout);
       break;
 
@@ -310,6 +310,10 @@ int main(int argc, const char* argv[]){
     break;
 
     case OP_RTI:
+    break;
+
+    default:
+      abort();
     break;
 
   }
