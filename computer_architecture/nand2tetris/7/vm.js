@@ -37,16 +37,25 @@ class Parser {
   advance(){
     // set current command
     this.currentCommand = '';
-
     //parse line
     let startingIdx = this.currentIndex;
+    const test = [];
+    while(this.file[this.currentIndex] != '\n'){
+      if(!this.validLine()) {
+        this.skipLine();
+        startingIdx = this.currentIndex;
+      };
 
+      this.currentIndex++;
+    }
+    this.lines--;
+    this.currentCommand = this.file.substring(startingIdx, this.currentIndex);
+  }
+
+  skipLine(){
     while(this.file[this.currentIndex] != '\n'){
       this.currentIndex++;
     }
-
-    this.currentCommand = this.file.substring(startingIdx, this.currentIndex);
-    this.lines--;
   }
 
   calculateLines(){
@@ -65,6 +74,22 @@ class Parser {
   arg1(){}
 
   arg2(){}
+
+  validLine(){
+    const comment = this.file[this.currentIndex] === '/' && this.file[this.currentIndex] === '/';
+
+    let blankLine = true; 
+    let idx = this.currentIndex; 
+    const l = [];
+    while(this.file[idx] != '\n'){
+      l.push(this.file[idx]);
+      if(this.file[idx] != ' ') blankLine = false;
+      idx++;
+    }
+    
+
+    return !(blankLine || comment);
+  }
 }
 
 
