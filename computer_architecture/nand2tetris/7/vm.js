@@ -130,7 +130,28 @@ class Parser {
 const parse = new Parser('StackArithmetic/SimpleAdd/SimpleAdd.vm');
 parse.advance();
 console.log(parse.currentCommand);
-const com = parse.commandType();
-if(com === 'C_POP' || com === 'C_PUSH') console.log(parse.arg2());
 
 
+
+
+/* 
+  Code Module
+  - Constructor takes output file stream 
+  - writeArithmetic takes a command string and writes to output file
+  - writePushPop takes command
+  - close output file
+*/
+
+class CodeWriter {
+  constructor(outputFile){
+    if (!outputFile){
+      console.log('Please enter a path for the output file');
+      process.exit(1);
+    }
+  }
+
+
+  writeArithmetic(){}
+  writePushPop(){}
+  close(){}
+}
