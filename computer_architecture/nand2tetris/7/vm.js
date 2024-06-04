@@ -112,7 +112,11 @@ class Parser {
     return command[1];
   }
 
-  arg2(){}
+  arg2(){
+    const command = this.currentCommand.split(' ');
+    return parseInt(command[2]);
+
+  }
 
   validLine(startIndex){
     const comment = this.file[startIndex] === '/' && this.file[startIndex + 1] === '/'; 
@@ -126,5 +130,7 @@ class Parser {
 const parse = new Parser('StackArithmetic/SimpleAdd/SimpleAdd.vm');
 parse.advance();
 console.log(parse.currentCommand);
+const com = parse.commandType();
+if(com === 'C_POP' || com === 'C_PUSH') console.log(parse.arg2());
 
 
