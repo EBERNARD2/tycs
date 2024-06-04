@@ -40,7 +40,7 @@ class Parser {
 
     let startIndex = this.currentIndex;
 
-    while(this.file[this.currentIndex] != '\n'){
+    while(this.file[this.currentIndex] != '\n' && this.currentIndex < this.file.length){
       const skipLine = !this.validLine(startIndex);
 
       if (skipLine){
@@ -49,9 +49,11 @@ class Parser {
         startIndex = this.currentIndex;
         continue
       } 
+  
       line.push(this.file[this.currentIndex]);
       this.currentIndex++;
     };  
+    
 
     this.lines--;
     this.currentCommand = line.join('');
@@ -93,12 +95,6 @@ class Parser {
 
 
 const parse = new Parser('StackArithmetic/SimpleAdd/SimpleAdd.vm');
-parse.advance();
-console.log(parse.currentCommand);
-parse.advance();
-console.log(parse.currentCommand);
-parse.advance();
-console.log(parse.currentCommand);
-console.log(parse.lines);
+
 
 
