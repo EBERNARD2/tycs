@@ -34,23 +34,28 @@ class Parser {
     return this.lines > 0 ? true : false;
   }
 
-  advance(){
-    // set current command
-    this.currentCommand = '';
+  advance(){ 
     //parse line
     let line = [];
-    while(this.file[this.currentIndex] != '\n'){
-      if(!this.validLine()) {
-        this.skipLine();
-        line = [];
-      };
 
+    let startIndex = this.currentIndex;
+
+    while(this.file[this.currentIndex] != '\n'){
+      const skipLine = !this.validLine(startIndex);
+
+      if (skipLine){
+        this.skipLine();
+        this.lines--;
+        startIndex = this.currentIndex;
+        continue
+      } 
       line.push(this.file[this.currentIndex]);
       this.currentIndex++;
-    }
-  
+    };  
+
     this.lines--;
     this.currentCommand = line.join('');
+    this.currentIndex++;
   }
 
 
@@ -78,9 +83,9 @@ class Parser {
 
   arg2(){}
 
-  validLine(){
-    const comment = this.file[this.currentIndex] === '/' && this.file[this.currentIndex + 1] === '/'; 
-    const blankLine = this.file[this.currentIndex] === '\r';
+  validLine(startIndex){
+    const comment = this.file[startIndex] === '/' && this.file[startIndex + 1] === '/'; 
+    const blankLine = this.file[startIndex] === '\r';
 
     return !(blankLine || comment);
   }
@@ -90,6 +95,10 @@ class Parser {
 const parse = new Parser('StackArithmetic/SimpleAdd/SimpleAdd.vm');
 parse.advance();
 console.log(parse.currentCommand);
- 
+parse.advance();
+console.log(parse.currentCommand);
+parse.advance();
+console.log(parse.currentCommand);
+console.log(parse.lines);
 
 
