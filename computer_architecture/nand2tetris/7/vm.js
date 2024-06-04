@@ -1,5 +1,6 @@
 const fs = require('node:fs');
 
+const STACK_MAX = 2047;
 /* 
   Parser Module
   - Constructor takes input file / stream 
@@ -41,7 +42,7 @@ class Parser {
     this.currentCommand = null;
     this.currentInsructionType = null;
     this.currentIndex = 0;
-   }
+  }
 
   hasMoreLines(){
     return this.lines > 0 ? true : false;
@@ -108,31 +109,24 @@ class Parser {
     if(commandType === 'C_ARITHMETIC'){
       return command[0];
     }
-
     return command[1];
   }
 
   arg2(){
     const command = this.currentCommand.split(' ');
     return parseInt(command[2]);
-
   }
 
   validLine(startIndex){
     const comment = this.file[startIndex] === '/' && this.file[startIndex + 1] === '/'; 
     const blankLine = this.file[startIndex] === '\r';
-
     return !(blankLine || comment);
   }
 }
 
 
-const parse = new Parser('StackArithmetic/SimpleAdd/SimpleAdd.vm');
-parse.advance();
-console.log(parse.currentCommand);
-
-
-
+const parser = new Parser('StackArithmetic/SimpleAdd/SimpleAdd.vm');
+ 
 
 /* 
   Code Module
@@ -148,10 +142,47 @@ class CodeWriter {
       console.log('Please enter a path for the output file');
       process.exit(1);
     }
+    // we probably need to manage regester and ram memory
+    this.stackPointer = 256;
+    this.memory = []; /// THere aren't static array sizes in js so we will just have to work with this dynamic version
+    this.reg = {
+      'R0': null,
+      'R1': null,
+      'R2': null,
+      'R3': null,
+      'R4': null,
+      'R5': null,
+      'R6': null,
+      'R7': null,
+      'R8': null,
+      'R9': null,
+      'R10': null,
+      'R11': null,
+      'R12': null,
+      'R13': null,
+      'R14': null,
+      'R15': null,
+    };
   }
 
 
-  writeArithmetic(){}
-  writePushPop(){}
-  close(){}
+  write(hackCommand){
+    try {
+      fs.appendFileSync(outputFile, `${hackCommand}\n`);
+      console.log('Successfully added hack command to file')
+    } catch(err){
+      console.log('Error wrirting file', err);
+    }
+  }
+
+
+  writeArithmetic(command){}
+  writePushPop(command, segment, index){}
+  close(){
+
+  }
+
 }
+
+
+ 
