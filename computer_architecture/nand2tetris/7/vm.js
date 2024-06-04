@@ -93,17 +93,24 @@ class Parser {
   }
 
   commandType(){
-    // extract push pop artithmetic
-    const command = this.currentCommand.split(' ');
+    const command = this.currentCommand.split(' ')[0].toLowerCase();
 
-    if (command[0].toLowerCase() === 'push') return 'C_PUSH';
-    if (command[0].toLowerCase() === 'pop') return 'C_POP';
-    if (command[0].toLowerCase() === 'push') return 'C_PUSH';
-    if(ARITHMETIC_OPTIONS.includes(command[0])) return 'C_ARITHMETIC';
-
+    if (command === 'push') return 'C_PUSH';
+    if (command === 'pop') return 'C_POP';
+    if (command === 'push') return 'C_PUSH';
+    if(ARITHMETIC_OPTIONS.includes(command)) return 'C_ARITHMETIC';
   }
 
-  arg1(){}
+  arg1(){
+    const commandType = this.commandType();
+    const command = this.currentCommand.split(' ');
+
+    if(commandType === 'C_ARITHMETIC'){
+      return command[0];
+    }
+
+    return command[1];
+  }
 
   arg2(){}
 
@@ -118,10 +125,6 @@ class Parser {
 
 const parse = new Parser('StackArithmetic/SimpleAdd/SimpleAdd.vm');
 parse.advance();
-console.log(parse.commandType());
-parse.advance();
-console.log(parse.commandType());
-parse.advance();
-console.log(parse.commandType());
+console.log(parse.currentCommand);
 
 
