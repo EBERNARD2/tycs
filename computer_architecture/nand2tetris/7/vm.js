@@ -7,9 +7,22 @@ const fs = require('node:fs');
   - advance method (reads next instruction).. Does not return anything 
   - commandType method (returns a constand value describing the type of method)
   - arg1 method (returns first argument in current command)
-  - arg2 method (returns second argument in current command)
+  - arg2 method (returns second argument in current command
 
 */
+
+const ARITHMETIC_OPTIONS = [
+  'add',
+  'sub',
+  'neg',
+  'eq',
+  'gt',
+  'lt',
+  'and',
+  'or',
+  'not'
+];
+
 class Parser {
   constructor(filePath){
     
@@ -79,7 +92,16 @@ class Parser {
     return ++lines;
   }
 
-  commandType(){}
+  commandType(){
+    // extract push pop artithmetic
+    const command = this.currentCommand.split(' ');
+
+    if (command[0].toLowerCase() === 'push') return 'C_PUSH';
+    if (command[0].toLowerCase() === 'pop') return 'C_POP';
+    if (command[0].toLowerCase() === 'push') return 'C_PUSH';
+    if(ARITHMETIC_OPTIONS.includes(command[0])) return 'C_ARITHMETIC';
+
+  }
 
   arg1(){}
 
@@ -95,6 +117,11 @@ class Parser {
 
 
 const parse = new Parser('StackArithmetic/SimpleAdd/SimpleAdd.vm');
-
+parse.advance();
+console.log(parse.commandType());
+parse.advance();
+console.log(parse.commandType());
+parse.advance();
+console.log(parse.commandType());
 
 
