@@ -152,7 +152,7 @@ class CodeWriter {
       process.exit(1);
     }
     // we probably need to manage regester and ram memory
-    this.file = outputFile;
+    this.outputFile = outputFile;
     this.tempIdx = 5;
     this.memory = [
       BASE_SP, 
@@ -166,12 +166,9 @@ class CodeWriter {
   }
 
 
-  getStatic(){}
-
   write(hackCommand){
     try {
-      fs.appendFileSync(outputFile, `${hackCommand}\n`);
-      console.log('Successfully added hack command to file')
+      fs.appendFileSync(this.outputFile, `${hackCommand}\n`);
     } catch(err){
       console.log('Error wrirting file', err);
     }
@@ -183,7 +180,6 @@ class CodeWriter {
   }
 
   writePushPop(command, segment, index){
-    
   
   }
 
@@ -201,19 +197,22 @@ class CodeWriter {
     this.memory[0]++;
   }
 
-  popStack(){
+  popStack(segment){
     const currentSP = this.readMemory(0);
     const currentStackValue = this.readMemory(currentSP);
+    // still need to find a way to update the segment in memory after popping
     this.memory[0]--;
     return currentStackValue;
   }
 
   stackInit(){
+    this.write('// initialize stack pointer');
     this.write('@256');
     this.write('D=A');
     this.write("@SP");
     this.write("M=D");
   }
+
   close(){
 
   }
