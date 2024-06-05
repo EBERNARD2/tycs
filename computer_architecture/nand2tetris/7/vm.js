@@ -1,6 +1,8 @@
 const fs = require('node:fs');
 
+
 const STACK_MAX = 2047;
+const MEMORY_MAX = 24576;
 /* 
   Parser Module
   - Constructor takes input file / stream 
@@ -136,6 +138,7 @@ const parser = new Parser('StackArithmetic/SimpleAdd/SimpleAdd.vm');
   - close output file
 */
 
+// Register 0 - 15 will be slots 0 - 15 in memory idx
 class CodeWriter {
   constructor(outputFile){
     if (!outputFile){
@@ -143,26 +146,10 @@ class CodeWriter {
       process.exit(1);
     }
     // we probably need to manage regester and ram memory
+    this.file = outputFile;
     this.stackPointer = 256;
-    this.memory = []; /// THere aren't static array sizes in js so we will just have to work with this dynamic version
-    this.reg = {
-      'R0': null,
-      'R1': null,
-      'R2': null,
-      'R3': null,
-      'R4': null,
-      'R5': null,
-      'R6': null,
-      'R7': null,
-      'R8': null,
-      'R9': null,
-      'R10': null,
-      'R11': null,
-      'R12': null,
-      'R13': null,
-      'R14': null,
-      'R15': null,
-    };
+    this.tempIdx = 5;
+    this.memory = []; /// There aren't static array sizes in js so we will just have to work with this dynamic version d
   }
 
 
