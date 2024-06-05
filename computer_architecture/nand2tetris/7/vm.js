@@ -187,17 +187,24 @@ class CodeWriter {
   
   }
 
+  readMemory(address){
+    return this.memory[address];
+  }
+
+  writeMemory(address, value){
+   this.memory[address] = value;
+  }
+
   pushStack(value){
-    const currentSP = this.memory[this.memory[0]];
-    this.memory[currentSP] = value; 
+    const currentSP = this.readMemory(0);
+    this.writeMemory(currentSP, value);
     this.memory[0]++;
   }
 
   popStack(){
-    const currentSP = this.memory[this.memory[0]];
-    const currentStackValue = this.memory[currentSP];
+    const currentSP = this.readMemory(0);
+    const currentStackValue = this.readMemory(currentSP);
     this.memory[0]--;
-
     return currentStackValue;
   }
 
