@@ -3,6 +3,12 @@ const fs = require('node:fs');
 
 const STACK_MAX = 2047;
 const MEMORY_MAX = 24576;
+const BASE_LCL = 3000;
+const BASE_ARG = 3500;
+const BASE_THIS = 4000;
+const BASE_THAT = 10000; 
+const BASE_SP = 0; 
+
 /* 
   Parser Module
   - Constructor takes input file / stream 
@@ -147,11 +153,18 @@ class CodeWriter {
     }
     // we probably need to manage regester and ram memory
     this.file = outputFile;
-    this.stackPointer = 256;
     this.tempIdx = 5;
-    this.memory = []; /// There aren't static array sizes in js so we will just have to work with this dynamic version d
+    this.memory = [
+      BASE_SP, 
+      BASE_LCL,
+      BASE_ARG,
+      BASE_THIS,
+      BASE_THAT
+    ]; /// There aren't static array sizes in js so we will just have to work with this dynamic version d
+    
   }
 
+  getStatic(){}
 
   write(hackCommand){
     try {
@@ -163,8 +176,14 @@ class CodeWriter {
   }
 
 
-  writeArithmetic(command){}
-  writePushPop(command, segment, index){}
+  writeArithmetic(command){
+
+  }
+
+  writePushPop(command, segment, index){
+    
+  
+  }
   close(){
 
   }
