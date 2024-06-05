@@ -7,7 +7,7 @@ const BASE_LCL = 3000;
 const BASE_ARG = 3500;
 const BASE_THIS = 4000;
 const BASE_THAT = 10000; 
-const BASE_SP = 0; 
+const BASE_SP = 256; 
 
 /* 
   Parser Module
@@ -184,6 +184,22 @@ class CodeWriter {
     
   
   }
+
+  pushStack(value){
+    const currentSP = this.memory[this.memory[0]];
+    this.memory[currentSP] = value; 
+
+    this.memory[0]++;
+    
+  }
+
+  popStack(){
+    const currentSP = this.memory[this.memory[0]];
+    const currentStackValue = this.memory[currentSP];
+    this.memory[0]--;
+    
+    return currentStackValue;
+  }
   close(){
 
   }
@@ -191,4 +207,6 @@ class CodeWriter {
 }
 
 
+const code = new CodeWriter('test.asm');
+console.log(code.memory);
  
