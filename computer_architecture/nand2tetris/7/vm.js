@@ -161,8 +161,10 @@ class CodeWriter {
       BASE_THIS,
       BASE_THAT
     ]; /// There aren't static array sizes in js so we will just have to work with this dynamic version d
+    this.stackInit();
     
   }
+
 
   getStatic(){}
 
@@ -188,17 +190,22 @@ class CodeWriter {
   pushStack(value){
     const currentSP = this.memory[this.memory[0]];
     this.memory[currentSP] = value; 
-
     this.memory[0]++;
-    
   }
 
   popStack(){
     const currentSP = this.memory[this.memory[0]];
     const currentStackValue = this.memory[currentSP];
     this.memory[0]--;
-    
+
     return currentStackValue;
+  }
+
+  stackInit(){
+    this.write('@256');
+    this.write('D=A');
+    this.write("@SP");
+    this.write("M=D");
   }
   close(){
 
