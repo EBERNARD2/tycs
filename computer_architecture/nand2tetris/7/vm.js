@@ -32,6 +32,7 @@ const ARITHMETIC_OPTIONS = [
   'not'
 ];
 
+
 class Parser {
   constructor(filePath){
     
@@ -176,6 +177,37 @@ class CodeWriter {
 
 
   writeArithmetic(command){
+
+    if (!ARITHMETIC_OPTIONS.includes(command)) {
+      console.log("Error - please enter valid arithmetic option");
+      process.exit(1);
+    }
+
+    const yAddress = this.readMemory(0);
+
+    // still need to subtract stack pointer
+    const y = this.readMemory(yAddress);
+
+    const xAddress = yAddress - 1;
+    const x = this.readMemory(yAddress-1);
+
+    let value; 
+
+
+    if (command === 'add') value = x+y; 
+    if (command === 'sub') value = x-y;
+    if (command === 'neg') value = ~y;
+    if (command === 'eq') value = x === y;
+    if (command === 'gt') value = x > y;
+    if (command === 'lt') value = x < y;
+    if (command === 'and') value = x & y;
+    if (command === 'or') value = x | y;
+    if (command === 'not') value = x ^ y;
+
+
+    // load sp 
+
+
 
   }
 
