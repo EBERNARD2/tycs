@@ -9,6 +9,7 @@ const BASE_THIS = 4000;
 const BASE_THAT = 10000; 
 const BASE_SP = 256; 
 const BASE_TEMP = 5;
+const BASE_STATIC = 16;
 
 const VALID_SEGMENTS = [
   'argument',
@@ -231,14 +232,35 @@ class CodeWriter {
   
   }
 
-  validPointer(index){
+  validPointerIndex(index){
     const stringToNumber = parseInt(index);
     return stringToNumber >= 0 && stringToNumber < 2;
   }
 
-  validTemp(index){
+  validTempIndex(index){
     return parseInt(index) + BASE_TEMP < 13;
   }
+
+  validStaticIndex(index){
+    return parseInt(index) + BASE_STATIC < 240;
+  }
+
+  validLclIndex(index){
+    return parseInt(index) < (BASE_ARG - BASE_LCL);
+  }
+
+  validArgIndex(index){
+    return parseInt(index) < (BASE_THIS - BASE_ARG);
+  }
+
+  validThisIndex(index){
+    return parseInt(index) < (BASE_THAT - BASE_THIS);  
+  }
+
+  validThatIndex(index){
+    return parseInt(index) < (MEMORY_MAX - BASE_THAT);  
+  }
+
 
   getSegment(segment, index){
 
