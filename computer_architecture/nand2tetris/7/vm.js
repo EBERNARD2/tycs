@@ -205,42 +205,39 @@ class CodeWriter {
     // 
 
     if (commandToExecute === 'add') {
-      this.write("@SP");
-      this.write("AM=M-1");
-      this.write("D=M");
-      this.write("@SP");
-      this.write("AM=M-1");
+      this.writeArithmeticStart();
       this.write("M=D+M");
+      this.writeArithmeticEnd();
     }
 
     if (commandToExecute === 'sub') {
-      this.write("@SP");
-      this.write("AM=M-1");
-      this.write("D=A");
-      this.write("@SP");
-      this.write("AM=M-1");
+      this.writeArithmeticStart();
       this.write("M=M-D");
-    }  // check 
-    if (commandToExecute === 'neg') value = ~y; // check
+      this.writeArithmeticEnd();
+    } 
+
+    if (commandToExecute === 'neg'){
+      this.write("@SP"); 
+      this.write("AM=M-1"); 
+      this.write("M=!M");
+      this.writeArithmeticEnd();
+    }
     if (commandToExecute === 'eq') value = x === y; // need special logic for eq, gt, lt
     if (commandToExecute === 'gt') value = x > y;
     if (commandToExecute === 'lt') value = x < y;
+    
     if (commandToExecute === 'and'){
-      this.write("@SP");
-      this.write("AM=M-1");
-      this.write("D=M");
-      this.write("@SP");
-      this.write("AM=M-1");
+      this.writeArithmeticStart();
       this.write("M=D&M");
-    } value = x & y; // Check
-    if (commandToExecute === 'or'){
-      this.write("@SP");
-      this.write("AM=M-1");
-      this.write("D=M");
-      this.write("@SP");
-      this.write("AM=M-1");
-      this.write("M=D|M");
+      this.writeArithmeticEnd();
     }
+
+    if (commandToExecute === 'or'){
+      this.writeArithmeticStart();
+      this.write("M=D|M");
+      this.writeArithmeticEnd();
+    }
+
      value = x | y; // check
     if (commandToExecute === 'not') value = x ^ y; // check 
 
@@ -385,6 +382,19 @@ class CodeWriter {
 
     this.memory[0]--;
     return currentStackValue;
+  }
+
+  writeArithmeticStart(){
+    this.write("@SP"); // load sp
+    this.write("AM=M-1"); // get current sp address
+    this.write("D=M"); // store value at sp address in data register
+    this.write("@SP"); // 
+    this.write("AM=M-1");
+  }
+
+  writeArithmeticEnd(){
+    this.write("@SP");
+    this.write("M=M+1");
   }
 
   writeStackInit(){
