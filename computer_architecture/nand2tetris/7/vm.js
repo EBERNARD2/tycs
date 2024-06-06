@@ -287,7 +287,7 @@ class CodeWriter {
     if (segmentToAdd === 'that') return parseInt(index) + BASE_THAT;
     if (segmentToAdd === 'pointer') return parseInt(index) + 3;
     if (segmentToAdd === 'temp') return parseInt(index) + 5;
-    
+
     // for static 
     return parseInt(index) + 16;
   }
@@ -339,19 +339,19 @@ class CodeWriter {
 
     //need to calculate Segment address
 
-    const segmentBaseAddress = 
+    const segmentAddress = this.getSegmentIndex(segment, index);
 
-    this.write("@SP"); // load sp
-    this.write("AD=M");  
+    this.write("@SP"); // load current stack value
+    this.write("A=M");
+    this.write("D=M");
+    this.write("@SP");  
     this.write("M=M-1");
     
-    this.write(`@${segment}`); // load segment address
-    this.write("M=D");
+    this.write(`@${segmentAddress}`); // load segment address
+    this.write("M=D"); // store popped value in segment
   
+    const currentStackValue = this.readMemory(this.readMemory(0));
 
-    const currentSP = this.readMemory(0);
-    const currentStackValue = this.readMemory(currentSP);
-    // still need to find a way to update the segment in memory after popping
     this.memory[0]--;
     return currentStackValue;
   }
