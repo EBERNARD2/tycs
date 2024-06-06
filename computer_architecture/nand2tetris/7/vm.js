@@ -190,44 +190,47 @@ class CodeWriter {
 
 
   writeArithmetic(command){
-
-    if (!ARITHMETIC_OPTIONS.includes(command)) {
+    const commandToExecute = command.toLowerCase();
+    // we need to make sure there are enough values on stack to decrement first
+    if (!ARITHMETIC_OPTIONS.includes(commandToExecute)) {
       console.log("Error - please enter valid arithmetic option");
       process.exit(1);
     }
 
-    const yAddress = this.readMemory(0);
+    // decrement stack
 
-    // still need to subtract stack pointer
-    const y = this.readMemory(yAddress);
-
-    const xAddress = yAddress - 1;
-    const x = this.readMemory(yAddress-1);
-
-    let value; 
 
     // Decrease SP (write to file) @SP, M=M-1, A=M, D=M, @SP, M=M-1, A=M, M=D Op A
     // 
     // write load SP @SP, AM=M-1
     // 
 
-    if (command === 'add') value = x+y;  //check
-    if (command === 'sub') value = x-y;  // check 
-    if (command === 'neg') value = ~y; // check
-    if (command === 'eq') value = x === y; // need special logic for eq, gt, lt
-    if (command === 'gt') value = x > y;
-    if (command === 'lt') value = x < y;
-    if (command === 'and') value = x & y; // Check
-    if (command === 'or') value = x | y; // check
-    if (command === 'not') value = x ^ y; // check 
+    if (commandToExecute === 'add') {
+      
+    }
+    if (commandToExecute === 'sub') value = x-y;  // check 
+    if (commandToExecute === 'neg') value = ~y; // check
+    if (commandToExecute === 'eq') value = x === y; // need special logic for eq, gt, lt
+    if (commandToExecute === 'gt') value = x > y;
+    if (commandToExecute === 'lt') value = x < y;
+    if (commandToExecute === 'and') value = x & y; // Check
+    if (commandToExecute === 'or') value = x | y; // check
+    if (commandToExecute === 'not') value = x ^ y; // check 
 
 
-    // load sp 
+   
 
 
 
   }
 
+
+  writeArithmeticStackPoint(){
+    this.write("@SP"); // load stack Pointer
+    this.write("AM=M-1");
+    this.write("D=M");
+    this.write("@SP");
+  }
   writePushPop(command, segment, index){
   
   }
@@ -328,7 +331,6 @@ class CodeWriter {
 
 
   popStack(segment, index){
-    this.write(`// Pop stack and save value in ${segment}`);
     const validSegment = VALID_SEGMENTS.includes(segment.toLowerCase());
 
     if(!validSegment){
@@ -336,6 +338,7 @@ class CodeWriter {
       process.exit(1);
     }
 
+    this.write(`// Pop stack and save value in ${segment}`);
 
     //need to calculate Segment address
 
@@ -351,6 +354,7 @@ class CodeWriter {
     this.write("M=D"); // store popped value in segment
   
     const currentStackValue = this.readMemory(this.readMemory(0));
+    this.writeMemory(segmentAddress, currentStackValue);
 
     this.memory[0]--;
     return currentStackValue;
@@ -374,5 +378,4 @@ class CodeWriter {
 
 
 const code = new CodeWriter('test.asm');
-console.log(code.memory);
  
