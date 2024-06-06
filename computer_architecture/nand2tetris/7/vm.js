@@ -162,7 +162,7 @@ class CodeWriter {
       BASE_THIS,
       BASE_THAT
     ]; /// There aren't static array sizes in js so we will just have to work with this dynamic version d
-    this.stackInit();
+    this.writeStackInit();
     
   }
 
@@ -193,16 +193,20 @@ class CodeWriter {
 
     let value; 
 
+    // Decrease SP (write to file) @SP, M=M-1, A=M, D=M, @SP, M=M-1, A=M, M=D Op A
+    // 
+    // write load SP @SP, AM=M-1
+    // 
 
-    if (command === 'add') value = x+y; 
-    if (command === 'sub') value = x-y;
-    if (command === 'neg') value = ~y;
-    if (command === 'eq') value = x === y;
+    if (command === 'add') value = x+y;  //check
+    if (command === 'sub') value = x-y;  // check 
+    if (command === 'neg') value = ~y; // check
+    if (command === 'eq') value = x === y; // need special logic for eq, gt, lt
     if (command === 'gt') value = x > y;
     if (command === 'lt') value = x < y;
-    if (command === 'and') value = x & y;
-    if (command === 'or') value = x | y;
-    if (command === 'not') value = x ^ y;
+    if (command === 'and') value = x & y; // Check
+    if (command === 'or') value = x | y; // check
+    if (command === 'not') value = x ^ y; // check 
 
 
     // load sp 
@@ -215,6 +219,18 @@ class CodeWriter {
   
   }
 
+  getLabelAddress(label){
+   
+
+
+  }
+
+  writePush(value){
+    this.write(`// Push ${value} to Stack`);
+    this.pushStack(parseInt(value));
+
+  }
+
   readMemory(address){
     return this.memory[address];
   }
@@ -224,8 +240,21 @@ class CodeWriter {
   }
 
   pushStack(value){
+    this.write(`// Push ${value} to Stack`);
+  
+    // write to file 
+    this.write(`@${value}`);
+    this.write('D=A');
+    this.write('@SP'); // load address of stack pointer
+    this.write('A=M'); // load current stack pointer address
+    this.write('M=D'); // store value in memory
+    this.write('@SP'); // Increment SP
+    this.write("AM=M+1");
+
+
+    // manage computer ops
     const currentSP = this.readMemory(0);
-    this.writeMemory(currentSP, value);
+    this.writeMemory(currentSP, parseInt(value));
     this.memory[0]++;
   }
 
@@ -237,12 +266,14 @@ class CodeWriter {
     return currentStackValue;
   }
 
-  stackInit(){
+  writeStackInit(){
     this.write('// initialize stack pointer');
     this.write('@256');
     this.write('D=A');
     this.write("@SP");
     this.write("M=D");
+
+    /// will also need to seet base addresses for other labels
   }
 
   close(){
