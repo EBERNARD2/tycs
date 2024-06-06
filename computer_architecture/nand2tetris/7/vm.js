@@ -8,6 +8,7 @@ const BASE_ARG = 3500;
 const BASE_THIS = 4000;
 const BASE_THAT = 10000; 
 const BASE_SP = 256; 
+const BASE_TEMP = 5;
 
 const VALID_SEGMENTS = [
   'argument',
@@ -230,9 +231,13 @@ class CodeWriter {
   
   }
 
-  validPointer(segment, index){
+  validPointer(index){
     const stringToNumber = parseInt(index);
     return stringToNumber >= 0 && stringToNumber < 2;
+  }
+
+  validTemp(index){
+    return parseInt(index) + BASE_TEMP < 13;
   }
 
   getSegment(segment, index){
