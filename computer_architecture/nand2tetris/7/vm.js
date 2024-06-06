@@ -199,22 +199,42 @@ class CodeWriter {
 
     // decrement stack
 
-
     // Decrease SP (write to file) @SP, M=M-1, A=M, D=M, @SP, M=M-1, A=M, M=D Op A
     // 
     // write load SP @SP, AM=M-1
     // 
 
     if (commandToExecute === 'add') {
-      
+      this.write("@SP");
+      this.write("AM=M-1");
+      this.write("D=M");
+      this.write("@SP");
+      this.write("AM=M-1");
+      this.write("M=M+D");
     }
-    if (commandToExecute === 'sub') value = x-y;  // check 
+
+    if (commandToExecute === 'sub') {
+      this.write("@SP");
+      this.write("AM=M-1");
+      this.write("D=A");
+      this.write("@SP");
+      this.write("AM=M-1");
+      this.write("M=M-D");
+    }  // check 
     if (commandToExecute === 'neg') value = ~y; // check
     if (commandToExecute === 'eq') value = x === y; // need special logic for eq, gt, lt
     if (commandToExecute === 'gt') value = x > y;
     if (commandToExecute === 'lt') value = x < y;
     if (commandToExecute === 'and') value = x & y; // Check
-    if (commandToExecute === 'or') value = x | y; // check
+    if (commandToExecute === 'or'){
+      this.write("@SP");
+      this.write("AM=M-1");
+      this.write("D=M");
+      this.write("@SP");
+      this.write("AM=M-1");
+      this.write("M=D|M");
+    }
+     value = x | y; // check
     if (commandToExecute === 'not') value = x ^ y; // check 
 
 
@@ -301,7 +321,7 @@ class CodeWriter {
 
   }
 
-  readMemory(address){
+  readMemory(address){ 
     return this.memory[address];
   }
 
