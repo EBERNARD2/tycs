@@ -210,7 +210,7 @@ class CodeWriter {
       this.write("D=M");
       this.write("@SP");
       this.write("AM=M-1");
-      this.write("M=M+D");
+      this.write("M=D+M");
     }
 
     if (commandToExecute === 'sub') {
@@ -225,7 +225,14 @@ class CodeWriter {
     if (commandToExecute === 'eq') value = x === y; // need special logic for eq, gt, lt
     if (commandToExecute === 'gt') value = x > y;
     if (commandToExecute === 'lt') value = x < y;
-    if (commandToExecute === 'and') value = x & y; // Check
+    if (commandToExecute === 'and'){
+      this.write("@SP");
+      this.write("AM=M-1");
+      this.write("D=M");
+      this.write("@SP");
+      this.write("AM=M-1");
+      this.write("M=D&M");
+    } value = x & y; // Check
     if (commandToExecute === 'or'){
       this.write("@SP");
       this.write("AM=M-1");
