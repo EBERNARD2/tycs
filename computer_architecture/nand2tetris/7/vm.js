@@ -9,6 +9,17 @@ const BASE_THIS = 4000;
 const BASE_THAT = 10000; 
 const BASE_SP = 256; 
 
+const VALID_SEGMENTS = [
+  'argument',
+  'local',
+  'static',
+  'constant',
+  'this',
+  'that',
+  'pointer',
+  'temp'
+];
+
 /* 
   Parser Module
   - Constructor takes input file / stream 
@@ -160,7 +171,7 @@ class CodeWriter {
       BASE_LCL,
       BASE_ARG,
       BASE_THIS,
-      BASE_THAT
+      BASE_THAT,
     ]; /// There aren't static array sizes in js so we will just have to work with this dynamic version d
     this.writeStackInit();
     
@@ -219,9 +230,12 @@ class CodeWriter {
   
   }
 
-  getLabelAddress(label){
-   
+  validPointer(segment, index){
+    const stringToNumber = parseInt(index);
+    return stringToNumber >= 0 && stringToNumber < 2;
+  }
 
+  getSegment(segment, index){
 
   }
 
@@ -258,7 +272,30 @@ class CodeWriter {
     this.memory[0]++;
   }
 
-  popStack(segment){
+
+
+  popStack(segment, index){
+    this.write(`// Pop stack and save value in ${segment}`);
+    const validSegment = VALID_SEGMENTS.includes(segment.toLowerCase());
+
+    if(!validSegment){
+      console.log("Invalid segment");
+      process.exit(1);
+    }
+
+
+    //need to calculate Segment address
+
+    const segmentBaseAddress = 
+
+    this.write("@SP"); // load sp
+    this.write("AD=M");  
+    this.write("M=M-1");
+    
+    this.write(`@${segment}`); // load segment address
+    this.write("M=D");
+  
+
     const currentSP = this.readMemory(0);
     const currentStackValue = this.readMemory(currentSP);
     // still need to find a way to update the segment in memory after popping
@@ -273,7 +310,7 @@ class CodeWriter {
     this.write("@SP");
     this.write("M=D");
 
-    /// will also need to seet base addresses for other labels
+    /// will also need to set base addresses for other labels
   }
 
   close(){
