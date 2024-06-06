@@ -263,6 +263,25 @@ class CodeWriter {
 
 
   getSegment(segment, index){
+    const segmentToAdd = segment.toLowerCase();
+
+    // if not valid through errors 
+
+    const validLocal = this.validLclIndex(index);
+    const validPointer = this.validPointerIndex(index);
+    const validArg = this.validArgIndex(index);
+    const validThis = this.validThisIndex(index);
+    const validThat = this.validThatIndex(index);
+    const validStatic = this.validStaticIndex(index);
+    const validTemp = this.validTempIndex(index);
+
+ 
+    if(!validLocal || !validPointer || !validArg || !validThis || !validThat || !validStatic || !validTemp){
+      console.log(`invalid index ${index} for ${segment}`);
+      process.exit(1);
+    }
+
+
 
   }
 
