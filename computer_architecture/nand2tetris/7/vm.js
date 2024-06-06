@@ -234,7 +234,7 @@ class CodeWriter {
 
   validPointerIndex(index){
     const stringToNumber = parseInt(index);
-    return stringToNumber >= 0 && stringToNumber < 2;
+    return stringToNumber === 0 || stringToNumber === 1;
   }
 
   validTempIndex(index){
@@ -262,10 +262,8 @@ class CodeWriter {
   }
 
 
-  getSegment(segment, index){
+  getSegmentIndex(segment, index){
     const segmentToAdd = segment.toLowerCase();
-
-    // if not valid through errors 
 
     const validLocal = this.validLclIndex(index);
     const validPointer = this.validPointerIndex(index);
@@ -283,6 +281,15 @@ class CodeWriter {
 
 
 
+    if (segmentToAdd === 'local') return parseInt(index) + BASE_LCL;
+    if (segmentToAdd === 'argument') return parseInt(index) + BASE_ARG;
+    if (segmentToAdd === 'this') return parseInt(index) + BASE_THIS;
+    if (segmentToAdd === 'that') return parseInt(index) + BASE_THAT;
+    if (segmentToAdd === 'pointer') return parseInt(index) + 3;
+    if (segmentToAdd === 'temp') return parseInt(index) + 5;
+    
+    // for static 
+    return parseInt(index) + 16;
   }
 
   writePush(value){
