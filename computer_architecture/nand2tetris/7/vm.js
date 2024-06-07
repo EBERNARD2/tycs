@@ -197,32 +197,23 @@ class CodeWriter {
       process.exit(1);
     }
 
-    // decrement stack
-
-    // Decrease SP (write to file) @SP, M=M-1, A=M, D=M, @SP, M=M-1, A=M, M=D Op A
-    // 
-    // write load SP @SP, AM=M-1
-    // 
-
     if (commandToExecute === 'add') {
       this.writeArithmeticStart();
       this.write("M=D+M");
-      this.writeArithmeticEnd();
     }
 
     if (commandToExecute === 'sub') {
       this.writeArithmeticStart();
       this.write("M=M-D");
-      this.writeArithmeticEnd();
     } 
 
     if (commandToExecute === 'neg'){
-      this.write("// Load Stack pointer and "); 
+      this.write("// Load Stack pointer and negate value"); 
       this.write("@SP"); 
       this.write("AM=M-1"); 
       this.write("M=-M");
-      this.writeArithmeticEnd();
     }
+    
     if (commandToExecute === 'eq') value = x === y; // need special logic for eq, gt, lt
     if (commandToExecute === 'gt') value = x > y;
     if (commandToExecute === 'lt') value = x < y;
@@ -230,24 +221,19 @@ class CodeWriter {
     if (commandToExecute === 'and'){
       this.writeArithmeticStart();
       this.write("M=D&M");
-      this.writeArithmeticEnd();
     }
 
     if (commandToExecute === 'or'){
       this.writeArithmeticStart();
       this.write("M=D|M");
-      this.writeArithmeticEnd();
     }
 
     if (commandToExecute === 'not') {
+      this.write("// Load Stack pointer and not value"); 
       this.write("@SP"); 
       this.write("AM=M-1"); 
       this.write("M=!M");
-      this.writeArithmeticEnd();
     }
-
-
-   
 
 
 
@@ -358,6 +344,20 @@ class CodeWriter {
   }
 
 
+  getTopTwoValuesFromStack(opp){
+    const currentStackPointer = this.readMemory(0);
+    const y = this.readMemory(currentStackPointer - 1);
+    const x = this.readMemory(currentStackPointer - 2);
+
+    if (opp === 'add') this.writeMemory(currentStackPointer - 2, x+y);
+    if (opp === 'sub') this.writeMemory(currentStackPointer - 2, x+y);
+    this.writeMemory(0, currentStackPointer - 1);
+
+    return {
+      x,
+      y
+    };
+  }
 
   popStack(segment, index){
     const validSegment = VALID_SEGMENTS.includes(segment.toLowerCase());
@@ -390,16 +390,12 @@ class CodeWriter {
   }
 
   writeArithmeticStart(){
+    this.write('// Load last 2 values on stack');
     this.write("@SP"); // load sp
     this.write("AM=M-1"); // get current sp address
     this.write("D=M"); // store value at sp address in data register
     this.write("@SP"); // 
-    this.write("AM=M-1");
-  }
-
-  writeArithmeticEnd(){
-    this.write("@SP");
-    this.write("M=M+1");
+    this.write("A=M-1");
   }
 
   writeStackInit(){
