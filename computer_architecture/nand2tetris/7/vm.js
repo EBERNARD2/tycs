@@ -225,7 +225,7 @@ class CodeWriter {
     if (commandToExecute === 'eq') value = x === y; // need special logic for eq, gt, lt
     if (commandToExecute === 'gt') value = x > y;
     if (commandToExecute === 'lt') value = x < y;
-    
+
     if (commandToExecute === 'and'){
       this.writeArithmeticStart();
       this.write("M=D&M");
@@ -238,7 +238,6 @@ class CodeWriter {
       this.writeArithmeticEnd();
     }
 
-     value = x | y; // check
     if (commandToExecute === 'not') value = x ^ y; // check 
 
 
