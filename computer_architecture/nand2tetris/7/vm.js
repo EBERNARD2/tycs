@@ -217,9 +217,10 @@ class CodeWriter {
     } 
 
     if (commandToExecute === 'neg'){
+      this.write("// Load Stack pointer and "); 
       this.write("@SP"); 
       this.write("AM=M-1"); 
-      this.write("M=!M");
+      this.write("M=-M");
       this.writeArithmeticEnd();
     }
     if (commandToExecute === 'eq') value = x === y; // need special logic for eq, gt, lt
@@ -238,7 +239,12 @@ class CodeWriter {
       this.writeArithmeticEnd();
     }
 
-    if (commandToExecute === 'not') value = x ^ y; // check 
+    if (commandToExecute === 'not') {
+      this.write("@SP"); 
+      this.write("AM=M-1"); 
+      this.write("M=!M");
+      this.writeArithmeticEnd();
+    }
 
 
    
@@ -407,7 +413,6 @@ class CodeWriter {
   }
 
   close(){
-
   }
 
 }
