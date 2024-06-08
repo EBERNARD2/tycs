@@ -158,6 +158,14 @@ const parser = new Parser('StackArithmetic/SimpleAdd/SimpleAdd.vm');
   - close output file
 */
 
+/* 
+  1- Remove fake memory references
+  2- Change lq, eq, gt to jumps
+  3- Remove read and write memory methods
+
+
+*/
+
 // Register 0 - 15 will be slots 0 - 15 in memory idx
 class CodeWriter {
   constructor(outputFile){
@@ -167,14 +175,6 @@ class CodeWriter {
     }
     // we probably need to manage regester and ram memory
     this.outputFile = outputFile;
-    this.tempIdx = 5;
-    this.memory = [
-      BASE_SP, 
-      BASE_LCL,
-      BASE_ARG,
-      BASE_THIS,
-      BASE_THAT,
-    ]; /// There aren't static array sizes in js so we will just have to work with this dynamic version d
     this.writeStackInit();
     
   }
@@ -265,18 +265,13 @@ class CodeWriter {
 
 
   }
-
-
-  writeArithmeticStackPoint(){
-    this.write("@SP"); // load stack Pointer
-    this.write("AM=M-1");
-    this.write("D=M");
-    this.write("@SP");
-  }
+  
   writePushPop(command, segment, index){
   
   }
 
+
+  // leave these methods
   validPointerIndex(index){
     const stringToNumber = parseInt(index);
     return stringToNumber === 0 || stringToNumber === 1;
@@ -307,6 +302,7 @@ class CodeWriter {
   }
 
 
+  // leave this method
   getSegmentIndex(segment, index){
     const segmentToAdd = segment.toLowerCase();
 
@@ -337,20 +333,6 @@ class CodeWriter {
     return parseInt(index) + 16;
   }
 
-  writePush(value){
-    this.write(`// Push ${value} to Stack`);
-    this.pushStack(parseInt(value));
-
-  }
-
-  readMemory(address){ 
-    return this.memory[address];
-  }
-
-  writeMemory(address, value){
-   this.memory[address] = value;
-  }
-
   pushStack(value){
     this.write(`// Push ${value} to Stack`);
   
@@ -362,29 +344,8 @@ class CodeWriter {
     this.write('M=D'); // store value in memory
     this.write('@SP'); // Increment SP
     this.write("AM=M+1");
-
-
-    // manage computer ops
-    const currentSP = this.readMemory(0);
-    this.writeMemory(currentSP, parseInt(value));
-    this.memory[0]++;
   }
 
-
-  getTopTwoValuesFromStack(opp){
-    const currentStackPointer = this.readMemory(0);
-    const y = this.readMemory(currentStackPointer - 1);
-    const x = this.readMemory(currentStackPointer - 2);
-
-    if (opp === 'add') this.writeMemory(currentStackPointer - 2, x+y);
-    if (opp === 'sub') this.writeMemory(currentStackPointer - 2, x+y);
-    this.writeMemory(0, currentStackPointer - 1);
-
-    return {
-      x,
-      y
-    };
-  }
 
   popStack(segment, index){
     const validSegment = VALID_SEGMENTS.includes(segment.toLowerCase());
@@ -408,12 +369,7 @@ class CodeWriter {
     
     this.write(`@${segmentAddress}`); // load segment address
     this.write("M=D"); // store popped value in segment
-  
-    const currentStackValue = this.readMemory(this.readMemory(0));
-    this.writeMemory(segmentAddress, currentStackValue);
 
-    this.memory[0]--;
-    return currentStackValue;
   }
 
   writeArithmeticStart(){
