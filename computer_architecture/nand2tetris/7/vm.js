@@ -159,10 +159,7 @@ const parser = new Parser('StackArithmetic/SimpleAdd/SimpleAdd.vm');
 */
 
 /* 
-  1- Remove fake memory references
   2- Change lq, eq, gt to jumps
-  3- Remove read and write memory methods
-
 
 */
 
@@ -175,7 +172,7 @@ class CodeWriter {
     }
     // we probably need to manage regester and ram memory
     this.outputFile = outputFile;
-    this.writeStackInit();
+    this.Unique_Label_Id = 0;
     
   }
 
@@ -215,6 +212,7 @@ class CodeWriter {
     }
     
     if (commandToExecute === 'eq') {
+      // create eql loop to tell if 
       // xor to tell if too numbers are eql
       this.write("// Get last 2 stack values and determine if they are equal");
       // this.writeArithmeticStart();
@@ -379,16 +377,6 @@ class CodeWriter {
     this.write("D=M"); // store value at sp address in data register
     this.write("@SP"); // 
     this.write("A=M-1");
-  }
-
-  writeStackInit(){
-    this.write('// initialize stack pointer');
-    this.write('@256');
-    this.write('D=A');
-    this.write("@SP");
-    this.write("M=D");
-
-    /// will also need to set base addresses for other labels
   }
 
   close(){
