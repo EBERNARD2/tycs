@@ -214,7 +214,34 @@ class CodeWriter {
       this.write("M=-M");
     }
     
-    if (commandToExecute === 'eq') value = x === y; // need special logic for eq, gt, lt
+    if (commandToExecute === 'eq') {
+      // xor to tell if too numbers are eql
+      this.write("// Get last 2 stack values and determine if they are equal");
+      // this.writeArithmeticStart();
+      this.write("@SP"); // load sp
+      this.write("ADM=M-1"); // get current sp address
+      // store y in temp register
+      this.write("@R13");
+      this.write("M=D");
+
+      // store not y in temp rester
+      this.write("@R14");
+      this.write("M=!D");
+
+      // Get value of x
+      this.write("@SP");
+      this.write("A=M-1");    
+      this.write("D=M");
+      // add not x to register 15
+
+      this.write("@R15");
+      this.write("M=!D");
+      // calculte x and not y 
+      this.write("@R13");
+      this.write("M=D&")
+      
+
+    }
     if (commandToExecute === 'gt') value = x > y;
     if (commandToExecute === 'lt') value = x < y;
 
