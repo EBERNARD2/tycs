@@ -212,34 +212,15 @@ class CodeWriter {
     }
     
     if (commandToExecute === 'eq') {
-      // create eql loop to tell if 
-      // xor to tell if too numbers are eql
-      this.write("// Get last 2 stack values and determine if they are equal");
-      // this.writeArithmeticStart();
-      this.write("@SP"); // load sp
-      this.write("ADM=M-1"); // get current sp address
-      // store y in temp register
-      this.write("@R13");
-      this.write("M=D");
 
-      // store not y in temp rester
-      this.write("@R14");
-      this.write("M=!D");
-
-      // Get value of x
-      this.write("@SP");
-      this.write("A=M-1");    
-      this.write("D=M");
-      // add not x to register 15
-
-      this.write("@R15");
-      this.write("M=!D");
-      // calculte x and not y 
-      this.write("@R13");
-      this.write("M=D&")
-      
-
+      const labelForTrueCase = `EQUAL${this.Unique_Label_Id++}`;
+      const labelForStopCase = `DONE${this.Unique_Label_Id++}`;
+    
+      this.write("// Determine last two values in stack are equal");
+      this.writeComparisionOperations();
+      this.writeComparisonJumps(labelForTrueCase, labelForStopCase);
     }
+    
     if (commandToExecute === 'gt') value = x > y;
     if (commandToExecute === 'lt') value = x < y;
 
@@ -344,7 +325,29 @@ class CodeWriter {
     this.write("AM=M+1");
   }
 
+  writeComparisionOperations(){
+    this.write("@SP"); // load sp
+    this.write("AM=M-1"); // get current sp address
+    this.write("D=M");
+    this.write("@SP");
+    this.write("A=M-1"); 
+    this.write("D=M-D");
+  }
 
+  writeComparisonJumps(trueLabel, endLabel){
+    this.write(`@${trueLabel}`);
+    this.write("D;JEQ");
+    this.write("M=0");
+    this.write(`@${endLabel}`);
+    this.write("0;JMP");
+    this.write(`(${trueLabel})`);
+    this.write("M=-1");
+    this.write("0;JMP");
+    this.write(`(${endLabel})`);
+    this.write("0;JMP");
+  }
+
+  write
   popStack(segment, index){
     const validSegment = VALID_SEGMENTS.includes(segment.toLowerCase());
 
