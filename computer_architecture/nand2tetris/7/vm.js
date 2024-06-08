@@ -220,9 +220,23 @@ class CodeWriter {
       this.writeComparisionOperations();
       this.writeComparisonJumps(labelForTrueCase, labelForStopCase);
     }
+
+    if (commandToExecute === 'gt') {
+      const labelForTrueCase = `GREATER_THAN${this.Unique_Label_Id++}`;
+      const labelForStopCase = `DONE${this.Unique_Label_Id++}`;
     
-    if (commandToExecute === 'gt') value = x > y;
-    if (commandToExecute === 'lt') value = x < y;
+      this.write("// Determine if x is greater than y");
+      this.writeComparisionOperations();
+      this.writeComparisonJumps(labelForTrueCase, labelForStopCase);
+    }
+    if (commandToExecute === 'lt'){
+      const labelForTrueCase = `LESS_THAN${this.Unique_Label_Id++}`;
+      const labelForStopCase = `DONE${this.Unique_Label_Id++}`;
+    
+      this.write("// Determine if x is less than y");
+      this.writeComparisionOperations();
+      this.writeComparisonJumps(labelForTrueCase, labelForStopCase);
+    }
 
     if (commandToExecute === 'and'){
       this.writeArithmeticStart();
@@ -334,7 +348,8 @@ class CodeWriter {
     this.write("D=M-D");
   }
 
-  writeComparisonJumps(trueLabel, endLabel){
+  writeComparisonJumps(trueLabel, endLabel, op){
+    // need to work on the operation part
     this.write(`@${trueLabel}`);
     this.write("D;JEQ");
     this.write("M=0");
