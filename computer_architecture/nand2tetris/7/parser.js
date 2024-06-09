@@ -1,6 +1,18 @@
 const fs = require('node:fs');
 
-export class Parser {
+const ARITHMETIC_OPTIONS = [
+    'add',
+    'sub',
+    'neg',
+    'eq',
+    'gt',
+    'lt',
+    'and',
+    'or',
+    'not'
+  ]; 
+
+module.exports = class Parser {
     constructor(filePath){
       
       const hasVmFileType = filePath.includes('.vm');
@@ -74,8 +86,8 @@ export class Parser {
   
       if (command === 'push') return 'C_PUSH';
       if (command === 'pop') return 'C_POP';
-      if (command === 'push') return 'C_PUSH';
-      if(ARITHMETIC_OPTIONS.includes(command)) return 'C_ARITHMETIC';
+
+      if(ARITHMETIC_OPTIONS.includes(this.currentCommand.trim())) return 'C_ARITHMETIC';
     }
   
     arg1(){

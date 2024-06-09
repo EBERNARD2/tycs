@@ -82,7 +82,8 @@ module.exports = class CodeWriter {
 
   writeArithmetic(command){
     const commandToExecute = command.toLowerCase();
-    // we need to make sure there are enough values on stack to decrement first
+    // we need to make sure there are enough values on stack to decrement 
+    console.log(commandToExecute);
     if (!ARITHMETIC_OPTIONS.includes(commandToExecute)) {
       console.log("Error - please enter valid arithmetic option");
       process.exit(1);
@@ -282,7 +283,7 @@ module.exports = class CodeWriter {
   }
 
   writePushPop(command, segment, index){
-    if (command === 'CPUSH') this.pushStack(index);
+    if (command === 'C_PUSH') this.pushStack(index);
     else this.popStack(segment, index);
   }
 
