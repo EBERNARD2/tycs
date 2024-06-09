@@ -27,9 +27,4 @@ function virtualMachineTranslator(fileName){
 
 virtualMachineTranslator('./StackArithmetic/StackTest/StackTest.vm');
 
-// const writer = new CodeWriter('simpleAdd.asm');
-
-// writer.writePushPop("CPUSH", 'constant', 7);
-// writer.writePushPop("CPUSH", 'constant', 8);
-// writer.writeArithmetic("add");
  
