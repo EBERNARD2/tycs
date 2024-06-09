@@ -1,4 +1,6 @@
-class Parser {
+const fs = require('node:fs');
+
+export class Parser {
     constructor(filePath){
       
       const hasVmFileType = filePath.includes('.vm');

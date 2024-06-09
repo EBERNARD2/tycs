@@ -41,10 +41,7 @@ const ARITHMETIC_OPTIONS = [
   'and',
   'or',
   'not'
-];
-
-const parser = new Parser('StackArithmetic/SimpleAdd/SimpleAdd.vm');
- 
+]; 
 
 /* 
   Code Module
@@ -60,7 +57,7 @@ const parser = new Parser('StackArithmetic/SimpleAdd/SimpleAdd.vm');
 */
 
 // Register 0 - 15 will be slots 0 - 15 in memory idx
-class CodeWriter {
+module.exports = class CodeWriter {
   constructor(outputFile){
     if (!outputFile){
       console.log('Please enter a path for the output file');
@@ -69,6 +66,7 @@ class CodeWriter {
     // we probably need to manage regester and ram memory
     this.outputFile = outputFile;
     this.Unique_Label_Id = 0;
+    this.stackInit();
     
   }
 
@@ -150,17 +148,8 @@ class CodeWriter {
       this.write("AM=M-1"); 
       this.write("M=!M");
     }
-
-
-
-  }
-  
-  writePushPop(command, segment, index){
-  
   }
 
-
-  // leave these methods
   validPointerIndex(index){
     const stringToNumber = parseInt(index);
     return stringToNumber === 0 || stringToNumber === 1;
@@ -292,7 +281,17 @@ class CodeWriter {
     this.write("A=M-1");
   }
 
+  writePushPop(command, segment, index){
+    if (command === 'CPUSH') this.pushStack(index);
+    else this.popStack(segment, index);
+  }
+
+  stackInit(){
+    this.write("@256");
+    this.write("D=A");
+    this.write("@SP");
+    this.write("M=D");
+  }
+
 }
 
-
- 
