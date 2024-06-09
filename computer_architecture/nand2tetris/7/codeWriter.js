@@ -1,13 +1,11 @@
 const fs = require('node:fs');
 
 
-const STACK_MAX = 2047;
 const MEMORY_MAX = 24576;
 const BASE_LCL = 3000;
 const BASE_ARG = 3500;
 const BASE_THIS = 4000;
 const BASE_THAT = 10000; 
-const BASE_SP = 256; 
 const BASE_TEMP = 5;
 const BASE_STATIC = 16;
 
@@ -44,108 +42,6 @@ const ARITHMETIC_OPTIONS = [
   'or',
   'not'
 ];
-
-
-class Parser {
-  constructor(filePath){
-    
-    const hasVmFileType = filePath.includes('.vm');
-
-    if (!filePath || !hasVmFileType){
-      if (!filePath)  console.error('Please add file to parse. Pass file path in when initializing new Parser');
-      if (!hasVmFileType) console.error('Must have a .vm file extension');
-
-      process.exit(1);
-    }
-
-    this.file = fs.readFileSync(filePath).toString();
-    this.lines = this.calculateLines();
-
-    this.currentCommand = null;
-    this.currentInsructionType = null;
-    this.currentIndex = 0;
-  }
-
-  hasMoreLines(){
-    return this.lines > 0 ? true : false;
-  }
-
-  advance(){ 
-    //parse line
-    let line = [];
-
-    let startIndex = this.currentIndex;
-
-    while(this.file[this.currentIndex] != '\n' && this.currentIndex < this.file.length){
-      const skipLine = !this.validLine(startIndex);
-
-      if (skipLine){
-        this.skipLine();
-        this.lines--;
-        startIndex = this.currentIndex;
-        continue
-      } 
-  
-      line.push(this.file[this.currentIndex]);
-      this.currentIndex++;
-    };  
-    
-
-    this.lines--;
-    this.currentCommand = line.join('');
-    this.currentIndex++;
-  }
-
-
-  skipLine(){
-    while(this.file[this.currentIndex] != '\n'){
-      this.currentIndex++;
-    }
-    this.currentIndex++;
-  }
-
-  calculateLines(){
-    let lines  = 0;
-    let index = 0;
-    
-    while(index != this.file.length){
-      if(this.file[index] === '\n') lines++;
-      index++
-    }
-    return ++lines;
-  }
-
-  commandType(){
-    const command = this.currentCommand.split(' ')[0].toLowerCase();
-
-    if (command === 'push') return 'C_PUSH';
-    if (command === 'pop') return 'C_POP';
-    if (command === 'push') return 'C_PUSH';
-    if(ARITHMETIC_OPTIONS.includes(command)) return 'C_ARITHMETIC';
-  }
-
-  arg1(){
-    const commandType = this.commandType();
-    const command = this.currentCommand.split(' ');
-
-    if(commandType === 'C_ARITHMETIC'){
-      return command[0];
-    }
-    return command[1];
-  }
-
-  arg2(){
-    const command = this.currentCommand.split(' ');
-    return parseInt(command[2]);
-  }
-
-  validLine(startIndex){
-    const comment = this.file[startIndex] === '/' && this.file[startIndex + 1] === '/'; 
-    const blankLine = this.file[startIndex] === '\r';
-    return !(blankLine || comment);
-  }
-}
-
 
 const parser = new Parser('StackArithmetic/SimpleAdd/SimpleAdd.vm');
  
@@ -216,26 +112,26 @@ class CodeWriter {
       const labelForTrueCase = `EQUAL${this.Unique_Label_Id++}`;
       const labelForStopCase = `DONE${this.Unique_Label_Id++}`;
     
-      this.write("// Determine last two values in stack are equal");
-      this.writeComparisionOperations();
-      this.writeComparisonJumps(labelForTrueCase, labelForStopCase);
+      this.write("// check if x and y are equal");
+      this.writeComparisionStart();
+      this.writeComparisonJumps(labelForTrueCase, labelForStopCase, 'D;JEQ');
     }
 
     if (commandToExecute === 'gt') {
       const labelForTrueCase = `GREATER_THAN${this.Unique_Label_Id++}`;
       const labelForStopCase = `DONE${this.Unique_Label_Id++}`;
     
-      this.write("// Determine if x is greater than y");
-      this.writeComparisionOperations();
-      this.writeComparisonJumps(labelForTrueCase, labelForStopCase);
+      this.write("// check if x is greater than y");
+      this.writeComparisionStart();
+      this.writeComparisonJumps(labelForTrueCase, labelForStopCase, 'D;JGT');
     }
     if (commandToExecute === 'lt'){
       const labelForTrueCase = `LESS_THAN${this.Unique_Label_Id++}`;
       const labelForStopCase = `DONE${this.Unique_Label_Id++}`;
     
-      this.write("// Determine if x is less than y");
-      this.writeComparisionOperations();
-      this.writeComparisonJumps(labelForTrueCase, labelForStopCase);
+      this.write("// check if if x is less than y");
+      this.writeComparisionStart();
+      this.writeComparisonJumps(labelForTrueCase, labelForStopCase, 'D;JLT');
     }
 
     if (commandToExecute === 'and'){
@@ -339,7 +235,7 @@ class CodeWriter {
     this.write("AM=M+1");
   }
 
-  writeComparisionOperations(){
+  writeComparisionStart(){
     this.write("@SP"); // load sp
     this.write("AM=M-1"); // get current sp address
     this.write("D=M");
@@ -348,10 +244,10 @@ class CodeWriter {
     this.write("D=M-D");
   }
 
-  writeComparisonJumps(trueLabel, endLabel, op){
+  writeComparisonJumps(trueLabel, endLabel, conditionalCheck){
     // need to work on the operation part
     this.write(`@${trueLabel}`);
-    this.write("D;JEQ");
+    this.write(conditionalCheck);
     this.write("M=0");
     this.write(`@${endLabel}`);
     this.write("0;JMP");
@@ -361,8 +257,7 @@ class CodeWriter {
     this.write(`(${endLabel})`);
     this.write("0;JMP");
   }
-
-  write
+ 
   popStack(segment, index){
     const validSegment = VALID_SEGMENTS.includes(segment.toLowerCase());
 
@@ -397,11 +292,7 @@ class CodeWriter {
     this.write("A=M-1");
   }
 
-  close(){
-  }
-
 }
 
 
-const code = new CodeWriter('test.asm');
  
