@@ -11,6 +11,7 @@ loop:
 	dec edi
 	cmp edi, 0
 	jg loop
+ls
 
 done:
 	ret
