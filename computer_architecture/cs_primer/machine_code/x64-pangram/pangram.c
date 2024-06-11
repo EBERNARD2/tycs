@@ -5,10 +5,10 @@
 #define MASK 0x07fffffe
 
 bool ispangram(char *s) {
-  uint32_t bs = 0;
+  uint32_t bs = 0; // set 
   char c;
-  while ((c = *s++) != '\0') {
-    if (c < '@')
+  while ((c = *s++) != '\0') {  // if char is zero jump to done 
+    if (c < '@') // if value is less than
       continue; // ignore first 64 chars in ascii table
     bs |= 1 << (c & 0x1f);
   }
