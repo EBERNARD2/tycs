@@ -25,18 +25,18 @@ bool ispangram(char *s) {
   return bitmap == 0x03ffffff;
 }
 
-int main() {
-  size_t len;
-  ssize_t read;
-  char *line = NULL;
-  while ((read = getline(&line, &len, stdin)) != -1) {
-    if (ispangram(line))
-      printf("%s", line);
-  }
+// int main() {
+//   size_t len;
+//   ssize_t read;
+//   char *line = NULL;
+//   while ((read = getline(&line, &len, stdin)) != -1) {
+//     if (ispangram(line))
+//       printf("%s", line);
+//   }
 
-  if (ferror(stdin))
-    fprintf(stderr, "Error reading from stdin");
+//   if (ferror(stdin))
+//     fprintf(stderr, "Error reading from stdin");
 
-  free(line);
-  fprintf(stderr, "ok\n");
-}
+//   free(line);
+//   fprintf(stderr, "ok\n");
+// }
