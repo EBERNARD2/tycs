@@ -11,14 +11,25 @@ loop:
 	cmp rsi, 0
 	je finish
 
+	mov r9, rsi
+	sub r9, 64
+	jl skip
 
-	inc 
+	and rsi, 31
 
+	mov r10, 1
+	sal r10, rsi
+
+	or r8, r10
+	inc rdx
+	jmp loop
+
+skip: 
 	inc rdx
 	jmp loop
 
 finish:
-	sub rdx, 0x07fffffe
+	sub r8, 0x07fffffe
 	je true
 	mov rax, 0
 	ret
