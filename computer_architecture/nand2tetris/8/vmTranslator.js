@@ -11,6 +11,9 @@ function virtualMachineTranslator(fileName){
             const currentCmd = parser.currentCommand;
             const cmdType = parser.commandType();
             
+            // refactor this to use arg1 and arg2 parser functions
+            // arg1 can be called only by everything but C_ARITHMETIC and C_RETURN
+            // arg2 can only be called if command if current cmd is C_PUSH, C_POP, C_FUNCTION, C_CALL
             if (cmdType === 'C_ARITHMETIC'){
                 console.log(currentCmd.trim());
                 writer.writeArithmetic(currentCmd.trim());

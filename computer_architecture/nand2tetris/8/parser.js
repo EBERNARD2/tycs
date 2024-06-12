@@ -83,11 +83,28 @@ module.exports = class Parser {
   
     commandType(){
       const command = this.currentCommand.split(' ')[0].toLowerCase();
-  
-      if (command === 'push') return 'C_PUSH';
-      if (command === 'pop') return 'C_POP';
-
-      if(ARITHMETIC_OPTIONS.includes(this.currentCommand.trim())) return 'C_ARITHMETIC';
+      
+      switch(command){
+        case 'push':
+          return 'C_PUSH';
+        case 'pop':
+          return 'C_POP';
+        case 'function':
+          return 'C_FUNCTION';
+        case 'return':
+          return 'C_RETURN';
+        case 'goto':
+          return "C_GOTO";
+        case 'call':
+          return "C_CALL";
+        case 'label':
+          return 'C_LABEL';
+        case ARITHMETIC_OPTIONS.includes(this.currentCommand.trim()):
+          return 'C_ARITHMETIC';
+        default:
+          console.error("Invalid command in input .asm file");
+          process.exit(1);
+      };
     }
   
     arg1(){
