@@ -295,7 +295,32 @@ module.exports = class CodeWriter {
 
   writeFunction(functionName, nVars){}
 
-  writeCall(functionName, nVars){}
+  writeCall(functionName, nVars){
+    //this method will create a new stack frame in hack machine language
+
+    this.write(`// create stack frame before calling ${functionName} `);
+
+    // push address of instruction we want to return to
+    
+
+    // push lcl, arg, this, that to stack
+    this.pushStack("LCL");
+    this.pushStack("ARG");
+    this.pushStack("THIS");
+    this.pushStack("THAT");
+
+    // set ARG to SP - 5 - nArgs
+
+
+    // set lcl to sp
+    this.write("@SP");
+    this.write("D=M");
+    this.write("@LCL");
+    this.write("M=D");
+
+
+
+  }
 
   writeReturn(){}
 
