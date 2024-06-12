@@ -2,34 +2,27 @@ section .text
 global pangram
 pangram:
 	; rdi: source string
-	mov rdx, 0 ; set index
-	mov r8, 0
-
+	xor rax, rax 
+	xor rcx, rcx
 
 loop:
-	mov rsi, [rdi + rdx]
-	cmp rsi, 0
+	mov cl, [rdi]
+	inc rdi
+	cmp cl, 0
 	je finish
 
-	mov r9, rsi
-	sub r9, 64
-	jl skip
+	cmp cl, 64
+	jl loop
 
-	and rsi, 31
+	mov rdx, 1
+	and cl, 0x1f
 
-	mov r10, 1
-	sal r10, rsi
-
-	or r8, r10
-	inc rdx
-	jmp loop
-
-skip: 
-	inc rdx
+	shl rdx, cl
+	or rax, rdx
 	jmp loop
 
 finish:
-	sub r8, 0x07fffffe
+	sub rax, 0x07fffffe
 	je true
 	mov rax, 0
 	ret
