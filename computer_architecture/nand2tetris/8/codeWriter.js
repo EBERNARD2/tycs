@@ -287,6 +287,20 @@ module.exports = class CodeWriter {
     else this.popStack(segment, index);
   }
 
+  writeLabel(label){}
+
+  writeGoto(label){}
+
+  writeIf(label){}
+
+  writeFunction(functionName, nVars){}
+
+  writeCall(functionName, nVars){}
+
+  writeReturn(){}
+
+  setFileName(fileName){}
+
   stackInit(){
     this.write("@256");
     this.write("D=A");
