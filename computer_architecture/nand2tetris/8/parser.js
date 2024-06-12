@@ -99,6 +99,8 @@ module.exports = class Parser {
           return "C_CALL";
         case 'label':
           return 'C_LABEL';
+        case 'if-goto':
+          return 'C_IF';
         case ARITHMETIC_OPTIONS.includes(this.currentCommand.trim()):
           return 'C_ARITHMETIC';
         default:
