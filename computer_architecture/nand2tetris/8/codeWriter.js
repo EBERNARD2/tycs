@@ -293,7 +293,16 @@ module.exports = class CodeWriter {
 
   writeIf(label){}
 
-  writeFunction(functionName, nVars){}
+  writeFunction(functionName, nVars){
+    const nArgs = parseInt(nVars);
+
+    this.write(`(${functionName})`);
+    
+    for(let i = 0; i < nArgs; i++){
+      this.pushStack(0);
+    }
+
+  }
 
   writeCall(functionName, nVars){
     //this method will create a new stack frame in hack machine language
@@ -302,7 +311,7 @@ module.exports = class CodeWriter {
 
     // push address of instruction we want to return to
     const uniqueLabel = `LABEL${this.Unique_Label_Id++}`;
-    this.pushStack(`@${uniqueLabel}`);
+    this.pushStack(uniqueLabel);
 
     // push lcl, arg, this, that to stack
     this.pushStack("LCL");
@@ -311,12 +320,11 @@ module.exports = class CodeWriter {
     this.pushStack("THAT");
 
     // set ARG to SP - 5 - nArgs
-    const nArgs = parseInt(nVars);
     this.write("@5 // set arg to SP - 5 - nArgs");
     this.write("D=A");
     this.write("@SP");
     this.write("D=D-M");
-    this.write(`@${nArgs}`);
+    this.write(`@${nVars}`);
     this.write("D=D-A");
     this.write('@ARG');
     this.write("M=D");
