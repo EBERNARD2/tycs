@@ -301,7 +301,8 @@ module.exports = class CodeWriter {
     this.write(`// create stack frame before calling ${functionName} `);
 
     // push address of instruction we want to return to
-    
+    const uniqueLabel = `LABEL${this.Unique_Label_Id++}`;
+    this.pushStack(`@${uniqueLabel}`);
 
     // push lcl, arg, this, that to stack
     this.pushStack("LCL");
@@ -326,7 +327,12 @@ module.exports = class CodeWriter {
     this.write("@LCL");
     this.write("M=D");
 
+    // jump to function -- probably need to schange this 
+    this.write(`@${functionName}`);
+    this.write('0;JMP');
 
+    // write return address
+    this.write(`(${uniqueLabel})`);
 
   }
 
