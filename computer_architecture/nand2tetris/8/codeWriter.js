@@ -297,11 +297,10 @@ module.exports = class CodeWriter {
     const nArgs = parseInt(nVars);
 
     this.write(`(${functionName})`);
-    
+
     for(let i = 0; i < nArgs; i++){
       this.pushStack(0);
     }
-
   }
 
   writeCall(functionName, nVars){
@@ -335,7 +334,7 @@ module.exports = class CodeWriter {
     this.write("@LCL");
     this.write("M=D");
 
-    // jump to function -- probably need to schange this 
+    // jump to function -- probably need to change this 
     this.write(`@${functionName}`);
     this.write('0;JMP');
 
@@ -344,7 +343,66 @@ module.exports = class CodeWriter {
 
   }
 
-  writeReturn(){}
+  writeReturn(){
+    // we need to set frame to LCL
+    this.write("@LCL");
+    this.write("D=M");
+    this.write("@FRAME");
+    this.write("M=D");
+  
+
+    // set return address to address of frame - 5 
+    this.write("@5");
+    this.write("A=D-A");
+    this.write("D=M");
+    this.write("@RETURN");
+    this.write("M=D");
+
+
+    // set that to address of frame - 1
+    this.write("@FRAME");
+    this.write("D=A");
+    this.write("@1");
+    this.write("A=D-A");
+    this.write("D=M");
+    this.write("@THAT");
+    this.write("M=D");
+
+    // set this to address of frame - 2
+
+    this.write("@FRAME");
+    this.write("D=A");
+    this.write("@2");
+    this.write("A=D-A");
+    this.write("D=M");
+    this.write("@THIS");
+    this.write("M=D");
+    // set arg to address of frame - 3
+    this.write("@FRAME");
+    this.write("D=A");
+    this.write("@3");
+    this.write("A=D-A");
+    this.write("D=M");
+    this.write("@ARG");
+    this.write("M=D");
+    
+    // set LCL to address of frame - 4
+    this.write("@FRAME");
+    this.write("D=A");
+    this.write("@4");
+    this.write("A=D-A");
+    this.write("D=M");
+    this.write("@LCL");
+    this.write("M=D");
+
+
+
+
+
+
+
+    // 
+  }
 
   setFileName(fileName){}
 
