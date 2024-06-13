@@ -310,7 +310,15 @@ module.exports = class CodeWriter {
     this.pushStack("THAT");
 
     // set ARG to SP - 5 - nArgs
-
+    const nArgs = parseInt(nVars);
+    this.write("@5 // set arg to SP - 5 - nArgs");
+    this.write("D=A");
+    this.write("@SP");
+    this.write("D=D-M");
+    this.write(`@${nArgs}`);
+    this.write("D=D-A");
+    this.write('@ARG');
+    this.write("M=D");
 
     // set lcl to sp
     this.write("@SP");
