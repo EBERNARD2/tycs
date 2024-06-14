@@ -212,9 +212,29 @@ module.exports = class CodeWriter {
     return parseInt(index) + 16;
   }
 
-  pushStack(value){
+  pushStack(value, segment){
     this.write(`// Push ${value} to Stack`);
-  
+    if (segment){
+      const validSegment = VALID_SEGMENTS.includes(segment.toLowerCase());
+
+      if (!validSegment){
+        console.error('Invalid location');
+        process.exit();
+      }
+
+      const segmentAddress = this.getSegmentIndex(segment, value);
+
+      this.write(`@${segmentAddress}`);
+      this.write('D=M');
+      this.write('@SP'); 
+      this.write('A=M'); 
+      this.write('M=D'); 
+      this.write('@SP'); 
+      this.write("AM=M+1");
+
+
+      return;
+    }
     // write to file 
     this.write(`@${value}`);
     this.write('D=A');
