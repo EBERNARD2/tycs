@@ -307,11 +307,18 @@ module.exports = class CodeWriter {
     else this.popStack(segment, index);
   }
 
-  writeLabel(label){}
+  writeLabel(label){
+    this.write(`(${label})`);
+  }
 
-  writeGoto(label){}
+  writeGoto(label){
+    this.write(`@${label}`);
+    this.write("0;JMP");
+  }
 
-  writeIf(label){}
+  writeIf(label){
+    
+  }
 
   writeFunction(functionName, nVars){
     const nArgs = parseInt(nVars);
