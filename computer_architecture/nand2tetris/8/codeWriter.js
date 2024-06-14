@@ -317,7 +317,11 @@ module.exports = class CodeWriter {
   }
 
   writeIf(label){
-    
+    this.write("@SP");
+    this.write("A=M-1");
+    this.write("D=M");
+    this.write(`@${label}`);
+    this.write("");
   }
 
   writeFunction(functionName, nVars){

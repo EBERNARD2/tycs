@@ -1,5 +1,21 @@
 @5
 D=A
-@ROOM
+@test
 M=D
+@Hi
+D;JEQ
+@Done
+0;JMP
+
+
+(Hi)
+@test
+M=0
+
+
+(Done)
+0;JMP
+
+
+
 

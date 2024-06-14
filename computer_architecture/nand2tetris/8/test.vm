@@ -1,0 +1,11 @@
+push constant 1
+push constant 4
+push constant 5
+push constant 6
+lt
+if-goto DONE
+push constant 9
+
+
+label DONE
+    push constant 10
