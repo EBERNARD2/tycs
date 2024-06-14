@@ -359,6 +359,18 @@ module.exports = class CodeWriter {
     this.write("M=D");
 
 
+
+    // pop last value into argument
+    this.popStack('argument', 0);
+
+
+    // reposition stack pointer
+    this.write("@ARG");
+    this.write("D=M");
+    this.write("@SP");
+    this.write("M=D+1");
+
+
     // set that to address of frame - 1
     this.write("@FRAME");
     this.write("D=A");
@@ -395,13 +407,13 @@ module.exports = class CodeWriter {
     this.write("@LCL");
     this.write("M=D");
 
-
-
-
-
-
-
-    // 
+    //jump to return address - this is a tentative solution.. Load address at frame - 5 (where return address should be)
+    // then jump to that address
+    this.write("@FRAME");
+    this.write("D=A");
+    this.write("@5");
+    this.write("A=D-A");
+    this.write("0;JMP");
   }
 
   setFileName(fileName){}
