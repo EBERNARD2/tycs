@@ -341,15 +341,19 @@ module.exports = class CodeWriter {
 
     // push address of instruction we want to return to
     const uniqueLabel = `LABEL${this.Unique_Label_Id++}`;
+    this.write("// push address of instruction we want to return to");
     this.pushStack(uniqueLabel);
 
     // push lcl, arg, this, that to stack
+    this.write('// push lcl, arg, this, that to stack');
     this.pushStack("LCL");
     this.pushStack("ARG");
     this.pushStack("THIS");
     this.pushStack("THAT");
 
     // set ARG to SP - 5 - nArgs
+    this.write('// Set arg and stack poiner');
+
     this.write("@5 // set arg to SP - 5 - nArgs");
     this.write("D=A");
     this.write("@SP");
@@ -360,16 +364,20 @@ module.exports = class CodeWriter {
     this.write("M=D");
 
     // set lcl to sp
+    this.write('// Set LCL to SP');
     this.write("@SP");
     this.write("D=M");
     this.write("@LCL");
     this.write("M=D");
 
     // jump to function -- probably need to change this 
+    this.write('// Jump to new function');
+
     this.write(`@${functionName}`);
     this.write('0;JMP');
 
     // write return address
+    this.write('// Write return address');
     this.write(`(${uniqueLabel})`);
 
   }
@@ -447,7 +455,9 @@ module.exports = class CodeWriter {
     this.write("0;JMP");
   }
 
-  setFileName(fileName){}
+  setFileName(fileName){
+
+  }
 
   stackInit(){
     this.write("@256");
