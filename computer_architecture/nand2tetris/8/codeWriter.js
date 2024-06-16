@@ -66,6 +66,7 @@ module.exports = class CodeWriter {
     // we probably need to manage regester and ram memory
     this.outputFile = outputFile;
     this.Unique_Label_Id = 0;
+    this.currentFileName = null;
     this.stackInit();
     
   }
@@ -340,7 +341,7 @@ module.exports = class CodeWriter {
     this.write(`// create stack frame before calling ${functionName} `);
 
     // push address of instruction we want to return to
-    const uniqueLabel = `LABEL${this.Unique_Label_Id++}`;
+    const uniqueLabel = `${functionName}$ret.${this.Unique_Label_Id++}`;
     this.write("// push address of instruction we want to return to");
     this.pushStack(uniqueLabel);
 
@@ -458,7 +459,8 @@ module.exports = class CodeWriter {
   }
 
   setFileName(fileName){
-
+    this.currentFileName = fileName;
+    this.Unique_Label_Id = 0;
   }
 
   stackInit(){
