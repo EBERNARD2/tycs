@@ -384,6 +384,8 @@ module.exports = class CodeWriter {
 
   writeReturn(){
     // we need to set frame to LCL
+    this.write('// Write return address');
+
     this.write("@LCL");
     this.write("D=M");
     this.write("@FRAME");
@@ -464,6 +466,8 @@ module.exports = class CodeWriter {
     this.write("D=A");
     this.write("@SP");
     this.write("M=D");
+    this.write("@Sys.init");
+    this.write("0;JMP");
   }
 
 }
