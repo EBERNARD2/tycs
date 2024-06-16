@@ -3,8 +3,6 @@ const Parser = require("./parser.js");
 const fs = require('node:fs');
 
 
-
-
 function virtualMachineTranslator(outputFileName, dir){
     
     const writer = new CodeWriter(`${outputFileName}.asm`);
@@ -18,7 +16,7 @@ function virtualMachineTranslator(outputFileName, dir){
         const parser = new Parser(`${process.argv[2]}/${file}`);
 
         writer.currentFileName = vmFile[0];
-        
+
         while (parser.lines){
             if (parser.hasMoreLines()){
                 parser.advance();
