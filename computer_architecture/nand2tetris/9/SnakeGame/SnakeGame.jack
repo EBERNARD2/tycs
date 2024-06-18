@@ -1,0 +1,7 @@
+/**
+ * Represents a Pong game.
+ */
+
+class SnakeGame {
+    
+}
