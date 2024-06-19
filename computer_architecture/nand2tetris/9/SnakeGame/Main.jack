@@ -6,9 +6,9 @@
 class Main {
     /** Initializes a Snake game and starts running it. */
     function void main() {
-        var PongGame game;
-        do PongGame.newInstance();
-        let game = PongGame.getInstance();
+        var SnakeGame game;
+        do SnakeGame.newInstance();
+        let game = SnakeGame.getInstance();
         do game.run();
         do game.dispose();
         return;
