@@ -3,5 +3,21 @@
  */
 
 class SnakeGame {
-    
+    static SnakeGame instance; // The snake game   
+    field Snake snake;            // snake
+    field boolean exit;       // true when the game is over
+
+    constructor PongGame new() {
+	    do Screen.clearScreen();
+        let snake Snake.new();
+        do snake.setDestination(400,0);
+        do Screen.drawRectangle(0, 238, 511, 240);
+        
+	 
+	
+	    let exit = false;
+
+        return this;
+    }
+
 }
