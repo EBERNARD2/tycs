@@ -1,23 +1,23 @@
+const fs = require('node:fs');
 
 
 class JackTokenizer {
-    constructor(inputFileStream){
-        
-    }
+  constructor(inputFile){
+  }
 
-    hasMoreTokens(){}
+  hasMoreTokens(){}
 
-    advance(){}
+  advance(){}
 
-    tokenType(){}
+  tokenType(){}
 
-    keyword(){}
-    
-    symbol(){}
+  keyword(){}
+  
+  symbol(){}
 
-    identifier(){}
+  identifier(){}
 
-    intVal(){}
+  intVal(){}
 
-    stringVal(){}
+  stringVal(){}
 }
