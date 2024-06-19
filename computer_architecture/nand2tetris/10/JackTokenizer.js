@@ -1,8 +1,9 @@
 const fs = require('node:fs');
 
 
-class JackTokenizer {
+module.exports = class JackTokenizer {
   constructor(inputFile){
+    console.log(inputFile, 'in tokenizer');
   }
 
   hasMoreTokens(){}

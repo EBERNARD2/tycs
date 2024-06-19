@@ -1,4 +1,5 @@
 const fs = require('node:fs');
+const JackTokenizer = require('./JackTokenizer');
 
 /* 
   First, we need to determine if command line argument 2 is a jack file or directory
@@ -58,13 +59,13 @@ const getJackFiles = (inputFilePath) => {
 
       // if successful log out all files in directory
       for(const file of dir){
-        console.log(file);
+        const tokenizer = new JackTokenizer(file);
       }
 
     } catch(err){
       // if not a valid directory on machine throw an error 
 
-      console.error(`Error: Not a valid file path`);
+      console.error(`Error: Not a valid directory path`);
       console.error(err);
       process.exit(1);
     }
