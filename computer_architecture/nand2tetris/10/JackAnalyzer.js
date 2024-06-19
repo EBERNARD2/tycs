@@ -1,22 +1,6 @@
 const fs = require('node:fs');
 const JackTokenizer = require('./JackTokenizer');
 
-/* 
-  First, we need to determine if command line argument 2 is a jack file or directory
-
-
-  If directory, process file one file at a time
-
-
-  If jack file, process file
-
-
-  test would be to output data in Jack tokenizer
-
-*/
-
-
-
 
 /** 
  *  There are a few requirements we need to consider for this function:
@@ -40,19 +24,7 @@ const getJackFiles = (inputFilePath) => {
   // Determine whether or not the input is a file path or directory 
   // need to account for both relative and absolute paths
   const isDir = `.${splitPath[1]}` === inputFilePath || splitPath[0] === inputFilePath;
-  if (!isDir){
-    // if it is a file then make sure it is a jack file
-    const validFile = splitPath[splitPath.length - 1] === "jack";
-
-    if (!validFile){
-      console.error('Must enter a valid jack file extension');
-      process.exit(1);
-    }
-
-    console.log('Valid jack file');
-    // if it is not a jack file throw an error and exit program
-     
-  } else {
+  if (isDir){
     // If not a file path try to fetch directory
     try {
       const dir = fs.readdirSync(inputFilePath);
@@ -69,6 +41,18 @@ const getJackFiles = (inputFilePath) => {
       console.error(err);
       process.exit(1);
     }
+  } else {
+
+    // if it is a file then make sure it is a jack file
+    const validFile = splitPath[splitPath.length - 1] === "jack";
+
+    if (!validFile){
+      console.error('Must enter a valid jack file extension');
+      process.exit(1);
+    }
+
+    // if it is not a jack file throw an error and exit program
+    console.log('Valid jack file');
 
   }
  
