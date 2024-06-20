@@ -16,7 +16,7 @@ const JackTokenizer = require('./JackTokenizer');
 
 // Determine whether or not input string is a directory
 
-const jackAnalyzer = (inputFilePath) => {
+const processJackFiles = (inputFilePath) => {
 
   // Break string up where instances of char "." occur in string
   const splitPath = inputFilePath.split(".");
@@ -35,10 +35,11 @@ const jackAnalyzer = (inputFilePath) => {
       // if successful log out all files in directory
       for(const file of dir){
         const tokenizer = new JackTokenizer(`${inputFilePath}/${file}`);
-        console.log(tokenizer.file);
+
+        jackAnalyzer(tokenizer);
       }
 
-    } catch(err){
+    } catch(err) {
       // if not a valid directory on machine throw an error 
 
       console.error(`Error: Not a valid directory path`);
@@ -50,21 +51,27 @@ const jackAnalyzer = (inputFilePath) => {
     // if it is a file then make sure it is a jack file
     const validFile = splitPath[splitPath.length - 1] === "jack";
 
-    if (!validFile){
+    // if it is not a jack file throw an error and exit program
+
+    if (!validFile) {
       console.error('Must enter a valid jack file extension');
       process.exit(1);
     }
 
-    // if it is not a jack file throw an error and exit program
-    console.log('Valid jack file');
+    const tokenizer = new JackTokenizer(inputFilePath);
+
+    jackAnalyzer(tokenizer);
+    
 
   }
  
 };
 
+const jackAnalyzer = (tokenizer) => {
+  tokenizer.advance();
+};
 
-
-jackAnalyzer(process.argv[2]);
+processJackFiles(process.argv[2]);
 
 
 
