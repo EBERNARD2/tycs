@@ -28,7 +28,7 @@ module.exports = class JackTokenizer {
     return false;
   }
 
-  getNextValidLine() {
+  #getNextValidLine() {
      // Skip invalid lines until we find a line to process
      let currentLine = this.file[this.#currentLineIndex];
      let comment = currentLine.slice(0,2);
@@ -43,12 +43,12 @@ module.exports = class JackTokenizer {
      this.#currentLineIndex++;
   }
 
-  // Go to next line if there aren't any more values to parse
   advance() {
+    // Go to next line if there aren't any more values to parse
 
-    if (this.#currentValuesToParse.length === 0 ) this.getNextValidLine();
+    if (this.#currentValuesToParse.length === 0 ) this.#getNextValidLine();
     this.currentToken = this.#currentValuesToParse.shift();
-    console.log(this.#currentValuesToParse);
+ 
   }
 
   tokenType(){}
