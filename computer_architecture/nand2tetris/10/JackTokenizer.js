@@ -6,6 +6,9 @@ const BLANK_LINE = "";
 
 
 module.exports = class JackTokenizer {
+  #currentLineIndex; 
+  #currentValuesToParse; 
+
   constructor(inputFile){
     const currentFile = fs.readFileSync(inputFile);
 
@@ -13,10 +16,9 @@ module.exports = class JackTokenizer {
 
     this.file = fileLines.map((line) => line.trim());
     this.currentToken = null;
+    this.#currentLineIndex = 0;
+    this.#currentValuesToParse = [];
   }
-
-  #currentLine = this.file[this.#currentLineIndex];
-  #currentLineIndex = 0;
 
   hasMoreTokens(){
     if (this.#currentLineIndex != this.file.length) {
@@ -26,23 +28,27 @@ module.exports = class JackTokenizer {
     return false;
   }
 
-  // advance
+  getNextValidLine() {
+     // Skip invalid lines until we find a line to process
+     let currentLine = this.file[this.#currentLineIndex];
+     let comment = currentLine.slice(0,2);
+ 
+     while (COMMENT_SYMBOLS.includes(comment) || currentLine === BLANK_LINE) {
+       this.#currentLineIndex++;
+       currentLine = this.file[this.#currentLineIndex];
+       comment = currentLine.slice(0,2);
+     }
 
-  getNextValidLine
+     this.#currentValuesToParse = currentLine.split(" ");
+     this.#currentLineIndex++;
+  }
 
-  advance(){
+  // Go to next line if there aren't any more values to parse
+  advance() {
 
-    // Skip invalid lines until we find a line to process
-    let currentLine = this.file[this.#currentLineIndex];
-    let comment = currentLine.slice(0,2);
-
-    while (COMMENT_SYMBOLS.includes(comment) || currentLine === BLANK_LINE) {
-      this.#currentLineIndex++;
-      currentLine = this.file[this.#currentLineIndex];
-      comment = currentLine.slice(0,2);
-    }
-
-    this.#currentLineIndex++;
+    if (this.#currentValuesToParse.length === 0 ) this.getNextValidLine();
+    this.currentToken = this.#currentValuesToParse.shift();
+    console.log(this.#currentValuesToParse);
   }
 
   tokenType(){}

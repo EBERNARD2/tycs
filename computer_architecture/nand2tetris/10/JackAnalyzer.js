@@ -69,6 +69,9 @@ const processJackFiles = (inputFilePath) => {
 
 const jackAnalyzer = (tokenizer) => {
   tokenizer.advance();
+
+
+  console.log(tokenizer.currentToken);
 };
 
 processJackFiles(process.argv[2]);
