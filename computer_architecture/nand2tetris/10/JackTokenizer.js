@@ -14,14 +14,17 @@ module.exports = class JackTokenizer {
 
     const fileLines = currentFile.toString().split('\n');
 
-    this.file = fileLines.map((line) => line.trim());
-    this.currentToken = null;
+    this.file = fileLines.map((line) => line.trim()).filter((f) => {
+      const comment = f[0] + f[1];
+      return !(COMMENT_SYMBOLS.includes(comment) || f === BLANK_LINE)
+    });
+    this.currentToken = [];
     this.#currentLineIndex = 0;
     this.#currentValuesToParse = [];
   }
 
   hasMoreTokens(){
-    if (this.#currentLineIndex != this.file.length) {
+    if (this.#currentLineIndex < this.file.length || this.#currentValuesToParse.length) {
       return true;
     }
 
@@ -31,27 +34,20 @@ module.exports = class JackTokenizer {
   #getNextValidLine() {
      // Skip invalid lines until we find a line to process
      let currentLine = this.file[this.#currentLineIndex];
-     let comment = currentLine.slice(0,2);
- 
-     while (COMMENT_SYMBOLS.includes(comment) || currentLine === BLANK_LINE) {
-       this.#currentLineIndex++;
-       currentLine = this.file[this.#currentLineIndex];
-       comment = currentLine.slice(0,2);
-     }
-
+     
      this.#currentValuesToParse = currentLine.split(" ");
      this.#currentLineIndex++;
   }
 
   advance() {
-    // Go to next line if there aren't any more values to parse
-
+    // Go to next line if there aren't any more values to parse 
     if (this.#currentValuesToParse.length === 0 ) this.#getNextValidLine();
     this.currentToken = this.#currentValuesToParse.shift();
- 
   }
 
-  tokenType(){}
+  tokenType(){
+    
+  }
 
   keyword(){}
   
