@@ -4,6 +4,51 @@ const COMMENT_SYMBOLS = ['//', '/*'];
 
 const BLANK_LINE = "";
 
+const RESERVED_KEYWORDS = [
+  "class",
+  "constructor",
+  "function",
+  "method",
+  "field",
+  "static",
+  "var",
+  "int",
+  "char",
+  "boolean",
+  "void",
+  "true",
+  "false",
+  "null",
+  "this",
+  "let",
+  "do",
+  "if",
+  "else",
+  "while",
+  "return"
+];
+
+const RESERVED_SYMBOLS = [
+  "{",
+  "}",
+  "(",
+  ")",
+  "[",
+  "]",
+  ".",
+  "'",
+  ";",
+  "+",
+  "-",
+  "/",
+  "&",
+  "|",
+  "<",
+  ">",
+  "=",
+  "~"
+];
+
 
 module.exports = class JackTokenizer {
   #currentLineIndex; 
