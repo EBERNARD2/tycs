@@ -42,11 +42,16 @@ module.exports = class JackTokenizer {
   advance() {
     // Go to next line if there aren't any more values to parse 
     if (this.#currentValuesToParse.length === 0 ) this.#getNextValidLine();
+    if (this.#currentValuesToParse[0] + this.#currentValuesToParse[1] === '//') {
+      this.#currentLineIndex++;
+      this.#getNextValidLine();
+    }
     this.currentToken = this.#currentValuesToParse.shift();
   }
 
   tokenType(){
-    
+    // There are 5 categories:
+    // Keywords, symbols, intergerConstants, stringConstants, and identifiers
   }
 
   keyword(){}
