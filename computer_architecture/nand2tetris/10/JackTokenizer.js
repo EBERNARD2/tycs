@@ -42,7 +42,17 @@ module.exports = class JackTokenizer {
   advance() {
     // Go to next line if there aren't any more values to parse 
     if (this.#currentValuesToParse.length === 0 ) this.#getNextValidLine();
-    if (this.#currentValuesToParse[0] + this.#currentValuesToParse[1] === '//') {
+
+    while(this.#currentValuesToParse[0] === '' || this.#currentValuesToParse[0] === '//'){
+      if (this.#currentValuesToParse[0] === '//') {
+        this.#currentLineIndex++;
+        this.#getNextValidLine();
+      } else {
+        this.#currentValuesToParse.shift();
+      }
+    }
+
+    if (this.#currentValuesToParse[0] === '//') {
       this.#currentLineIndex++;
       this.#getNextValidLine();
     }
