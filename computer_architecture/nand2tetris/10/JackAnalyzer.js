@@ -16,7 +16,7 @@ const JackTokenizer = require('./JackTokenizer');
 
 // Determine whether or not input string is a directory
 
-const getJackFiles = (inputFilePath) => {
+const jackAnalyzer = (inputFilePath) => {
 
   // Break string up where instances of char "." occur in string
   const splitPath = inputFilePath.split(".");
@@ -27,11 +27,15 @@ const getJackFiles = (inputFilePath) => {
   if (isDir){
     // If not a file path try to fetch directory
     try {
-      const dir = fs.readdirSync(inputFilePath);
+      const dir = fs.readdirSync(inputFilePath).filter((file) => {
+        const fileExtension = file.split(".")[1];
+        return fileExtension === 'jack';
+      });
 
       // if successful log out all files in directory
       for(const file of dir){
-        const tokenizer = new JackTokenizer(file);
+        const tokenizer = new JackTokenizer(`${inputFilePath}/${file}`);
+        console.log(tokenizer.file);
       }
 
     } catch(err){
@@ -60,7 +64,7 @@ const getJackFiles = (inputFilePath) => {
 
 
 
-getJackFiles(process.argv[2]);
+jackAnalyzer(process.argv[2]);
 
 
 

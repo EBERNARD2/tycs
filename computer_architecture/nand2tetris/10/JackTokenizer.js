@@ -3,7 +3,11 @@ const fs = require('node:fs');
 
 module.exports = class JackTokenizer {
   constructor(inputFile){
-    console.log(inputFile, 'in tokenizer');
+    const currentFile = fs.readFileSync(inputFile);
+
+    const fileLines = currentFile.toString().split('\n');
+
+    this.file = fileLines.map((line) => line.trim());
   }
 
   hasMoreTokens(){}
