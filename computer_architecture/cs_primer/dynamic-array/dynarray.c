@@ -6,8 +6,8 @@
 
 typedef struct DA {
   // TODO define our struct
-  int current_size;
   void *values[STARTING_CAPACITY]; 
+  void *current_pointer;
 } DA;
 
 
