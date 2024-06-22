@@ -19,7 +19,7 @@ int main(void)
       printf("%c\t\t", i + '0');
       for (int count = chars[i]; count > 0; count--)
         printf("X");
-      printf("\t\t\t\t Appeared %c %d times\n", i + '0', chars[i]);
+      printf("\t\t\t\t %c appeared  %d time(s)\n", i + '0', chars[i]);
     }
   }
 
