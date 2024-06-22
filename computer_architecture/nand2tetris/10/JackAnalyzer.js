@@ -70,11 +70,10 @@ const processJackFiles = (inputFilePath) => {
 const jackAnalyzer = (tokenizer) => {
   while (tokenizer.hasMoreTokens()) {
     tokenizer.advance()
-    console.log(tokenizer.currentToken)
+    // console.log(tokenizer.currentToken)
+    console.log(tokenizer.tokenType());
   }
 
-
-  console.log(tokenizer.currentToken);
 };
 
 processJackFiles(process.argv[2]);

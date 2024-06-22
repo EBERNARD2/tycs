@@ -5,6 +5,7 @@ const COMMENT_SYMBOLS = ['//', '/*'];
 const BLANK_LINE = "";
 const KEYWORD_CONSTANT = 'KEYWORD';
 const SYMBOL_CONSTANT = 'SYMBOL';
+const INTERGER_CONSTANT = 'INT_CONST';
 
 const RESERVED_KEYWORDS = [
   "class",
@@ -94,10 +95,9 @@ module.exports = class JackTokenizer {
         valuesToPush.push(";");
       } 
 
-      const updateArgValue = value[0] === '(' && value.length > 1 && value[value.length - 1] === ")";
       const hasUpdatedValue = valuesToPush[0] ? true : false;
       
-      if (updateArgValue){
+      if (value[0] === '(' && value.length > 1 && value[value.length - 1] === ")"){
         const valueToPush = value.split(/[()]/)[1];
         valuesToPush[0] = valueToPush;
       }
@@ -142,14 +142,15 @@ module.exports = class JackTokenizer {
     // There are 5 categories:
     // Keywords, symbols, intergerConstants, stringConstants, and identifiers
 
-    if (RESERVED_KEYWORDS.includes(this.currentToken)) {
+    if (RESERVED_KEYWORDS.includes(this.currentToken))
       return KEYWORD_CONSTANT;
-    }
 
-    if (RESERVED_SYMBOLS.includes(this.currentToken)) {
+    if (RESERVED_SYMBOLS.includes(this.currentToken)) 
       return SYMBOL_CONSTANT;
-    }
+    
 
+    if (parseInt(this.currentToken)) 
+      return INTERGER_CONSTANT;
 
   }
 
