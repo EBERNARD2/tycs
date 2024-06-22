@@ -6,7 +6,8 @@ const BLANK_LINE = "";
 const KEYWORD_CONSTANT = 'KEYWORD';
 const SYMBOL_CONSTANT = 'SYMBOL';
 const INTERGER_CONSTANT = 'INT_CONST';
-
+const STRING_CONSTANT = 'STRING_CONST';
+const IDENTIFIER_CONSTANT = "IDENTIFIER";
 const RESERVED_KEYWORDS = [
   "class",
   "constructor",
@@ -148,10 +149,21 @@ module.exports = class JackTokenizer {
     if (RESERVED_SYMBOLS.includes(this.currentToken)) 
       return SYMBOL_CONSTANT;
     
-
     if (parseInt(this.currentToken)) 
       return INTERGER_CONSTANT;
 
+    if (this.currentToken[0] === "\"" || this.currentToken[this.currentToken.length - 1] === "\"")
+      return STRING_CONSTANT;
+
+    if (this.#isValidIdentifier())
+      return IDENTIFIER_CONSTANT;
+    
+    console.error(`Invalid keyword, symbols, interger constant, string const, or identifier:  ${this.currentToken}`);
+    process.exit(1);
+  }
+
+  #isValidIdentifier(){
+    return true;
   }
 
   keyword(){}
