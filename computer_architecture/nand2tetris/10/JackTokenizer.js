@@ -155,14 +155,23 @@ module.exports = class JackTokenizer {
     if (this.currentToken[0] === "\"" || this.currentToken[this.currentToken.length - 1] === "\"")
       return STRING_CONSTANT;
 
-    if (this.#isValidIdentifier())
+    if (this.#checkIdentifier())
       return IDENTIFIER_CONSTANT;
     
     console.error(`Invalid keyword, symbols, interger constant, string const, or identifier:  ${this.currentToken}`);
     process.exit(1);
   }
 
-  #isValidIdentifier(){
+  #checkIdentifier(){
+    // Identifiers are invalid if token starts with an interger
+
+    const invalidInteger = parseInt(this.currentToken[0]);
+
+    if (invalidInteger) {
+      console.error(`Identifiers must not start with integer: ${this.currentToken}`);
+      process.exit(1);
+    }
+
     return true;
   }
 
