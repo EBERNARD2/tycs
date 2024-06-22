@@ -3,6 +3,8 @@ const fs = require('node:fs');
 const COMMENT_SYMBOLS = ['//', '/*'];
 
 const BLANK_LINE = "";
+const KEYWORD_CONSTANT = 'KEYWORD';
+const SYMBOL_CONSTANT = 'SYMBOL';
 
 const RESERVED_KEYWORDS = [
   "class",
@@ -80,7 +82,31 @@ module.exports = class JackTokenizer {
      // Skip invalid lines until we find a line to process
      let currentLine = this.file[this.#currentLineIndex];
      
-     this.#currentValuesToParse = currentLine.split(" ");
+     const lineValues = currentLine.split(" ");
+
+     const scrubValues = lineValues.reduce((accumulator, value) => {
+
+      let noChangesMadeToToken = true; 
+      
+      if (value[value.length - 1] === ';') {
+        accumulator.push(value.slice(0, value.length - 1));
+        accumulator.push(";");
+        noChangesMadeToToken = false;
+      } 
+      
+      if (value[0] === '(' && value.length > 1 && value[value.length - 1] === ")"){
+        const valueToPush = value.split(/[()]/)[1];
+        accumulator.push(valueToPush);
+        noChangesMadeToToken = false;
+      }
+      
+      if (noChangesMadeToToken) accumulator.push(value);
+
+      return accumulator;
+     }, []);
+
+     this.#currentValuesToParse = scrubValues;
+
      this.#currentLineIndex++;
   }
 
@@ -101,12 +127,24 @@ module.exports = class JackTokenizer {
       this.#currentLineIndex++;
       this.#getNextValidLine();
     }
+      
+
     this.currentToken = this.#currentValuesToParse.shift();
   }
 
   tokenType(){
     // There are 5 categories:
     // Keywords, symbols, intergerConstants, stringConstants, and identifiers
+
+    if (RESERVED_KEYWORDS.includes(this.currentToken)) {
+      return KEYWORD_CONSTANT;
+    }
+
+    if (RESERVED_SYMBOLS.includes(this.currentToken)) {
+      return SYMBOL_CONSTANT;
+    }
+
+
   }
 
   keyword(){}
