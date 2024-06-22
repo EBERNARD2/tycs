@@ -86,21 +86,27 @@ module.exports = class JackTokenizer {
 
      const scrubValues = lineValues.reduce((accumulator, value) => {
 
-      let noChangesMadeToToken = true; 
+
+      let valuesToPush = [];
       
       if (value[value.length - 1] === ';') {
-        accumulator.push(value.slice(0, value.length - 1));
-        accumulator.push(";");
-        noChangesMadeToToken = false;
+        valuesToPush.push(value.slice(0, value.length - 1));
+        valuesToPush.push(";");
       } 
+
+      const updateArgValue = value[0] === '(' && value.length > 1 && value[value.length - 1] === ")";
+      const hasUpdatedValue = valuesToPush[0] ? true : false;
       
-      if (value[0] === '(' && value.length > 1 && value[value.length - 1] === ")"){
+      if (updateArgValue){
         const valueToPush = value.split(/[()]/)[1];
-        accumulator.push(valueToPush);
-        noChangesMadeToToken = false;
+        valuesToPush[0] = valueToPush;
       }
       
-      if (noChangesMadeToToken) accumulator.push(value);
+      if (hasUpdatedValue && valuesToPush[0][0] === "(" && valuesToPush[0][valuesToPush[0].length - 1] === ")") {
+        valuesToPush[0] = valuesToPush[0].split(/[()]/)[1];
+      }
+
+      valuesToPush.length ? accumulator.push(...valuesToPush) : accumulator.push(value);
 
       return accumulator;
      }, []);
