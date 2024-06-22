@@ -71,9 +71,8 @@ const jackAnalyzer = (tokenizer) => {
   while (tokenizer.hasMoreTokens()) {
     tokenizer.advance()
     // console.log(tokenizer.currentToken)
-    console.log(tokenizer.tokenType());
-    if (!tokenizer.tokenType())
-      console.log(tokenizer.currentToken, " needs a symbol");
+    if (tokenizer.tokenType() === 'KEYWORD')
+      console.log(tokenizer.keyword());
   }
 
 };

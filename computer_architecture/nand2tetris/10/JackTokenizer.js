@@ -175,13 +175,25 @@ module.exports = class JackTokenizer {
     return true;
   }
 
-  keyword(){}
+  #returnCurrentToken(){
+    return this.currentToken;
+  }
+
+  keyword(){
+    return this.#returnCurrentToken().toUpperCase();
+  }
   
-  symbol(){}
+  symbol(){
+    return this.#returnCurrentToken()
+  }
 
-  identifier(){}
+  identifier(){
+    return this.#returnCurrentToken()
+  }
 
-  intVal(){}
+  intVal(){
+    return this.#returnCurrentToken()
+  }
 
   stringVal(){}
 }
