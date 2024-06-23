@@ -1,5 +1,4 @@
 const fs = require('node:fs');
-const JackTokenizer = require('./JackTokenizer');
 const CompilationEngine = require('./CompilationEngine');
 
 
@@ -35,7 +34,6 @@ const processJackFiles = (inputFilePath) => {
 
       // if successful log out all files in directory
       for(const file of dir){
-        const tokenizer = new JackTokenizer(`${inputFilePath}/${file}`);
         jackAnalyzer(file);
         // jackAnalyzer(tokenizer);
       }
@@ -75,6 +73,7 @@ const jackAnalyzer = (inputFile) => {
   const outputFile = inputFile.split(".jack")[0] + '.xml';
   
   const compilationEngine = new CompilationEngine(inputFile, outputFile);
+  compilationEngine.compileClass();
   // while (tokenizer.hasMoreTokens()) {
   //   tokenizer.advance()
     

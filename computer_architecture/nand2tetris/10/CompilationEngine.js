@@ -1,12 +1,26 @@
+const JackTokenizer = require("./JackTokenizer");
+const fs = require("node:fs");
+
 module.exports = class CompilationEngine {
+  #tokenizer; 
+  #output;
+
   constructor(inputFile, outputFile){
-    console.log("in compilation engine");
+    this.#tokenizer = new JackTokenizer(inputFile);
+    this.#output = outputFile;
   }
 
-  #print(){}
+  #print(tag){
+    try{
+      fs.writeFileSync(this.#output, tag, { flag: 'a' })
+    } catch (err) {
+      console.error(err);
+      process.exit(1);
+    }
+  }
   
   compileClass(){
-
+    this.#print('<class>');
   }
   compileClassVarDec(){}
   compileParameterList(){}
