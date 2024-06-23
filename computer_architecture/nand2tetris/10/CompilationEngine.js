@@ -2,6 +2,7 @@ class CompilationEngine {
   constructor(inputFile, outputFile){}
 
   #print(){}
+  
   compileClass(){}
   compileClassVarDec(){}
   compileParameterList(){}
