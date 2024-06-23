@@ -18,9 +18,8 @@ int main(void)
   extern int len;
 
 
-  while ((len = get_line()) > 0) {
+  while ((len = get_line()) > 0)
     entab();
-  }
 
   return 0;
 }
