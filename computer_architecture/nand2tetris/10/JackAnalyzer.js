@@ -70,9 +70,7 @@ const processJackFiles = (inputFilePath) => {
 const jackAnalyzer = (tokenizer) => {
   while (tokenizer.hasMoreTokens()) {
     tokenizer.advance()
-    // console.log(tokenizer.currentToken)
-    if (tokenizer.tokenType() === 'KEYWORD')
-      console.log(tokenizer.keyword());
+    
   }
 
 };
