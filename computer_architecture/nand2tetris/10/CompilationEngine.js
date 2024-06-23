@@ -1,9 +1,13 @@
-class CompilationEngine {
-  constructor(inputFile, outputFile){}
+module.exports = class CompilationEngine {
+  constructor(inputFile, outputFile){
+    console.log("in compilation engine");
+  }
 
   #print(){}
   
-  compileClass(){}
+  compileClass(){
+
+  }
   compileClassVarDec(){}
   compileParameterList(){}
   compileSubroutineBody(){}
