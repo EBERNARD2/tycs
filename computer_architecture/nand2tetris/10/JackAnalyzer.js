@@ -1,7 +1,12 @@
 const fs = require('node:fs');
 const CompilationEngine = require('./CompilationEngine');
+const JackTokenizer= require('./JackTokenizer');
 
-
+const KEYWORD_CONSTANT = 'KEYWORD';
+const SYMBOL_CONSTANT = 'SYMBOL';
+const INTERGER_CONSTANT = 'INT_CONST';
+const STRING_CONSTANT = 'STRING_CONST';
+const IDENTIFIER_CONSTANT = "IDENTIFIER";
 /** 
  *  There are a few requirements we need to consider for this function:
  * 1. We know a inputFilePath is a file if it ends with .{file extension}
@@ -71,13 +76,37 @@ const processJackFiles = (inputFilePath) => {
 
 const jackAnalyzer = (inputFile) => {
   const outputFile = inputFile.split(".jack")[0] + '.xml';
+
+  const tokenizer = new JackTokenizer(inputFile);
+
+  const inputTokens = [];
   
-  const compilationEngine = new CompilationEngine(inputFile, outputFile);
+   while (tokenizer.hasMoreTokens()) {
+    tokenizer.advance(); 
+
+    const tokenType = tokenizer.tokenType();
+
+    switch(tokenType) {
+      case KEYWORD_CONSTANT:
+        inputTokens.push(tokenizer.keyword());
+        break;
+      case IDENTIFIER_CONSTANT:
+        inputTokens.push(tokenizer.identifier());
+        break;
+      case SYMBOL_CONSTANT:
+        inputTokens.push(tokenizer.symbol());
+        break;
+      case STRING_CONSTANT:
+        inputTokens.push(tokenizer.stringVal());
+        break;
+      case INTERGER_CONSTANT:
+        inputTokens.push(tokenizer.intVal());
+    }
+  }
+
+  const compilationEngine = new CompilationEngine(inputTokens ,outputFile);
   compilationEngine.compileClass();
-  // while (tokenizer.hasMoreTokens()) {
-  //   tokenizer.advance()
-    
-  // }
+
 
 };
 
