@@ -17,7 +17,7 @@ module.exports = class CompilationEngine {
   }
 
   #advance(){
-    this.#currentToken = this.#tokenizer[this.#tokenIndex];
+    this.#currentToken = this.#tokenizer[this.#tokenIndex++];
   }
 
   #printToken(tag){
@@ -37,10 +37,9 @@ module.exports = class CompilationEngine {
       console.error("Syntax error: Code must be built inside of a class");
       process.exit(1);
     }
-
-    console.log(this.#currentToken);
     this.#printToken('<class>');
     this.#process("class");
+    this.#process("")
     // this.#printToken(this.#inputTokens[++this.#tokenIndex]);
 
     this.#printToken('</class>');
@@ -66,18 +65,27 @@ module.exports = class CompilationEngine {
     if (this.#currentToken == el){
       let processedElement;
 
-      switch(tag) {
-        case constants.RESERVED_KEYWORDS.includes(tag):
+      switch(el) {
+        case constants.RESERVED_KEYWORDS.includes(el):
           processedElement = `<keyword> ${el} </keyword>`;
           break;
 
-        case constants.RESERVED_SYMBOLS.includes(tag):
+        case constants.RESERVED_SYMBOLS.includes(el):
           processedElement = `<symbol> ${el} </symbol>`;
         
-        case parseInt(tag):
+        case parseInt(el):
           processedElement = `<integerConstant> ${el} </integerConstant>`;
         
         case this.#validString(el):
+          const completeString = el[el.length - 1] === '"';
+
+          if (completeString)
+            processedElement = `<stringConstant> ${el.slice(1, el.length - 1)} </stringConstant>`;
+          else 
+            processedElement = this.#findCompleteString();
+
+        default:
+          processedElement = `<identifier> ${el} </identifier>`
 
       }
 
@@ -91,8 +99,28 @@ module.exports = class CompilationEngine {
     this.#advance();
   }
 
-  #validString(el) {
+  #findCompleteString() {
 
+    let buildString = this.#currentToken.slice(1);
+
+    this.#advance();
+
+    while (this.#currentToken[this.#currentToken.length - 1] !== '"' && this.#tokenIndex < this.#tokenizer.length) {
+      buildString +=  ` ${this.#currentToken}`;
+      this.#advance();
+    }
+    
+    if (buildString[buildString.length - 1] !== '"') {
+      console.error("Syntax errorL invalid string");
+      process.exit(1);
+    }
+
+    return buildString.slice(0, buildString.length - 1);
+    
+  }
+  
+  #validString(el) {
+    return this.#currentToken[0] === '"';
   }
 
 
