@@ -183,7 +183,7 @@ module.exports = class JackTokenizer {
   }
 
   keyword(){
-    return this.#returnCurrentToken().toUpperCase();
+    return this.#returnCurrentToken();
   }
   
   symbol(){
