@@ -39,15 +39,24 @@ module.exports = class CompilationEngine {
     }
     this.#printToken('<class>');
     this.#process("class");
-    this.#process("")
-    // this.#printToken(this.#inputTokens[++this.#tokenIndex]);
-
+    this.#process(this.#currentToken);
+    this.#process("{");
+    this.compileClassVarDec();
+    this.#process("}");
     this.#printToken('</class>');
-
 
   }
 
-  compileClassVarDec(){}
+  compileClassVarDec(){
+    console.log(this.#currentToken);
+    if (this.#currentToken !== 'static' && this.#currentToken !== 'field') {
+      console.error("Syntax error: Must define class variables with static or field variables");
+      process.exit(1);
+    }
+    
+    this.#process(this.#currentToken);
+
+  }
   compileParameterList(){}
   compileSubroutineBody(){}
   compileVarDec(){}
@@ -65,29 +74,21 @@ module.exports = class CompilationEngine {
     if (this.#currentToken == el){
       let processedElement;
 
-      switch(el) {
-        case constants.RESERVED_KEYWORDS.includes(el):
-          processedElement = `<keyword> ${el} </keyword>`;
-          break;
-
-        case constants.RESERVED_SYMBOLS.includes(el):
-          processedElement = `<symbol> ${el} </symbol>`;
-        
-        case parseInt(el):
-          processedElement = `<integerConstant> ${el} </integerConstant>`;
-        
-        case this.#validString(el):
-          const completeString = el[el.length - 1] === '"';
+      if (constants.RESERVED_KEYWORDS.includes(el))
+        processedElement = `<keyword> ${el} </keyword>`;
+      else if (constants.RESERVED_SYMBOLS.includes(el))
+        processedElement = `<symbol> ${el} </symbol>`;
+      else if (parseInt(el))
+        processedElement = `<integerConstant> ${el} </integerConstant>`;
+      else if (this.#validString(el)) {
+        const completeString = el[el.length - 1] === '"';
 
           if (completeString)
             processedElement = `<stringConstant> ${el.slice(1, el.length - 1)} </stringConstant>`;
           else 
             processedElement = this.#findCompleteString();
-
-        default:
-          processedElement = `<identifier> ${el} </identifier>`
-
-      }
+      } else 
+        processedElement = `<identifier> ${el} </identifier>`
 
       this.#printToken(processedElement);
 
