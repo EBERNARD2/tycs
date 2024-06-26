@@ -147,7 +147,14 @@ module.exports = class CompilationEngine {
 
 
   }
-  compileDo(){}
+  compileDo(){
+    this.#printToken("<doStatement>");
+    this.#process("do");
+    this.compileSubroutine();
+    this.#process(";");
+    this.#printToken("/<doStatement>");
+
+  }
   compileReturn(){}
   compileExpresion(){}
   compileTerm(){}
