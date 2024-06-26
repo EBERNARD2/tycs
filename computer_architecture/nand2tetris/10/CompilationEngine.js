@@ -74,12 +74,16 @@ module.exports = class CompilationEngine {
   compileParameterList(){}
 
   compileSubroutineBody(){
+    this.#process("{");
+    this.compileVarDec();
+    this.compileStatements();
+    this.#process("}");
+  }
 
-    
-
+  compileVarDec(){
 
   }
-  compileVarDec(){}
+
   compileStatements(){}
   compileLet(){}
   compileIf(){}
