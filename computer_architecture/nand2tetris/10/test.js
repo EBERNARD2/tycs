@@ -25,6 +25,20 @@ function aFunction2() {
 aFunction2();
 
 
+var thisOutsideOfAFunction = this;
+var theWindow = window;
+
+var myObject = {
+  myMethod: function() {
+    var thisInsideOfMyMethod = this;
+    console.log(thisInsideOfMyMethod === myObject.myMethod);
+    // Reference Point 2
+  }
+};
+
+myObject.myMethod();
+
+
 
 
 // 1.. line 5. inAnInnerFunction1 var
