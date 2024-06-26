@@ -134,10 +134,19 @@ module.exports = class CompilationEngine {
     this.#printToken("</letStatement>");
   }
 
-  compileElse(){
+  compileWhile(){
+    this.#printToken("<whileStatement>");
+    this.#process("while");
+    this.#process("(");
+    this.compileExpresion();
+    this.#process(")");
+    this.#process("{");
+    this.compileStatements();
+    this.#process("}");
+    this.#printToken("</whileStatement>");
+
 
   }
-  compileWhile(){}
   compileDo(){}
   compileReturn(){}
   compileExpresion(){}
