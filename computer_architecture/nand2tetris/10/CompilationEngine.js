@@ -206,19 +206,18 @@ module.exports = class CompilationEngine {
   compileTerm(){
     // this will be a name, a value, an expression or an array
     if (this.#tokenizer[this.#tokenIndex + 1] === '(') {
-      this.#printToken("(");
+      this.#process("(");
       this.compileExpresion();
-      this.#printToken(")");
-    }
-    if (this.#tokenizer[this.#tokenIndex + 1] === '[') {
-      this.#printToken("[");
+      this.#process(")");
+    } else if (this.#tokenizer[this.#tokenIndex + 1] === '[') {
+      this.#process("[");
       this.compileExpresion();
-      this.#printToken("]");
-
-    }
+      this.#process("]");
+    } else if (constants.UNARY_OP_CONSTANTS.includes(this.#currentToken))
+      this.#process(this.#currentToken);
+    else 
+      this.#process(this.#currentToken);
       
-
-    //
   }
 
   compileExpressionList(){}
@@ -233,7 +232,7 @@ module.exports = class CompilationEngine {
         processedElement = `<symbol> ${el} </symbol>`;
       else if (parseInt(el))
         processedElement = `<integerConstant> ${el} </integerConstant>`;
-      else if (this.#validString(el)) {
+      else if (this.#validString()) {
         const completeString = el[el.length - 1] === '"';
 
           if (completeString)
@@ -273,7 +272,7 @@ module.exports = class CompilationEngine {
     
   }
   
-  #validString(el) {
+  #validString() {
     return this.#currentToken[0] === '"';
   }
 

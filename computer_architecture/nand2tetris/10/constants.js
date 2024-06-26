@@ -99,6 +99,11 @@ const OP_SYMBOLS = [
    '<' , 
    '>' , 
    '='
+];
+
+const UNARY_OP_CONSTANTS = [
+  '~',
+  '-',
 ]
 
 
@@ -117,5 +122,6 @@ module.exports = {
   STATEMENT_CONSTANTS,
   TYPE_KEYWORDS, 
   OP_SYMBOLS,
-  KEYWORD_CONSTANTS
+  KEYWORD_CONSTANTS,
+  UNARY_OP_CONSTANTS
 }
