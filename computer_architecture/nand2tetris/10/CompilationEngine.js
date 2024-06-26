@@ -54,14 +54,18 @@ module.exports = class CompilationEngine {
   }
 
   compileClassVarDec(){
-
+    this.#printToken("<classVarDec>")
+    this.#printToken("");
     this.#process(this.#currentToken);
     this.#process(this.#currentToken); // type
     this.#process(this.#currentToken); // varName *** Need to find a solution for multiple var declarations with ',' 
     this.#process(';');
+    this.#printToken("</classVarDec>")
+
   }
 
   compileSubroutine(){
+    this.#printToken("<subroutineDec>")
     this.#process(this.#currentToken);
     this.#process(this.#currentToken);
     this.#process(this.#currentToken);
@@ -69,18 +73,30 @@ module.exports = class CompilationEngine {
     this.compileParameterList();
     this.#process(")");
     this.compileSubroutineBody();
+    this.#printToken("</subroutineDec>")
+
   }
 
   compileParameterList(){}
 
   compileSubroutineBody(){
+    this.print("<subroutineBody>")
     this.#process("{");
     this.compileVarDec();
     this.compileStatements();
     this.#process("}");
+    this.print("</subroutineBody>")
+
   }
 
   compileVarDec(){
+    this.#printToken("<varDec>");
+    this.#process("var");
+    this.#process(this.#currentToken);
+    this.#process(this.#currentToken);
+    this.#process(";");
+    this.#printToken("</varDec>");
+
 
   }
 
