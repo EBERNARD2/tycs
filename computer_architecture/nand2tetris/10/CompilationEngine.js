@@ -39,7 +39,13 @@ module.exports = class CompilationEngine {
     }
     this.#printToken('<class>');
     this.#process("class");
-    this.#process(this.#currentToken);
+    
+    if (constants.CLASS_VAR_CONSTANTS.includes(this.#currentToken))
+      this.compileClassVarDec();
+
+    if (constants.SUBROUTINE_DEC_CONSTANTS.includes(this.#currentToken))
+      this.compileSubroutineBody();
+
     this.#process("{");
     this.compileClassVarDec();
     this.#process("}");
@@ -48,7 +54,6 @@ module.exports = class CompilationEngine {
   }
 
   compileClassVarDec(){
-    console.log(this.#currentToken);
     if (this.#currentToken !== 'static' && this.#currentToken !== 'field') {
       console.error("Syntax error: Must define class variables with static or field variables");
       process.exit(1);
