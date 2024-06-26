@@ -81,12 +81,12 @@ module.exports = class CompilationEngine {
   }
 
   compileSubroutineBody(){
-    this.print("<subroutineBody>")
+    this.#printToken("<subroutineBody>")
     this.#process("{");
     this.compileVarDec();
     this.compileStatements();
     this.#process("}");
-    this.print("</subroutineBody>")
+    this.#printToken("</subroutineBody>")
 
   }
 
@@ -102,17 +102,41 @@ module.exports = class CompilationEngine {
 
   }
 
-  compileStatements(){}
-  compileLet(){
-    this.print("<letStatement>");
-    this.#process(this.#currentToken);
-    this.print("=");
-    this.compileExpresion(); // still need to figure out multiple values here as well
-    this.print(";");
-    this.print("</letStatement>");
+  compileStatements(){
 
   }
-  compileIf(){}
+
+  compileLet(){
+    this.#printToken("<letStatement>");
+    this.#process(this.#currentToken);
+    this.#process("=");
+    this.compileExpresion(); // still need to figure out multiple values here as well
+    this.#process(";");
+    this.#printToken("</letStatement>");
+
+  }
+  compileIf(){
+    this.#printToken("<letStatement>");
+    this.#process("if");
+    this.#process("(");
+    this.compileExpresion();
+    this.#process(")");
+    this.#process("{");
+    this.compileStatements();
+    this.#process("}");
+    // add else statement if appropriate 
+    if (this.#currentToken === 'else') {
+      this.#process("else");
+      this.#process("{");
+      this.compileStatements();
+      this.#process("}");
+    }
+    this.#printToken("</letStatement>");
+  }
+
+  compileElse(){
+
+  }
   compileWhile(){}
   compileDo(){}
   compileReturn(){}
