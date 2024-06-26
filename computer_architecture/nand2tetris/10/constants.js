@@ -28,6 +28,14 @@ const COMMENT_SYMBOLS = [
   '/*'
 ];
 
+const TYPE_KEYWORDS = [
+  "var",
+  "int",
+  "char",
+  "boolean",
+  "void",
+];
+
 const RESERVED_KEYWORDS = [
   "class",
   "constructor",
@@ -86,5 +94,6 @@ module.exports = {
   IDENTIFIER_CONSTANT,
   CLASS_VAR_CONSTANTS,
   SUBROUTINE_DEC_CONSTANTS,
-  STATEMENT_CONSTANTS
+  STATEMENT_CONSTANTS,
+  TYPE_KEYWORDS
 }

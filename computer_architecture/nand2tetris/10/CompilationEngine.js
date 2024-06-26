@@ -77,6 +77,17 @@ module.exports = class CompilationEngine {
   }
 
   compileParameterList(){
+    this.#printToken("<parameterList>");
+
+    while (constants.TYPE_KEYWORDS.includes(this.#currentToken)) {
+      this.#process(this.#currentToken);
+      this.#process(this.#currentToken);
+      
+      if (this.#currentToken === ',')
+        this.#process(",");
+    }
+
+    this.#printToken("</parameterList>");
 
   }
 
@@ -98,13 +109,12 @@ module.exports = class CompilationEngine {
     this.#process(this.#currentToken);
     this.#process(";");
     this.#printToken("</varDec>");
-
-
   }
+
 
   compileStatements(){
     this.#printToken("<statements>");
-    
+
     while (constants.STATEMENT_CONSTANTS.includes(this.#currentToken)) {
       if (this.#currentToken === 'let')
         this.compileLet();
@@ -181,7 +191,9 @@ module.exports = class CompilationEngine {
 
 
   compileExpresion(){}
+
   compileTerm(){}
+
   compileExpressionList(){}
 
   #process(el) {
