@@ -205,8 +205,18 @@ module.exports = class CompilationEngine {
 
   compileTerm(){
     // this will be a name, a value, an expression or an array
-    if ()
-      ;
+    if (this.#tokenizer[this.#tokenIndex + 1] === '(') {
+      this.#printToken("(");
+      this.compileExpresion();
+      this.#printToken(")");
+    }
+    if (this.#tokenizer[this.#tokenIndex + 1] === '[') {
+      this.#printToken("[");
+      this.compileExpresion();
+      this.#printToken("]");
+
+    }
+      
 
     //
   }
