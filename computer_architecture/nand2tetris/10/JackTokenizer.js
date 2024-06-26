@@ -116,7 +116,7 @@ module.exports = class JackTokenizer {
      }, []);
 
      this.#currentValuesToParse = scrubValues;
-
+     console.log(scrubValues);
      this.#currentLineIndex++;
   }
 
@@ -126,7 +126,6 @@ module.exports = class JackTokenizer {
 
     while(this.#currentValuesToParse[0] === '' || this.#currentValuesToParse[0] === '//'){
       if (this.#currentValuesToParse[0] === '//') {
-        this.#currentLineIndex++;
         this.#getNextValidLine();
       } else {
         this.#currentValuesToParse.shift();

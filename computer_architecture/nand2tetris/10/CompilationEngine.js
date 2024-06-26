@@ -39,6 +39,7 @@ module.exports = class CompilationEngine {
     }
     this.#printToken('<class>');
     this.#process("class");
+    this.#process(this.#currentToken);
     
     if (constants.CLASS_VAR_CONSTANTS.includes(this.#currentToken))
       this.compileClassVarDec();
@@ -204,6 +205,7 @@ module.exports = class CompilationEngine {
   }
 
   compileTerm(){
+    this.#printToken("<term>");
     // this will be a name, a value, an expression or an array
     if (this.#tokenizer[this.#tokenIndex + 1] === '(') {
       this.#process("(");
@@ -217,7 +219,9 @@ module.exports = class CompilationEngine {
       this.#process(this.#currentToken);
     else 
       this.#process(this.#currentToken);
-      
+
+    this.#printToken("</term>");
+
   }
 
   compileExpressionList(){}
