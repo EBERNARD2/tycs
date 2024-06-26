@@ -103,6 +103,19 @@ module.exports = class CompilationEngine {
   }
 
   compileStatements(){
+    this.#printToken("<statements>");
+    
+    while (constants.STATEMENT_CONSTANTS.includes(this.#currentToken)) {
+      if (this.#currentToken === 'let')
+        this.compileLet();
+      else if (this.#currentToken === 'while')
+        this.compileWhile();
+      else if (this.#currentToken === 'do')
+        this.compileDo();
+      else if (this.#currentToken === 'return');
+        this.compileReturn();
+    }
+    this.#printToken("</statements>");
 
   }
 
@@ -155,7 +168,18 @@ module.exports = class CompilationEngine {
     this.#printToken("/<doStatement>");
 
   }
-  compileReturn(){}
+  compileReturn(){
+    this.#printToken("<returnStatement>");
+    this.#process("return");
+
+    if (this.#currentToken !== ';')
+      this.compileExpresion();
+
+    this.#process(";");
+    this.#printToken("</returnStatement");
+  }
+
+
   compileExpresion(){}
   compileTerm(){}
   compileExpressionList(){}

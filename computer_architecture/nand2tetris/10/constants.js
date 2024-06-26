@@ -11,6 +11,13 @@ const CLASS_VAR_CONSTANTS = [
   'field'
 ];
 
+const STATEMENT_CONSTANTS = [
+  'while',
+  'do',
+  'return',
+  'let'
+];
+
 const SUBROUTINE_DEC_CONSTANTS = [
   '"constructor',
   'function',
@@ -78,5 +85,6 @@ module.exports = {
   INTERGER_CONSTANT,
   IDENTIFIER_CONSTANT,
   CLASS_VAR_CONSTANTS,
-  SUBROUTINE_DEC_CONSTANTS
+  SUBROUTINE_DEC_CONSTANTS,
+  STATEMENT_CONSTANTS
 }
