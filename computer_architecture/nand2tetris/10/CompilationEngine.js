@@ -170,6 +170,8 @@ module.exports = class CompilationEngine {
 
 
   }
+
+
   compileDo(){
     this.#printToken("<doStatement>");
     this.#process("do");
@@ -178,6 +180,7 @@ module.exports = class CompilationEngine {
     this.#printToken("/<doStatement>");
 
   }
+   
   compileReturn(){
     this.#printToken("<returnStatement>");
     this.#process("return");
@@ -190,9 +193,23 @@ module.exports = class CompilationEngine {
   }
 
 
-  compileExpresion(){}
+  compileExpresion(){
+    this.#printToken("<expression>");
+    this.compileTerm();
+    if (constants.OP_SYMBOLS.includes(this.#currentToken))
+      this.compileTerm();
 
-  compileTerm(){}
+    this.#printToken("</expression>");
+
+  }
+
+  compileTerm(){
+    // this will be a name, a value, an expression or an array
+    if ()
+      ;
+
+    //
+  }
 
   compileExpressionList(){}
 

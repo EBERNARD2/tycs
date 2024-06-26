@@ -36,6 +36,14 @@ const TYPE_KEYWORDS = [
   "void",
 ];
 
+const KEYWORD_CONSTANTS = [
+  'true',
+  'false',
+  'null',
+  'this'
+];
+
+
 const RESERVED_KEYWORDS = [
   "class",
   "constructor",
@@ -81,6 +89,18 @@ const RESERVED_SYMBOLS = [
   "~"
 ];
 
+const OP_SYMBOLS = [
+  '+' ,
+   '-' , 
+   '*' , 
+   '/' , 
+   '&' , 
+   ',' , 
+   '<' , 
+   '>' , 
+   '='
+]
+
 
 module.exports = {
   RESERVED_KEYWORDS,
@@ -95,5 +115,7 @@ module.exports = {
   CLASS_VAR_CONSTANTS,
   SUBROUTINE_DEC_CONSTANTS,
   STATEMENT_CONSTANTS,
-  TYPE_KEYWORDS
+  TYPE_KEYWORDS, 
+  OP_SYMBOLS,
+  KEYWORD_CONSTANTS
 }
