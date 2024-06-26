@@ -93,6 +93,10 @@ module.exports = class JackTokenizer {
 
       let valuesToPush = [];
       
+      /*
+        We will also need to parse function invokation tokens, class methods (class.method), and array variables
+      */
+     
       if (value[value.length - 1] === ';') {
         valuesToPush.push(value.slice(0, value.length - 1));
         valuesToPush.push(";");

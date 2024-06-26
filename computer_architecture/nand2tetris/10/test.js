@@ -31,7 +31,7 @@ var theWindow = window;
 var myObject = {
   myMethod: function() {
     var thisInsideOfMyMethod = this;
-    console.log(thisInsideOfMyMethod === myObject.myMethod);
+    console.log(thisInsideOfMyMethod === myObject);
     // Reference Point 2
   }
 };
