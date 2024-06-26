@@ -55,8 +55,7 @@ module.exports = class CompilationEngine {
 
   compileClassVarDec(){
     this.#printToken("<classVarDec>")
-    this.#printToken("");
-    this.#process(this.#currentToken);
+    this.#process(this.#currentToken); // static or field var
     this.#process(this.#currentToken); // type
     this.#process(this.#currentToken); // varName *** Need to find a solution for multiple var declarations with ',' 
     this.#process(';');
@@ -77,7 +76,9 @@ module.exports = class CompilationEngine {
 
   }
 
-  compileParameterList(){}
+  compileParameterList(){
+
+  }
 
   compileSubroutineBody(){
     this.print("<subroutineBody>")
@@ -91,6 +92,7 @@ module.exports = class CompilationEngine {
 
   compileVarDec(){
     this.#printToken("<varDec>");
+    // right now this processes a single variable, we need to find a way to process multiple
     this.#process("var");
     this.#process(this.#currentToken);
     this.#process(this.#currentToken);
@@ -101,7 +103,15 @@ module.exports = class CompilationEngine {
   }
 
   compileStatements(){}
-  compileLet(){}
+  compileLet(){
+    this.print("<letStatement>");
+    this.#process(this.#currentToken);
+    this.print("=");
+    this.compileExpresion(); // still need to figure out multiple values here as well
+    this.print(";");
+    this.print("</letStatement>");
+
+  }
   compileIf(){}
   compileWhile(){}
   compileDo(){}
