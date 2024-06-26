@@ -54,14 +54,14 @@ module.exports = class CompilationEngine {
   }
 
   compileClassVarDec(){
-    if (this.#currentToken !== 'static' && this.#currentToken !== 'field') {
-      console.error("Syntax error: Must define class variables with static or field variables");
-      process.exit(1);
-    }
-    
+
     this.#process(this.#currentToken);
+    this.#process(this.#currentToken); // type
+    this.#process(this.#currentToken); // varName *** Need to find a solution for multiple var declarations with ',' 
+    this.#process(';');
 
   }
+
   compileParameterList(){}
   compileSubroutineBody(){}
   compileVarDec(){}
