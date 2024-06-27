@@ -103,11 +103,22 @@ module.exports = class JackTokenizer {
       } 
       
       if (value[value.length - 1] === ")" && value[value.length - 2] === "("){
-        valuesToPush.push(value.slice(0, value.length - 2));
+        const slicedVal = value.slice(0, value.length - 2);
+        const classMethod = slicedVal[value.length - 3] === '.';
+        
+        if (classMethod) {
+          valuesToPush.push(slicedVal.slice(0, slicedVal.length - 1));
+          valuesToPush.push(".");
+          /// this is not quite correct. We need to figure out a way to seperate the period
+        } else
+          valuesToPush.push(slicedVal);
+
         valuesToPush.push("(");
         valuesToPush.push(")");
       }
-      
+
+
+
       if (value[0] === '(' && value.length > 1 && value[value.length - 1] === ")"){
         const valueToPush = value.split(/[()]/)[1];
         valuesToPush[0] = valueToPush;

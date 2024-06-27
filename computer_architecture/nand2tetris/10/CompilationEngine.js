@@ -70,9 +70,7 @@ module.exports = class CompilationEngine {
     this.#process("(");
     this.compileParameterList();
     this.#process(")");
-    this.#process("{");
     this.compileSubroutineBody();
-    this.#process("}");
     this.#printToken("</subroutineDec>")
 
   }
@@ -116,7 +114,8 @@ module.exports = class CompilationEngine {
     this.#printToken("<statements>");
 
     while (constants.STATEMENT_CONSTANTS.includes(this.#currentToken)) {
-      if (this.#currentToken === 'let')
+      console.log(this.#currentToken, 'token');
+      if (this.#currentToken === 'let') 
         this.compileLet();
       else if (this.#currentToken === 'while')
         this.compileWhile();
@@ -131,6 +130,7 @@ module.exports = class CompilationEngine {
 
   compileLet(){
     this.#printToken("<letStatement>");
+    this.#process("let");
     this.#process(this.#currentToken);
     this.#process("=");
     this.compileExpresion(); // still need to figure out multiple values here as well
