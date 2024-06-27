@@ -96,21 +96,24 @@ module.exports = class JackTokenizer {
       /*
         We will also need to parse function invokation tokens, class methods (class.method), and array variables
       */
-     
+
       if (value[value.length - 1] === ';') {
         valuesToPush.push(value.slice(0, value.length - 1));
         valuesToPush.push(";");
       } 
       
-
-      const hasUpdatedValue = valuesToPush[0] ? true : false;
+      if (value[value.length - 1] === ")" && value[value.length - 2] === "("){
+        valuesToPush.push(value.slice(0, value.length - 2));
+        valuesToPush.push("(");
+        valuesToPush.push(")");
+      }
       
       if (value[0] === '(' && value.length > 1 && value[value.length - 1] === ")"){
         const valueToPush = value.split(/[()]/)[1];
         valuesToPush[0] = valueToPush;
       }
       
-      if (hasUpdatedValue && valuesToPush[0][0] === "(" && valuesToPush[0][valuesToPush[0].length - 1] === ")") {
+      if (valuesToPush[0] && valuesToPush[0][0] === "(" && valuesToPush[0][valuesToPush[0].length - 1] === ")") {
         valuesToPush[0] = valuesToPush[0].split(/[()]/)[1];
       }
 
