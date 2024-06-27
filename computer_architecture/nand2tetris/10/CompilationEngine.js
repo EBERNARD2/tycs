@@ -114,7 +114,6 @@ module.exports = class CompilationEngine {
     this.#printToken("<statements>");
 
     while (constants.STATEMENT_CONSTANTS.includes(this.#currentToken)) {
-      console.log(this.#currentToken, 'token');
       if (this.#currentToken === 'let') 
         this.compileLet();
       else if (this.#currentToken === 'while')
@@ -171,11 +170,18 @@ module.exports = class CompilationEngine {
 
   }
 
+  compileSubroutineCall() {
+    this.#printToken("<subroutineCall");
+  }
 
   compileDo(){
     this.#printToken("<doStatement>");
     this.#process("do");
-    this.compileSubroutine();
+    this.#process(this.#currentToken);
+    this.process(".");
+    this.#process("(");
+    this.compileExpressionList();
+    this.#process(")");
     this.#process(";");
     this.#printToken("/<doStatement>");
 
