@@ -38,6 +38,11 @@
 
 This is the naive example. We still need to consider what if the value is larger than data type size
 
+10101110 n = 20 
+
+shift may just be n % size of data type
+20 % 8 --> 4 leftover
+
 
 */
 int main(void)
