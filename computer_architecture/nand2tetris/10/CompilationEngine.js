@@ -114,15 +114,24 @@ module.exports = class CompilationEngine {
     this.#printToken("<statements>");
 
     while (constants.STATEMENT_CONSTANTS.includes(this.#currentToken)) {
-      if (this.#currentToken === 'let') 
-        this.compileLet();
-      else if (this.#currentToken === 'while')
-        this.compileWhile();
-      else if (this.#currentToken === 'do')
-        this.compileDo();
-      else if (this.#currentToken === 'return');
-        this.compileReturn();
+
+      switch(this.#currentToken) {
+        case 'let':
+          this.compileLet();
+          console.log('in compile let');
+          continue;
+        case 'while':
+          this.compileWhile();
+          continue;
+        case 'do':
+          this.compileDo();
+          continue;
+        case 'return':
+          this.compileReturn();
+          continue;
+      }
     }
+    
     this.#printToken("</statements>");
 
   }
@@ -178,7 +187,7 @@ module.exports = class CompilationEngine {
     this.#printToken("<doStatement>");
     this.#process("do");
     this.#process(this.#currentToken);
-    this.process(".");
+    this.#process(".");
     this.#process("(");
     this.compileExpressionList();
     this.#process(")");
