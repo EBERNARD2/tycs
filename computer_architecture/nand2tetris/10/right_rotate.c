@@ -1,51 +1,27 @@
 #include <stdio.h>
+#include <assert.h>
 
 
-/*
+int right_rotate(int x, int n);
 
-  Let's imagine we have a bit patern (we will make it simple with a char value)
-
-  10101110
-
-  if we rotate the value 5 positions to the right we should get:
-  11101010
-
-  So what do we know? 
-
-  A char is 8 bits, we have n (the number of bits to shift)
-
-  we're basically going to position n (5) and yanking those values to position 0 (without filling in bits on right shift)
-
-  we'd then store that result in a variable 
-
-  then on the other end we are taking the bit length (8 in this case) and subtracting the right shift from it
-  so that we know what position to start the left shift. 
-  
-  Once we have that position we want to left shift the number that we originally shifted (n)
-
-
-  so going back to our example:
-
-  x= b10101110 , n = 5
-
-  step 1 
-  Right shift position n to position 0 
-
-  After that step, x should be
-
-  b
-
-
-This is the naive example. We still need to consider what if the value is larger than data type size
-
-10101110 n = 20 
-
-shift may just be n % size of data type
-20 % 8 --> 4 leftover
-
-
-*/
 int main(void)
 {
+  printf("%d\n", right_rotate(175, 5));
+  return 0;
+}
 
+int right_rotate(int x, int n)
+{
+  int size, right, mask, logical_r_shift, left;
+
+  size = (int) sizeof(x) * 8;
+
+  right = n % size;
+  
+  logical_r_shift = (x >> right) & (0x1 << (size - 1)) >> (size - 1);
+
+  left = x << (size - right);
+
+  printf("left: %X right: %X\n", left, logical_r_shift);
+  return logical_r_shift & left;
 }
