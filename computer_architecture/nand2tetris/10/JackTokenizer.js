@@ -82,53 +82,53 @@ module.exports = class JackTokenizer {
   }
 
   #getNextValidLine() {
-     // Skip invalid lines until we find a line to process
-     let currentLine = this.file[this.#currentLineIndex];
+    // Skip invalid lines until we find a line to process
+    let currentLine = this.file[this.#currentLineIndex];
      
-     const lineValues = currentLine.split(" ");
+    const lineValues = currentLine.split(" ");
 
-
-     const scrubValues = lineValues.reduce((accumulator, value, i) => {
+    const scrubValues = lineValues.reduce((accumulator, value) => {
 
 
       let valuesToPush = [];
-      
-      /*
-        We will also need to parse function invokation tokens, class methods (class.method), and array variables
-      */
-
-      if (value[value.length - 1] === ';') {
-        valuesToPush.push(value.slice(0, value.length - 1));
-        valuesToPush.push(";");
+      let endsWithSemi = value[value.length - 1] === ';';
+      // Semi colon value - will need to seperate 
+      if (endsWithSemi) {
+        value = value.slice(0, value.length - 1);
+        // const newVal = value.slice(0, value.length - 1);
+        // valuesToPush.push(newVal);
+        // valuesToPush.push(";");
+        // value = newVal;
       } 
-      
+
+
+      // if it ends in a function invocation - will need to seperate
       if (value[value.length - 1] === ")" && value[value.length - 2] === "("){
+
         const slicedVal = value.slice(0, value.length - 2);
-        const classMethod = slicedVal[value.length - 3] === '.';
-        
-        if (classMethod) {
-          valuesToPush.push(slicedVal.slice(0, slicedVal.length - 1));
+        const methods = slicedVal.split(".");
+        console.log(methods, 'meh');
+        if (methods.length > 1) {
+          valuesToPush.push(methods[0]);
           valuesToPush.push(".");
-          /// this is not quite correct. We need to figure out a way to seperate the period
+          valuesToPush.push(methods[1]);
         } else
           valuesToPush.push(slicedVal);
 
         valuesToPush.push("(");
         valuesToPush.push(")");
-      }
-
-
-
-      if (value[0] === '(' && value.length > 1 && value[value.length - 1] === ")"){
+      } else if (value[0] === '(' && value.length > 2 && value[value.length - 1] === ")") {
         const valueToPush = value.split(/[()]/)[1];
         valuesToPush[0] = valueToPush;
-      }
-      
-      if (valuesToPush[0] && valuesToPush[0][0] === "(" && valuesToPush[0][valuesToPush[0].length - 1] === ")") {
-        valuesToPush[0] = valuesToPush[0].split(/[()]/)[1];
+      } else {
+        valuesToPush.push(value);
       }
 
-      valuesToPush.length ? accumulator.push(...valuesToPush) : accumulator.push(value);
+      if (endsWithSemi)
+        valuesToPush.push(";");
+
+
+      accumulator.push(...valuesToPush);
 
       return accumulator;
      }, []);
