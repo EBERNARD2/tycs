@@ -18,12 +18,14 @@ int binsearch(int x, int v[], int n)
 
   while (low < high) {
     mid = (low+high)/2;
-    
     if (x > v[mid])
-      low = mid + 1;
+      low = mid;
     else 
       high = mid;
   }
+
+  if (v[low] == x)
+    return low; 
 
   return -1; /* no match */
 }
