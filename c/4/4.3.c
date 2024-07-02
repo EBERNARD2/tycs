@@ -1,5 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h> /* for atof() */
+#include <math.h>
+#include <ctype.h>
 
 
 #define MAXOP 100 /* max size of operand or operator */
@@ -20,6 +22,8 @@ void push(double);
 double pop(void);
 int getchr(void);
 void ungetchr(int c);
+void clear(void);
+
 
 
 /* reverse Polish calculator */
@@ -52,9 +56,13 @@ int main(void)
         else
           printf("error: zero divisor");
         break;
+        case '%':
+          op2 = pop();
+          push(fmod(pop(), op2));
         case '\n':
           printf("\t%.8g\n", pop());
           break;
+
         default:
           printf("error: unkown command %s\n", s);
           break;
@@ -64,6 +72,37 @@ int main(void)
   return 0;
 }
 
+
+void clear(void)
+{
+  
+}
+
+int getop(char s[])
+{
+  int i, c;
+
+  while(s[0] = c = getchr() == ' ' || c == '\t');
+
+  s[1] = '\0';
+  if (!isdigit(c) && c != '.')
+    return c;
+
+  i = 0;
+
+  if (isdigit(c))
+    while (isdigit(s[++i] = c = getchr()))
+      ;
+  if (c == '.')
+    while (isdigit(s[++i] = c = getch()))
+      ;
+  s[i] = '\0';
+
+  if (c != EOF)
+    ungetchr(c);
+
+  return NUMBER;
+}
 
 void push(double f)
 {
@@ -86,4 +125,12 @@ double pop(void)
 int getchr(void)
 {
   return  (bufp > 0) ? buf[--bufp] : getchar();
+}
+
+void ungetchr(int c)
+{
+  if (bufp >= BUFSIZE)
+    printf("ungetchr: too many characters\n");
+  else 
+    buf[bufp++] = c;
 }
