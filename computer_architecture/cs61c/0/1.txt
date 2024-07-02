@@ -1,0 +1,51 @@
+ Number representation:
+
+
+ 
+Unsigned
+
+Decimal         	Binary	            Hexadecimal
+10	            0b0000 1010	              0x0A
+240 	          0b1111 0000               0xF0
+15	            0b0000 1111               0x0F
+161  	 	        0b1010 0001               0xA1
+250	 	          0b1111 1010               0xFA
+255 	          0b1111 1111	              OXFF
+202 	 	        0b1100 1100               0xCC
+-35	 	            n/a                      n/a
+128	 	          0b1000 0000               0x80
+105 	          0b0110 1001	              Ox69
+
+
+
+Signed
+
+Decimal         	Binary	            Hexadecimal
+-10	            0b1111 0110	              0xF6
+-16 	          0b1111 0000               0xF0
+15	            0b0000 1111               0x0F
+-95  	 	        0b1010 0001               0xA1
+250	 	          n/a                        n/a
+-1 	            0b1111 1111	              OXFF
+    	 	        0b1100 1100               0xCC
+-35	 	          0b1101 1101               0xDD   
+128	 	          n/a                        n/a
+105 	          0b0110 1001	              Ox69
+
+
+
+-128 + 64 +  16 + 
+
+
+
+2. You would like to represent the temperature in degrees Celsius:
+
+ ---BOTH----
+
+
+
+You would like to represent the number of boxes a factory has shipped:
+
+  --- UNSIGNED --- 
+
+
