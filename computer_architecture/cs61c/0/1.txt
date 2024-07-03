@@ -27,14 +27,11 @@ Decimal         	Binary	            Hexadecimal
 -95  	 	        0b1010 0001               0xA1
 250	 	          n/a                        n/a
 -1 	            0b1111 1111	              OXFF
-    	 	        0b1100 1100               0xCC
+-52   	 	      0b1100 1100               0xCC
 -35	 	          0b1101 1101               0xDD   
 128	 	          n/a                        n/a
 105 	          0b0110 1001	              Ox69
 
-
-
--128 + 64 +  16 + 
 
 
 
@@ -47,5 +44,41 @@ Decimal         	Binary	            Hexadecimal
 You would like to represent the number of boxes a factory has shipped:
 
   --- UNSIGNED --- 
+
+
+
+3. 
+
+For a system of n-digit unsigned base 4 numbers (n > 1), how many numbers can be represented?
+  4 ** n
+
+For an n-digit 2's complement binary number (n > 1), what is the number of negative integers?
+
+    2 ** n / 2 
+
+
+For an n-digit 2's complement number (n > 1), how many zeros are there?
+
+  1 zero
+
+
+For an n-digit 2's complement number (n > 1), what is the difference between the most positive number and the most negative number?
+
+  2 ** n
+
+
+4. 
+
+
+The following addition and subtraction operations are to be carried out with 8-bit 2's complement numbers. For each operation, calculate the result and label as OVERFLOW or CORRECT
+
+Example: 1 + 2 = 0b0000 0001 + 0b0000 0010 = 0b0000 0011 = 3, CORRECT
+
+64 + 64 =  0b0100 0000 + 0b0100 0000 = 0b1000 0000 OVERFLOW positive to negative number due to sign overflow
+-127 + 30 = Ob100 0001 + 0b0001 1110 = 0b1001 1110 correct
+-127 - 1 = 0b1000 0001 - 0b0000 0001 = 0b1000 0000 correct 
+38 - 40 = ? 0b1111 1110 correct 
+
+
 
 
