@@ -30,7 +30,7 @@ int main(int argc, char** argv) {
 	nodes[1].next = &nodes[2];
 	nodes[2].next = &nodes[3];
 
-	// printf("equal test 1 result = %d\n", ll_equal(&nodes[0], &nodes[0]));
+	printf("equal test 1 result = %d\n", ll_equal(&nodes[0], &nodes[0]));
 	printf("equal test 2 result = %d\n", ll_equal(&nodes[0], &nodes[2]));
 
 	return 0;
