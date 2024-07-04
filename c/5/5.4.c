@@ -53,7 +53,7 @@ int strend(char *s, char* t)
         ;
 
       if (*s == '\0' && *t == '\0') /* We have a match at the end of a string*/
-        return 0;
+        return 1;
       
       t = placeholder; // reset pointer back to beginning of t
     }
@@ -61,5 +61,5 @@ int strend(char *s, char* t)
     s++;
   }
 
-  return -1;
+  return 0;
 }
