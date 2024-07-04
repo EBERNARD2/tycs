@@ -11,7 +11,6 @@ int main(void)
   printf("%s\n", s);
 
   char dig[] = "5478";
-
   printf("digit: %d\n", ato_i(dig));
 
   return 0;
