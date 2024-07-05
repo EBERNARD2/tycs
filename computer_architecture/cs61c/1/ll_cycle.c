@@ -15,7 +15,6 @@ int ll_has_cycle(node *head) {
       return 1;
     head = head->next->next;
     tortise = tortise->next;
-
   }
 
   return 0;
