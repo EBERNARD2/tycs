@@ -19,7 +19,8 @@ int main(int argc, char *argv[])
     printf("Usage: expr (polish expression)\n");
   else {
     while (*++argv) {
-      int type = gettype(argv);
+      int type = gettype(*argv);
+
       switch (type) {
         case NUMBER:
           push(atoi(*argv));
@@ -57,7 +58,6 @@ int main(int argc, char *argv[])
 
 int gettype(char *arg)
 {
-  printf("arg: %d\n", *arg - '0');
   if (!atoi(arg) && *arg != '0')
     return *arg;
   else
