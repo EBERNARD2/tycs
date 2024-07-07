@@ -27,9 +27,9 @@ void set_bit(unsigned * x,
 void flip_bit(unsigned * x,
               unsigned n) {
     // YOUR CODE HERE
-    unsigned mask = (~(*x >> n) & 0x1) << n;
+   unsigned mask = 1 << n;
 
-    *x |= mask;
+    *x ^= mask;
 }
 
 
