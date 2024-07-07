@@ -17,7 +17,7 @@ int main(int argc, char *argv[])
 {
   extern int len;
 
-  
+  int tab
 
 
   while ((len = get_line()) > 0)
