@@ -13,18 +13,22 @@ int patternlen = DEFAULT_PATTERN_LEN;
 char buff[BUFFSIZE];
 int bufp = 0;
 
-bool isvalidnum(char *);
-int getword(char *, int);
-int getch(void);
-void ungetch(int c);
-
 struct pnode {
   char *pattern; // This variable (and left + right nodes) will be used to create a binary search tree of all patterns in Lexicographic order
-  char *values[MAXVALUES]; // Each string value that meets that pattern
+  char *values[MAXVALUES]; // Array of pointers to string value that meets that pattern
   int count; // Count of values in array
   struct pnode *left;
   struct pnode *right;
 };
+
+
+bool isvalidnum(char *);
+int getword(char *, int);
+int getch(void);
+void ungetch(int c);
+struct pnode *addtree(struct pnode *, char *);
+struct pnode *talloc(void);
+
 
 
 int main(int argc, char *argv[])
@@ -41,6 +45,8 @@ int main(int argc, char *argv[])
   // get next value from input 
   while (getword(word, MAXWORD) != EOF)
     // if value is a word and it's length is greater than or eql to patternlen add it to BST
+    if (isalpha(word[0]) && strlen(word) >= patternlen)
+      root = addtree(root, word);
 
   
   // print BST
@@ -82,7 +88,7 @@ bool isvalidnum(char *s)
   *w = '\0';
   return word[0];
  }
- 
+
 
  int getch(void) /* get a (possibly pushed-back) character */
  {
@@ -96,3 +102,33 @@ bool isvalidnum(char *s)
   else
     buff[bufp++] = c;
  }
+
+
+ struct pnode *addtree(struct pnode *tree, char *w)
+ {
+  int cond;
+
+  if (tree == NULL) {
+    tree = talloc();
+    tree->pattern; // we want to set pattern if this is a new node
+    // then create pointer to string and add it to values array 
+    // set left and right to null
+    tree ->left = tree -> right = NULL;
+
+    
+  }
+
+ }
+// add string to values array of tree node
+char *strdup(char *s)
+{
+  char *p;
+
+  // p = (char *)
+}
+
+ struct pnode *talloc(void)
+ {
+    return (struct pnode *) malloc(sizeof(struct pnode));
+ }
+
