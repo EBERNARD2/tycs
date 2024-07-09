@@ -36,7 +36,7 @@ vector_t *vector_new() {
 	/* Check our return value to make sure we got memory */
 	if(retval->data == NULL) {
 		free(retval);
-                allocation_failed();
+    allocation_failed();
 	}
 
 	retval->data[0] = 0;
@@ -50,8 +50,8 @@ void vector_delete(vector_t *v) {
 	/* Remember, you need to free up ALL the memory that is allocated */
 
 	/* ADD CODE HERE */
-	
-
+	free(v->data);
+	free(v);
 }
 
 /* Return the value in the vector */
@@ -62,7 +62,7 @@ int vector_get(vector_t *v, size_t loc) {
 	 */
 	if(v == NULL) {
 		fprintf(stderr, "vector_get: passed a NULL vector.\n");
-                abort();
+    abort();
 	}
 
 	/* If the requested location is higher than we have allocated, return 0.
@@ -83,6 +83,12 @@ void vector_set(vector_t *v, size_t loc, int value) {
 	 */
 
 	/* ADD CODE HERE */
+
+	if (loc < v->size)
+		v->data[loc] = value;
+	else if (loc > 0 && loc > v->size) {
+		v->size = loc;
+	}
 
 	
 }

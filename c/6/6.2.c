@@ -110,21 +110,24 @@ bool isvalidnum(char *s)
 
   if (tree == NULL) {
     tree = talloc();
-    tree->pattern; // we want to set pattern if this is a new node
-    // then create pointer to string and add it to values array 
-    // set left and right to null
+    tree->count = 1;
+    tree->pattern = strdup(w, patternlen); // we want to set pattern if this is a new node
+    tree->values[tree->count - 1] = strdup(w, strlen(w) + 1);
     tree ->left = tree -> right = NULL;
-
-    
   }
-
  }
 // add string to values array of tree node
-char *strdup(char *s)
+char *strdup(char *s, int lim)
 {
+  int i = 0;
   char *p;
+  p = (char *) malloc(lim + 1);
 
-  // p = (char *)
+  if (p != NULL) 
+    while(i < lim && (*p++ = *s++))
+      i++;
+  
+  return p - (i + 1); //
 }
 
  struct pnode *talloc(void)
