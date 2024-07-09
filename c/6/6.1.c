@@ -70,8 +70,6 @@ int binsearch(char *word, struct key tab[], int n)
 
 
 /* getword: get next word or character from input 
-
-  underscores: can be trailing or leading or in middle of word
  */
 
 int getword(char *word, int lim)
