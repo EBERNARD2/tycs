@@ -28,6 +28,9 @@ int getch(void);
 void ungetch(int c);
 struct pnode *addtree(struct pnode *, char *);
 struct pnode *talloc(void);
+int strcompn(char*, char* , int);
+void treeprint(struct pnode *tree);
+char *strdupl(char *s, int lim);
 
 
 
@@ -48,8 +51,8 @@ int main(int argc, char *argv[])
     if (isalpha(word[0]) && strlen(word) >= patternlen)
       root = addtree(root, word);
 
-  
   // print BST
+  treeprint(root);
   return 0;
 }
 
@@ -110,14 +113,45 @@ bool isvalidnum(char *s)
 
   if (tree == NULL) {
     tree = talloc();
-    tree->count = 1;
-    tree->pattern = strdup(w, patternlen); // we want to set pattern if this is a new node
-    tree->values[tree->count - 1] = strdup(w, strlen(w) + 1);
+    tree->count = 0;
+    tree->pattern = strdupl(w, patternlen); // we want to set pattern if this is a new node
+    tree->values[tree->count] = strdupl(w, strlen(w) + 1);
+    tree->count++;
     tree ->left = tree -> right = NULL;
-  }
- }
+  } else if ((cond = strcompn(w, tree->pattern, patternlen))) {
+    tree->values[tree->count] = strdupl(w, strlen(w) + 1);
+    tree->count++;
+  } else if (cond < 0) {
+    tree->left = addtree(tree->left, w);
+  } else 
+    tree->right = addtree(tree->right, w);
+
+  return tree;
+}
+
+
+int strcompn(char *s1, char *s2, int n)
+{
+  char *p = (char *) malloc(n);
+  int i;
+
+  for (i = 0; i < n; i++)
+    *p++ = *s1++;
+  
+  *p = '\0';
+
+  p -= n;
+
+  i = strcmp(p, s2);
+
+  free(p);
+
+  return i;
+
+}
+
 // add string to values array of tree node
-char *strdup(char *s, int lim)
+char *strdupl(char *s, int lim)
 {
   int i = 0;
   char *p;
@@ -135,3 +169,16 @@ char *strdup(char *s, int lim)
     return (struct pnode *) malloc(sizeof(struct pnode));
  }
 
+
+void treeprint(struct pnode *tree)
+{
+  int i;
+  if (tree != NULL) {
+    treeprint(tree->left);
+    // printf("Pattern %s\n", tree->pattern);
+    for (i = 0; i < tree->count; i++)
+      printf("%s\t\t", tree->values[i]); 
+    printf("\n\n\n");
+    treeprint(tree->right);
+ }
+}
