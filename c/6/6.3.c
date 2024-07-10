@@ -76,19 +76,19 @@ struct wordnode *addword(struct wordnode *wtree, char *w)
   int c, getch(void);
   void ungetch(int);
   char *w = word;
+
   while (isspace(c = getch()))
     ;
+
   if (c != EOF)
     *w++ = c;
-
+  
   if (!isalpha(c)) {
     *w = '\0';
     return c;
   }
   for ( ; --lim > 0; w++)
     if (!isalnum(*w = getch())) {
-      if (*w == '\n')
-        printf("found new line");
       ungetch(*w);
       break;
     }
