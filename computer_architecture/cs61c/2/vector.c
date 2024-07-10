@@ -87,8 +87,17 @@ void vector_set(vector_t *v, size_t loc, int value) {
 	if (loc < v->size)
 		v->data[loc] = value;
 	else if (loc > 0 && loc > v->size) {
-		v->size = loc;
-	}
+		v->size = loc + 1;
+		int * ndata = realloc(v->data, v->size * sizeof(int));
 
-	
+		if (ndata == NULL)
+			allocation_failed();
+		
+		int i = 0;
+
+		while (i < loc)
+			ndata[i] = 0;
+		
+		v->data[loc] = value;
+	}
 }
