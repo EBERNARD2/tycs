@@ -11,6 +11,7 @@
 
 int patternlen = DEFAULT_PATTERN_LEN;
 char buff[BUFFSIZE];
+char temp[MAXWORD];
 int bufp = 0;
 
 struct pnode {
@@ -28,9 +29,9 @@ int getch(void);
 void ungetch(int c);
 struct pnode *addtree(struct pnode *, char *);
 struct pnode *talloc(void);
-int strcompn(char*, char* , int);
 void treeprint(struct pnode *tree);
-char *strdupl(char *s, int lim);
+char *strdupl(char *s);
+void copynchars(char *s);
 
 
 
@@ -67,6 +68,15 @@ bool isvalidnum(char *s)
   return true;
 }
 
+void copynchars(char *s)
+{
+  int i; 
+  
+  for (i = 0; i < patternlen; i++) 
+    temp[i] = *s++;
+  
+  temp[i] = '\0';
+}
 
  /* getword: get next word or character from input */
  int getword(char *word, int lim)
@@ -111,15 +121,17 @@ bool isvalidnum(char *s)
  {
   int cond;
 
+  copynchars(w);
+
   if (tree == NULL) {
     tree = talloc();
     tree->count = 0;
-    tree->pattern = strdupl(w, patternlen); // we want to set pattern if this is a new node
-    tree->values[tree->count] = strdupl(w, strlen(w) + 1);
+    tree->pattern = strdupl(temp); // we want to set pattern if this is a new node
+    tree->values[tree->count] = strdupl(w);
     tree->count++;
     tree ->left = tree -> right = NULL;
-  } else if ((cond = strcompn(w, tree->pattern, patternlen))) {
-    tree->values[tree->count] = strdupl(w, strlen(w) + 1);
+  } else if ((cond = strcmp(temp, tree->pattern)) == 0) {
+    tree->values[tree->count] = strdupl(w);
     tree->count++;
   } else if (cond < 0) {
     tree->left = addtree(tree->left, w);
@@ -130,38 +142,15 @@ bool isvalidnum(char *s)
 }
 
 
-int strcompn(char *s1, char *s2, int n)
-{
-  char *p = (char *) malloc(n);
-  int i;
-
-  for (i = 0; i < n; i++)
-    *p++ = *s1++;
-  
-  *p = '\0';
-
-  p -= n;
-
-  i = strcmp(p, s2);
-
-  free(p);
-
-  return i;
-
-}
-
 // add string to values array of tree node
-char *strdupl(char *s, int lim)
+char *strdupl(char *s)
 {
   int i = 0;
   char *p;
-  p = (char *) malloc(lim + 1);
-
-  if (p != NULL) 
-    while(i < lim && (*p++ = *s++))
-      i++;
-  
-  return p - (i + 1); //
+  p = (char *) malloc(strlen(s) + 1);
+  if (p != NULL)
+    strcpy(p, s);
+  return p;
 }
 
  struct pnode *talloc(void)
@@ -172,12 +161,15 @@ char *strdupl(char *s, int lim)
 
 void treeprint(struct pnode *tree)
 {
+  printf("\n\n");
+
   int i;
   if (tree != NULL) {
     treeprint(tree->left);
-    // printf("Pattern %s\n", tree->pattern);
+    printf("Pattern\n");
+    char *p = tree->pattern;
     for (i = 0; i < tree->count; i++)
-      printf("%s\t\t", tree->values[i]); 
+      printf("%s\n", tree->values[i]); 
     printf("\n\n\n");
     treeprint(tree->right);
  }
