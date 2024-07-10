@@ -19,6 +19,7 @@ void ungetch(int c);
 char *strdupl(char *s);
 struct wordnode *talloc(void);
 struct wordnode *addword(struct wordnode *, char *s);
+void printwtree(struct wordnode *);
 
 struct wordnode {
   char *word;
@@ -35,11 +36,14 @@ int main(int argc, char *argv[])
   struct wordnode *root;
 
   root = NULL;
-  
-  while(getword(word, MAXWORD));
-    // if (isalpha(word[0]))
-      //  root = addword(root, word);
-  printf("Lines: %d\n", line);
+
+  while(getword(word, MAXWORD) != EOF)
+    if (isalpha(word[0]))
+       root = addword(root, word);
+
+  printf("\n\n");
+
+  printwtree(root);
   return 0;
 }
 
@@ -77,22 +81,31 @@ struct wordnode *addword(struct wordnode *wtree, char *w)
   void ungetch(int);
   char *w = word;
 
+  if ((c = getch()) == '\n') {
+    line++;
+    return c;
+  }
+
   while (isspace(c = getch()))
     ;
 
+    
   if (c != EOF)
     *w++ = c;
+
   
   if (!isalpha(c)) {
     *w = '\0';
     return c;
   }
-  for ( ; --lim > 0; w++)
+  for ( ; --lim > 0; w++) 
     if (!isalnum(*w = getch())) {
+      if (*w == '\n')
+        line++;
       ungetch(*w);
       break;
     }
-    
+  
 
   *w = '\0';
   return word[0];
@@ -126,5 +139,22 @@ char *strdupl(char *s)
  struct wordnode *talloc(void)
  {
     return (struct wordnode *) malloc(sizeof(struct wordnode));
+ }
+
+
+ void printwtree(struct wordnode *tree)
+ {
+    int i;
+
+    if (tree != NULL) {
+      printwtree(tree->left);
+      printf("Word: %s\n", tree->word);
+      printf("Lines found:\t");
+      for (i = 0; i < tree->current_capacity; i++)
+        printf("\t%d ", tree->lines[i]);
+      printf("\n");
+      printwtree(tree->right);
+
+    }
  }
 
