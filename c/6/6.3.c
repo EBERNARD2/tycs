@@ -49,6 +49,12 @@ int main(int argc, char *argv[])
 
 int validword(char *word)
 {
+  char the[] = "the";
+  char and[] = "and";
+
+  if (strcmp(word, the) == 0 || strcmp(word, and) == 0)
+    return 0;
+
   return 1;
 }
 
