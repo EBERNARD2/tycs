@@ -11,8 +11,7 @@
 
 char buff[BUFFSIZE];
 int bufp = 0;
-int line = 0;
-
+int len = 0;
 
 int getword(char *word, int lim);
 int getch(void);
@@ -32,7 +31,7 @@ struct wordnode *talloc(void);
 char *dupl(char *);
 
 // need a function to add word nodes (with count) to array 
-int buildarray(struct wordnode *, struct wordnode *);
+void buildarray(struct wordnode *[], struct wordnode *);
 // need a function to sort in order 
 struct wordnode *wordnodesort(struct wordnode *[], int, int);
 // Finally need a function to print all of these values 
@@ -44,7 +43,6 @@ int main(int argc, char *argv[])
 
   char word[MAXWORD];
   struct wordnode *allwords[MAX_UNIQ_WORDS];
-  int len;
 
   struct wordnode *root;
 
@@ -55,7 +53,7 @@ int main(int argc, char *argv[])
       root = addtree(root, word);
 
   if (root != NULL)
-    len = buildarray(allwords, root);
+    buildarray(allwords, root);
 
 }
 
@@ -141,15 +139,16 @@ char *dupl(char *s) {
 }
 
 
-int buildarray(struct wordnode *dest, struct wordnode *tree)
+void buildarray(struct wordnode *dest[], struct wordnode *tree)
 {
-  int i; 
-
-  struct wordnode *p = tree;
-
-  while(p) {
-
+  if (tree != NULL) {
+    dest = tree;
+    len++;
+    dest++;
+    buildarray(dest, tree->left);
+    buildarray(dest, tree->right);
   }
+ 
 }
 
 
