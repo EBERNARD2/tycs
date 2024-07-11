@@ -34,6 +34,7 @@ char *dupl(char *);
 void buildarray(struct wordnode *[], struct wordnode *);
 // need a function to sort in order 
 struct wordnode *wordnodesort(struct wordnode *[], int, int);
+void swap(struct wordnode *[], int i, int j);
 // Finally need a function to print all of these values 
 void printvalues(struct wordnode *, int);
 
@@ -157,22 +158,30 @@ void buildarray(struct wordnode *dest[], struct wordnode *tree)
 struct wordnode *wordnodesort(struct wordnode *words[], int left, int right)
 {
   int i, last;
-  void swap(char *v[], int i, int j);
+
   if (left >= right) 
     return;
 
   swap(v, left, (left + right)/2);
   last = left;
-  
+
   for (i = left+1; i <= right; i++)
     if (strcmp(v[i], v[left]) < 0)
       swap(v, ++last, i);
 
   swap(v, left, last);
-  qsort(v, left, last-1);
-  qsort(v, last+1, right);
+  wordnodesortt(words, left, last-1);
+  wordnodesort(words, last+1, right);
 }
 
+
+void swap(struct wordnode *allwords[], int i, int j)
+{
+  struct wordnode *temp;
+  temp = allwords[i];
+  allwords[i] = allwords[j];
+  allwords[j] = temp;
+}
 
 
 
