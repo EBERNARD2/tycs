@@ -162,14 +162,14 @@ struct wordnode *wordnodesort(struct wordnode *words[], int left, int right)
   if (left >= right) 
     return;
 
-  swap(v, left, (left + right)/2);
+  swap(words, left, (left + right)/2);
   last = left;
 
   for (i = left+1; i <= right; i++)
-    if (strcmp(v[i], v[left]) < 0)
-      swap(v, ++last, i);
+    if (words[i]->count > words[left]->count)
+      swap(words, ++last, i);
 
-  swap(v, left, last);
+  swap(words, left, last);
   wordnodesortt(words, left, last-1);
   wordnodesort(words, last+1, right);
 }
