@@ -58,7 +58,7 @@ int main(int argc, char *argv[])
   
   wordnodesort(allwords, 0, len - 1);
   printvalues(allwords, len);
-  
+
   return 0;
 
 }
@@ -148,7 +148,7 @@ char *dupl(char *s) {
 void buildarray(struct wordnode *dest[], struct wordnode *tree)
 {
   if (tree != NULL) {
-    dest = tree;
+    dest = &tree;
     len++;
     dest++;
     buildarray(dest, tree->left);
@@ -163,7 +163,7 @@ struct wordnode *wordnodesort(struct wordnode *words[], int left, int right)
   int i, last;
 
   if (left >= right) 
-    return;
+    return NULL;
 
   swap(words, left, (left + right)/2);
   last = left;
@@ -173,8 +173,10 @@ struct wordnode *wordnodesort(struct wordnode *words[], int left, int right)
       swap(words, ++last, i);
 
   swap(words, left, last);
-  wordnodesortt(words, left, last-1);
+  wordnodesort(words, left, last-1);
   wordnodesort(words, last+1, right);
+
+  return words[0];
 }
 
 
@@ -191,7 +193,7 @@ void printvalues(struct wordnode *words[], int len)
   int i = 0;
 
   for (i = 0; i < len; i++)
-    printf("Count: %d Word: %d\n", words[i]->count, words[i]->word);
+    printf("Count: %d Word: %s\n", words[i]->count, words[i]->word);
 }
 
 
