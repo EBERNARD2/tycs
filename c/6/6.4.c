@@ -36,7 +36,7 @@ void buildarray(struct wordnode *[], struct wordnode *);
 struct wordnode *wordnodesort(struct wordnode *[], int, int);
 void swap(struct wordnode *[], int i, int j);
 // Finally need a function to print all of these values 
-void printvalues(struct wordnode *, int);
+void printvalues(struct wordnode *[], int);
 
 
 int main(int argc, char *argv[])
@@ -57,6 +57,9 @@ int main(int argc, char *argv[])
     buildarray(allwords, root);
   
   wordnodesort(allwords, 0, len - 1);
+  printvalues(allwords, len);
+  
+  return 0;
 
 }
 
@@ -183,5 +186,12 @@ void swap(struct wordnode *allwords[], int i, int j)
   allwords[j] = temp;
 }
 
+void printvalues(struct wordnode *words[], int len) 
+{
+  int i = 0;
+
+  for (i = 0; i < len; i++)
+    printf("Count: %d Word: %d\n", words[i]->count, words[i]->word);
+}
 
 
