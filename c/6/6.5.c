@@ -43,7 +43,6 @@ struct nlist *lookup(char *s)
   return NULL; /* not found */
 }
 
-
 struct nlist *install(char *name, char *defn)
 {
   struct nlist *np;
