@@ -13,7 +13,7 @@ static struct nlist *hashtab[HASHSIZE];
 struct nlist *lookup(char *s);
 char *strdup(char *);
 char *strdupl(char *s);
-void undef(char *s);
+void undef(char *);
 
 unsigned hash(char *s);
 
@@ -69,4 +69,19 @@ char *strdupl(char *s)
   if (p != NULL)
     strcpy(p, s);
   return p;
+}
+
+
+void undef(char *name)
+{
+  struct nlist *np;
+  if ((np = lookup(name)))
+    return NULL;
+  
+  // if there is a next np 
+  if (np->next) {
+    
+  }
+
+  
 }
