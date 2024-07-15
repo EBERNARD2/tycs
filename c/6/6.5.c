@@ -75,7 +75,7 @@ char *strdupl(char *s)
 void undef(char *name)
 {
   struct nlist *np;
-  if ((np = lookup(name)))
+  if ((np = lookup(name)) == NULL)
     return NULL;
   
   // if there is a next np 
