@@ -71,17 +71,15 @@ char *strdupl(char *s)
   return p;
 }
 
-
 void undef(char *name)
 {
   struct nlist *np;
-  if ((np = lookup(name)) == NULL)
-    return NULL;
-  
-  // if there is a next np 
-  if (np->next) {
-    
-  }
+  struct nlist *pp;
 
-  
+  for (pp = hashtab[hash(name)],  np = pp->next; np != NULL; np = np->next, pp = pp->next)
+    if (strcmp(name, np->name) == 0) {
+      pp->next = np->next;
+      free(np);
+    }
+
 }
