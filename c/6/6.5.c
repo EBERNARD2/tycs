@@ -20,6 +20,8 @@ unsigned hash(char *s);
 
 int main(void)
 {
+
+  
   return 0;
 }
 
