@@ -5,6 +5,12 @@ void minprintf(char *fmt, ...);
 
 int main(void)
 {
+
+  char c = 'a';
+  minprintf("This will be a test %x\n", 123);
+  minprintf("Test without values\n");
+  minprintf("Longer test %d, %c, %f\n", 150, c, 1.4);
+
   return 0;
 }
 
@@ -13,7 +19,6 @@ void minprintf(char *fmt, ...)
 {
   va_list ap;
   char *p, *sval;
-  char cval;
   int ival;
   unsigned int uval;
   double dval;
@@ -38,8 +43,8 @@ void minprintf(char *fmt, ...)
         putchar(*sval);
       break;
     case 'c':
-      cval = va_arg(ap, char);
-      putchar(cval);
+      ival = va_arg(ap, int);
+      putchar(ival);
       break;
     case 'x':
       ival = va_arg(ap, int);
