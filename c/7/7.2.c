@@ -15,6 +15,7 @@ void minprintf(char *fmt, ...)
   char *p, *sval;
   char cval;
   int ival;
+  unsigned int uval;
   double dval;
   va_start(ap, fmt); /* make ap point to 1st unnamed arg */
 
@@ -40,7 +41,14 @@ void minprintf(char *fmt, ...)
       cval = va_arg(ap, char);
       putchar(cval);
       break;
-      
+    case 'x':
+      ival = va_arg(ap, int);
+      printf("%x", ival);
+      break;
+    case 'u':
+      uval = va_arg(ap, unsigned int);
+      printf("%u", uval);
+      break;
     default:
       putchar(*p);
       break;
