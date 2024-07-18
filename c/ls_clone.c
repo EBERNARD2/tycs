@@ -3,26 +3,31 @@
 #include <sys/types.h>
 #include <stdlib.h>
 
+#define MAX_SIZE 10000
+
+struct {
+  char *name;
+  int filesize;
+} DIR_CONTENTS[MAX_SIZE];
+
+// get directory contents 
+
+// print directory contents
 int main(void)
 {
-  DIR *dp;
+  DIR *dir;
   struct dirent *ep;
 
-  dp = opendir(".");
+  dir = opendir(".");
 
-  if (dp == NULL) {
+  if (ep == NULL) {
     fprintf(stderr, "Directory does not exist:\n");
     exit(1);
   }
 
-  if (dp != NULL) {
-    while ((ep = readdir(dp)) ) {
-      printf("%s\t", ep->d_name);
-      (void) closedir (dp);
-    }
-  }
-  int i = 0;
-  for (; i < 100; i++)
-    printf("23\t");
+  while ((ep = readdir(dir)) != NULL) 
+    printf("%s\t", ep->d_name);
+
+  printf("%ld\n", dir->__dd_size);  
   return 0;
 }
