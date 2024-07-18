@@ -18,7 +18,7 @@ int main(void)
   printf("Check float is correct: %f\n", f);
 
   printf("Enter string: ");
-  minscanf("%s", &st);
+  minscanf("%s", st);
   printf("Check string is correct: %s\n", st);
 
   printf("Enter a single char: ");
@@ -38,7 +38,6 @@ void minscanf(char *fmts, ...)
   va_list ap;
   char *p, *sval;
   int *ip; 
-  double *dp;
   
   va_start(ap, fmts);
 
@@ -50,18 +49,22 @@ void minscanf(char *fmts, ...)
         ip = va_arg(ap, int*);
         scanf("%d", ip);
         break;
+      case 'e':
+      case 'g':
       case 'f':
-        dp = va_arg(ap, double*);
-        scanf("%f", dp);
+        scanf("%f", va_arg(ap, float*));
         break;
       case 'c':
         ip = va_arg(ap, int*);
         scanf("%d", ip);
         break;
+      case 'u':
+        scanf("%u", va_arg(ap, unsigned int *));
+        break;
       case 's':
-        sval = va_arg(ap, char*);
-        printf("%x", sval);
-        scanf("%s", sval);
+        scanf("%s", va_arg(ap, char*));
+        break;
+      default:
         break;
     }
   }
