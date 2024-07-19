@@ -1,5 +1,4 @@
 #include <stdio.h>
-#include "syscalls.h"
 /* cat: concatenate files, version 1 */
 
   /* filecopy: copy file ifp to file ofp */
