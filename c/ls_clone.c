@@ -4,69 +4,83 @@
 #include <stdlib.h>
 #include <sys/stat.h>
 #include <string.h>
+#define MAX_PATH_LEN 100
 
-// get directory contents 
-#define MAX_PATH_LEN 1024
+// // get directory contents 
 
-void dirwalk(char *, void (*fn) (char*));
-void printfile(char *);
+// // print directory contents
+int main(void)
+{ 
+  char *dirname = ".";
 
-// print directory contents
-int main(int argc, char *argv[])
-{
-
+  char name[MAX_PATH_LEN];
   DIR *dir;
   struct dirent *ep;
   struct stat *st_buff;
 
-
-  if (argc == 1)
-    printfile(".");
-  else 
-    printfile(*++argv);
-  printf("\n");
-
-  return 0;
-}
-
-
-
-
-void dirwalk(char *dirname, void (*fn) (char*)) 
-{
-  char name[MAX_PATH_LEN];
-  DIR *dir;
-  struct dirent *ep;
-
   if ((dir = opendir(dirname)) == NULL) {
-    fprintf(stderr, "dirwalk: can't open dir %s", dirname);
-    return;
+    fprintf(stderr, "can't open dir %s", dirname);
+    return 1;
   }
 
   while ((ep = readdir(dir)) != NULL) {
     if (strcmp(ep->d_name, ".") == 0 || strcmp(ep->d_name, "..") == 0)
       continue;
     if (strlen(dirname) + strlen(ep->d_name) + 2 > sizeof(name)) {
-      fprintf(stderr, "dirwalk: name too long %s %s", dirname, ep->d_name);
-      return;
-    } else 
-      (*fn)(ep->d_name);
+      fprintf(stderr, "name too long %s %s", dirname, ep->d_name);
+      return 1;
+    } else {
+      stat(ep->d_name, st_buff);
+      printf("%s - %llu\t", ep->d_name, st_buff->st_size);
+    }
+
   }
-
 }
 
-void printfile(char *filename)
-{
-  struct stat *st_buff;
-
-  if (stat(filename, st_buff) == -1)
-    fprintf(stderr, "printfile: can't access file: %s", filename);
-    return;
 
 
-  if ((st_buff->st_mode & S_IFMT) == S_IFDIR)
-    dirwalk(filename, printfile);
 
-  printf("%s - %llu\t", filename, st_buff->st_size);
-}
+// void printdir(char * dirname);
 
+
+// int main(int argc, char *argv[])
+// {
+
+//   if (argc == 1)
+//     printdir(".");
+//   else 
+//     printdir(*++argv);
+//   printf("\n");
+
+//   return 0;
+// }
+
+
+
+
+// void printdir(char * dirname)
+// {
+//   char name[MAX_PATH_LEN];
+//   DIR *dir;
+//   struct dirent *ep;
+//   struct stat *st_buff;
+
+//   if ((dir = opendir(dirname)) == NULL) {
+//     fprintf(stderr, "dirwalk: can't open dir %s", dirname);
+//     return;
+//   }
+
+//   while ((ep = readdir(dir)) != NULL) {
+//     if (strcmp(ep->d_name, ".") == 0 || strcmp(ep->d_name, "..") == 0)
+//       continue;
+//     if (strlen(dirname) + strlen(ep->d_name) + 2 > sizeof(name)) {
+//       fprintf(stderr, "dirwalk: name too long %s %s", dirname, ep->d_name);
+//       return;
+//     } else {
+//       stat(ep->d_name, st_buff);
+//       printf("%s\t", ep->d_name);
+//     }
+
+//   }
+
+// }
