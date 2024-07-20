@@ -23,12 +23,11 @@ func main() {
 
 		lineValuesFound := make(map[string]bool)
 
-
 		for _, line := range strings.Split(string(file), "\n") {
 			counts[line]++
 			lineValuesFound[line] = true
  		}
-
+		
 		for line := range lineValuesFound {
 			output[line] += filename + " "
 		}
