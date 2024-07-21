@@ -5,7 +5,6 @@ import (
 	"io"
 	"net/http"
 	"os"
-	"strings"
 )
 
 func main() {
@@ -17,14 +16,10 @@ func main() {
 			os.Exit(1)
 		}
 
-		for _, val := range
-		_, err := io.Copy(resp.Body, os.Stdout)
-		resp.Body.Close()
-
-		if err != nil {
+		if _, err := io.Copy(os.Stdout, resp.Body); err != nil {
 			fmt.Fprintf(os.Stderr, "fetch: reading %s: %v\n", url, err)
 			os.Exit(1)
 		}
-
+		resp.Body.Close()
 	}
 }
