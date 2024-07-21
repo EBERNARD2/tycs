@@ -7,6 +7,7 @@ import (
 	"net/http"
 	"os"
 	"time"
+	"strings"
 )
 
 func main() {
@@ -34,8 +35,11 @@ func fetch(url string, ch chan<- string) {
 	}
 	nbytes, err := io.Copy(ioutil.Discard, resp.Body)
 
-	filename := url + ".txt"
+	urlSplit := strings.Split(url, "https://")[1]
+	filename := "./" + urlSplit + ".txt"
+
 	f, err := os.Create(filename)
+
 	fmt.Println(filename)
 	if err != nil {
 		ch <- fmt.Sprintf("while creating file %s: %v", url, err)
