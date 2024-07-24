@@ -22,7 +22,7 @@ func main() {
 
 	elapsedExp := end.Sub(start)
 
-	start = time.Now()
+	start := time.Now()
 	PopCountShift(num)	
 	end = time.Now()
 	elapsedShift := end.Sub(start)
