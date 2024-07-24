@@ -7,37 +7,73 @@
 typedef struct DA {
   // TODO define our struct
   void *values[STARTING_CAPACITY]; 
-  void *current_pointer;
+  int index;
+  int current_capacity;
 } DA;
 
 
 DA* DA_new (void) {
   // TODO allocate and return a new dynamic array
+  DA* da_new = malloc(sizeof(struct DA));
+  if (da_new == NULL) {
+    printf("Not enough heap memory to create dynamic array\n");
+    exit(1);
+  }
+  da_new->index = 0;
+  da_new->current_capacity = STARTING_CAPACITY;
+  return da_new;
 }
 
 int DA_size(DA *da) {
   // TODO return the number of items in the dynamic array
+  return da->index;
 }
 
 void DA_push (DA* da, void* x) {
   // TODO push to the end
+    // if the current index is >= to current capacity 
+    if (da->index == da->current_capacity) {
+      // free current array memory of dynamic array
+      // reallocate space for values array... take current capacity * 2
+      // update current capcity and indexs
+    } else {
+     // otherwise set value at da index and update index
+      da->values[da->index++] = x;
+    }
 }
 
 void *DA_pop(DA *da) {
   // TODO pop from the end
+  // grab value at current index and decrement
+  return da->values[da->index--];
 }
 
 void DA_set(DA *da, void *x, int i) {
   // TODO set at a given index, if possible
+  // only set an invoice if it is in range // throw an 
+  if (i > -1 && i < da->current_capacity){
+    da->values[i] = x;
+  } else {
+    printf("Error: index outside of range\n");
+    exit(1);
+  }
 }
 
 void *DA_get(DA *da, int i) {
   // TODO get from a given index, if possible
+  if (i > -1 && i < da->current_capacity) {
+    return da->values[i];
+  } else {
+    printf("Error index outside of range.\n");
+    exit(1);
+  }
 }
 
 
 void DA_free(DA *da) {
   // TODO deallocate anything on the heap
+  free(da->values);
+  free(da);
 }
 
 int main() {
