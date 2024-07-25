@@ -41,13 +41,13 @@ void DA_push (DA* da, void* x) {
   // TODO push to the end
     // if the current index is >= to current capacity 
     if (da->index == da->current_capacity) {
+      da->current_capacity *= 2;
       // reallocate space for data array... take current capacity * 2
-      da->data = realloc(da->data, sizeof(da->current_capacity) *2);
+      da->data = realloc(da->data, da->current_capacity *2);
       if (da->data == NULL) {
         printf("Not enough heap memory to create dynamic array\n");
         exit(1);
       }
-      da->current_capacity = da->current_capacity * 2;
     } 
     // otherwise set value at da index and update index
     da->data[da->index++] = x;
@@ -124,6 +124,8 @@ int main() {
     for (i = 0; i < n; i++) {
       arr[i] = i;
       DA_push(da, &arr[i]);
+      printf("saved %p\n", DA_get(da, i));
+
     }
     assert(DA_size(da) == n);
     for (i = 0; i < n; i++) {
