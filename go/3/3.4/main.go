@@ -1,9 +1,9 @@
-// Create server to show svg of surface plot function
+// Surface computes an SVG rendering of a 3-D surface function.
 package main
 
 import (
+	"fmt"
 	"math"
-	"strconv"
 	"net/http"
 	"log"
 )
@@ -21,20 +21,16 @@ var sin30, cos30 = math.Sin(angle), math.Cos(angle)
 
 func main() {
 	http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
-		surfacePlot()
+		w.Header().Set("Content-Type", "image/svg+xml")
+		writeResp(w)
 	})
 	log.Fatal(http.ListenAndServe("localhost:8000", nil))
 }
 
-func surfacePlot(w http.ResponseWriter) {
-	output := ""
-	widthStr := "width='" + strconv.Itoa(width) + "' ";
-	heightStr := "height='" + strconv.Itoa(height) + "'>";
-
-	output +=  "<svg xmlns= 'http//www.w3.org/2000/svg' "+ 
-						 "style='stroke: grey; fill: white; stroke-width: 0.7' "+
-						 widthStr + heightStr
-
+func writeResp(w http.ResponseWriter) {
+	fmt.Fprintf(w, "<svg xmlns='http://www.w3.org/2000/svg' "+
+							"style='stroke: grey; fill: white; stroke-width: 0.7' "+
+							"width='%d' height='%d'>", width, height)
 	for i := 0; i < cells; i++ {
 		for j := 0; j < cells; j++ {
 			ax, ay := corner(i+1, j)
@@ -42,15 +38,14 @@ func surfacePlot(w http.ResponseWriter) {
 			cx, cy := corner(i, j+1)
 			dx, dy := corner(i+1, j+1)
 			
-			output += "(<polygon points='" + strconv.FormatFloat(ax, 'g', -1, 64) + "," + strconv.FormatFloat(ay, 'g', -1, 64) +  "," + strconv.FormatFloat(bx, 'g', -1, 64) +
-								 "," +strconv.FormatFloat(by, 'g', -1, 64) + "," +strconv.FormatFloat(cx, 'g', -1, 64) + "," +strconv.FormatFloat(cy, 'g', -1, 64) + "," +strconv.FormatFloat(dx, 'g', -1, 64) +
-								 "," +strconv.FormatFloat(dy, 'g', -1, 64) + "' />"				
+			fmt.Fprintf(w, "<polygon points='%g,%g %g,%g %g,%g %g,%g'/>\n",
+									ax, ay, bx, by, cx, cy, dx, dy)
 		}
 	}
- 
-	output += "</svg"
-	 
+
+	fmt.Fprintf(w, "</svg>")
 }
+
 func corner(i, j int) (float64, float64) {
 	x := xyrange * (float64(i) / cells - 0.5)
 	y := xyrange * (float64(j) / cells - 0.5)
