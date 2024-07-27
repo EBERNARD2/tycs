@@ -18,9 +18,6 @@ func main() {
 
 func handler(w http.ResponseWriter, r *http.Request) {
 	fmt.Println(r.URL.Query())
-	t := r.URL.Query()
-	v := t["count"]
-	fmt.Println(v[0])
 	mu.Lock()
 	count++
 	mu.Unlock()
