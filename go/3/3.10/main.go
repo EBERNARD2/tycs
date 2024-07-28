@@ -11,22 +11,20 @@ func main() {
 }
 
 func comma(s string) string {
-	var buf bytes.Buffer
-	temp := ""
-	
+	var buf bytes.Buffer	
 	n := len(s)
 	if n <= 3 {
 		return s
 	}
 
+	sepIdx := len(s) - 4 
 
-	for ; n >= 0; n -= 3 {
-		temp = string(s[n]) + temp
-		temp = string(s[n - 1]) + temp
-		temp = string(s[n - 2]) + temp
-		temp = "," + temp
+	for i, v := range s { 
+		if sepIdx % (i + 1) == 0 {
+			buf.WriteByte(',')
+		}
+		buf.WriteRune(v)
 	}
 
-	buf.WriteString(temp)
 	return buf.String()
 }
