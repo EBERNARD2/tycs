@@ -3,33 +3,43 @@ const fs = require('node:fs');
 const cases = fs.readFileSync('./cases');
 
 
-const length = cases.length;
+// const processLine = (line) => {
+//   const bytesToTruncate = line[0];
+//   console.log(bytesToTruncate);
+//   return
+// }
+// function getLine(idx) {
+//   const start = idx;
+//   // 10 is the newline character
+//   while(cases[idx] != 10){
+//     idx++;
+//   }
 
-const processLine = (line) => {
-  const bytesToTruncate = line[0];
-  console.log(bytesToTruncate);
-  return
+//   return {
+//     line,
+//     idx,
+//   }
+// }
+
+// let count = 1; 
+
+// for(let i = 0; i < length; i++){
+//   const lineData = getLine(i);
+//   i = lineData.idx;
+//   processLine(lineData.line);
+//   count++
+// }
+
+function copyBytes(buffer) {
+  const bytes = [];
+  for (let byte of buffer)
+      bytes.push(byte);
+  return bytes;
 }
-function getLine(idx) {
-  const start = idx;
-  // 10 is the newline character
-  while(cases[idx] != 10){
-    idx++;
-  }
 
-  return {
-    line,
-    idx,
-  }
-}
+const bytes = copyBytes(cases);
+console.log(bytes);
+// for (let byte of cases) {
 
-let count = 1; 
-
-for(let i = 0; i < length; i++){
-  const lineData = getLine(i);
-  i = lineData.idx;
-  processLine(lineData.line);
-  count++
-}
-
-console.log(cases.length);
+//   while (byte )
+// }
