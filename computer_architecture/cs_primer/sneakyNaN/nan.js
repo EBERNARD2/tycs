@@ -40,12 +40,12 @@ function extract(value) {
   // now turn data into a node buffer so we can extract data one byte at a time
   const buffer = Buffer.from(arrBuff);
   // start at byte offset 2 to skip over exponent and sign bits of floating point num
-  let i = 1;
+  let i = 2;
 
   let message = "";
 
-  while (buffer[i++])
-      message += String.fromCharCode(buffer[i]);
+  while (buffer[i])
+      message += String.fromCharCode(buffer[i++]);
 
   return message;
 }
