@@ -1,73 +1,54 @@
 const fs = require('node:fs');
-const buffer = require('node:buffer')
-
 const cases = fs.readFileSync('./cases');
 
 
-// const processLine = (line) => {
-//   const bytesToTruncate = line[0];
-//   console.log(bytesToTruncate);
-//   return
-// }
-// function getLine(idx) {
-//   const start = idx;
-//   // 10 is the newline character
-//   while(cases[idx] != 10){
-//     idx++;
-//   }
+function copyBytes(buffer) {
+  const bytes = [];
+  for (let byte of buffer)
+      bytes.push(byte);
+  return bytes;
+}
 
-//   return {
-//     line,
-//     idx,
-//   }
-// }
 
-// let count = 1; 
-
-// for(let i = 0; i < length; i++){
-//   const lineData = getLine(i);
-//   i = lineData.idx;
-//   processLine(lineData.line);
-//   count++
-// }
-
-// function copyBytes(buffer) {
-//   const bytes = [];
-//   for (let byte of buffer)
-//       bytes.push(byte);
-//   return bytes;
-// }
-
-// function getLineEndIndex(bytes, i) {
-//   while (bytes[i] !== 10)
-//     i++;
-//   return i + 1;
-// }
-
-// const bytes = copyBytes(cases);
+const bytes = copyBytes(cases);
  
-// const buf = Buffer.alloc(bytes.length);
+const buf = Buffer.alloc(bytes.length);
 
-// for (let i = 0; i < bytes; i++) {
-//   let truncatedLength = bytes[i++];
+buf.writeUInt8(101, 0);
+/**
+ * For each byte in the buffer
+ *   - while we haven't reached the end of the line
+ *      - get the number of bytes that's allowed in line (first byte)
+ *      - add encoded char if there is enough space
+ *        - How do you now how many bytes to add? 
+ *            - we may read 1 to 4 bytes. 1 byte would be situations where msb is 0
+ *            - for variable length bytes 
+ *        
+ */
+for (let i = 0; i < bytes.length; i++) {
+  let currentByteIdx = 0;
+  while (bytes[i] !== 0x0a) {
+    let remainingBytesAllowed = bytes[i++];
 
-//   const lineEnd = getLineEndIndex(bytes, i);
+    while (remainingBytesAllowed > 0 && bytes[i] !== 0x0A) {
+      // Read multiple bytes
+      if (0x80 & bytes[i]) {
+        let byteSize = 0xf0 & bytes[i];
 
-//   if (lineEnd >= bytes.length)
-//     break;
+        while (byteSize) {
+          buf.writeUInt8(bytes[i++], currentByteIdx++);
+          byteSize >>= 1;
+          remainingBytesAllowed--;
+        }
 
-//   let j = i;
+      } else {
+        // read one byte for ascii characters
+       buf.writeUint8(bytes[i++], currentByteIdx++);
+       remainingBytesAllowed--;
+      }
+    }
+    buf.writeUint8(0x0A, currentByteIdx++);
+  }
+}
 
-//   while (j < lineEnd && j < truncatedLength) {
-
-//   }
-
-// }
-
-
-// first we need to read the first byte - this is the number of bytes to read
-
-// Then we read each character... This could be 1 to 4 bytes (sometimes 6)
-
-  // if the bytes of the character aren't greater than the current space of the line, add the character
-    // otherwise don't add the character
+console.log(buf.toString("utf-8", 0));
