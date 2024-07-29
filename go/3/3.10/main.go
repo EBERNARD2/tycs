@@ -16,12 +16,13 @@ func comma(s string) string {
 	if n <= 3 {
 		return s
 	}
-
-	sepIdx := len(s) - 4 
+	
+	commaIdx := n % 3
 
 	for i, v := range s { 
-		if sepIdx % (i + 1) == 0 {
+		if commaIdx == i && commaIdx < n{
 			buf.WriteByte(',')
+			commaIdx += 3
 		}
 		buf.WriteRune(v)
 	}
