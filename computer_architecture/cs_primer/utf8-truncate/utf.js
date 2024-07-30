@@ -14,8 +14,18 @@ const bytes = copyBytes(cases);
  
 const buf = Buffer.alloc(bytes.length);
 
+function bitCount(num) {
+  let count = 0;
+  while (num) {
+    count++;
+    num &= (num - 1);
+  }
+  return count
+}
+
 buf.writeUInt8(101, 0);
 /**
+ * 
  * For each byte in the buffer
  *   - while we haven't reached the end of the line
  *      - get the number of bytes that's allowed in line (first byte)
@@ -27,17 +37,17 @@ buf.writeUInt8(101, 0);
  */
 for (let i = 0; i < bytes.length; i++) {
   let currentByteIdx = 0;
-  while (bytes[i] !== 0x0a) {
+  while (bytes[i] !== 0x0a && i < bytes.length) {
     let remainingBytesAllowed = bytes[i++];
 
     while (remainingBytesAllowed > 0 && bytes[i] !== 0x0A) {
       // Read multiple bytes
       if (0x80 & bytes[i]) {
-        let byteSize = 0xf0 & bytes[i];
+        let byteSize = bitCount(0xf0 & bytes[i]);
 
-        while (byteSize) {
+        while (byteSize && byteSize < remainingBytesAllowed && remainingBytesAllowed > 0) {
           buf.writeUInt8(bytes[i++], currentByteIdx++);
-          byteSize >>= 1;
+          byteSize--;
           remainingBytesAllowed--;
         }
 
@@ -47,6 +57,7 @@ for (let i = 0; i < bytes.length; i++) {
        remainingBytesAllowed--;
       }
     }
+    i++;
     buf.writeUint8(0x0A, currentByteIdx++);
   }
 }
