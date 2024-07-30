@@ -45,9 +45,13 @@ for (let i = 0; i < bytes.length; i++) {
       if (0x80 & bytes[i]) {
         let byteSize = bitCount(0xf0 & bytes[i]);
 
-        while (byteSize && byteSize < remainingBytesAllowed && remainingBytesAllowed > 0) {
+        // if the bytes size is larger than remaining bytes skip those bytes
+        if (byteSize > remainingBytesAllowed) {
+          break;
+        }
+
+        while (byteSize--) {
           buf.writeUInt8(bytes[i++], currentByteIdx++);
-          byteSize--;
           remainingBytesAllowed--;
         }
 
@@ -57,6 +61,8 @@ for (let i = 0; i < bytes.length; i++) {
        remainingBytesAllowed--;
       }
     }
+    while (bytes[i] !== 0x0a)
+      i++;
     i++;
     buf.writeUint8(0x0A, currentByteIdx++);
   }
