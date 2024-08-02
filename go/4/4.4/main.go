@@ -5,16 +5,37 @@ import "fmt"
 
 
 func main() {
+	s := []int{1, 2, 3,  4, 5, 6}
+	s = rotate(s[:], 2)
+	fmt.Println(s)
 
 }
 
 
-func rotate(s []int) {
-	
-}
+func rotate(s []int, n int) []int{
+	l := (len(s) - 1) - n
 
-func reverse(s []int) {
-	for i, j := 0, len(s) - 1; i < j; i, j = i + 1, j - 1 {
-		s[i], s[j] = s[j], s[i]
+	if n > len(s) {
+		l = len(s) % n
 	}
+
+	if l == 0 || l == len(s) {
+		return s
+	}
+
+
+	dest := make([]int, len(s))
+
+	i := 0 
+	for _, v := range s[l + 1:] {
+		dest[i] = v
+		i++
+	}
+
+	for _, v := range s[:len(s) - n] {
+		dest[i] = v
+		i++
+	}
+
+	return dest
 }
