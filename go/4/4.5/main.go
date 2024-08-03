@@ -5,14 +5,22 @@ import "fmt"
 
 func main() {
 	s := []string{ "string", "string", "hi", "no", "goodbye"}
-	adjacentDups(s)
+	s = adjacentDups(s)
+	fmt.Println(s)
 
 }
 
-func adjacentDups(s []string) {
+func adjacentDups(s []string) [] string{
 	lastIdx := 0
-	for i, v := range s {
-		
+	for _, v := range s {
+		if v == s[lastIdx] {
+			continue
+		}
+
+		lastIdx++ 
+
+		s[lastIdx] = v
 	}
-	fmt.Println(out)
+	lastIdx++
+	return s[:lastIdx]
 }
