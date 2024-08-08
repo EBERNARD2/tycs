@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"log"
 	"os"
-	"gopl.io/ch4/github"
+	"go/4/examples/github"
 )
 
 func main() {
