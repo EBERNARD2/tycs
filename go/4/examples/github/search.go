@@ -1,3 +1,4 @@
+
 package github
 
 import (
@@ -8,16 +9,17 @@ import (
 	"strings"
 )
 
+// SearchIssues queries the GitHub issue tracker.
 func SearchIssues(terms []string) (*IssuesSearchResult, error) {
 	q := url.QueryEscape(strings.Join(terms, " "))
-	resp, err :=  http.Get(IssuesURL + "?q=" + q)
+	resp, err := http.Get(IssuesURL + "?q=" + q)
 	if err != nil {
 		return nil, err
 	}
-
-	if resp.StatusCode != http.StatusOk {
+ 
+	if resp.StatusCode != http.StatusOK {
 		resp.Body.Close()
-		return nil, fmt.Error("search query failed: %s", resp.Status)
+		return nil, fmt.Errorf("search query failed: %s", resp.Status)
 	}
 
 	var result IssuesSearchResult
@@ -25,7 +27,6 @@ func SearchIssues(terms []string) (*IssuesSearchResult, error) {
 		resp.Body.Close()
 		return nil, err
 	}
-
 	resp.Body.Close()
 	return &result, nil
 }

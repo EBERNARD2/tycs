@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"log"
 	"os"
-	"go/4/examples/github"
+	"gopl.io/ch4/github"
 )
 
 func main() {
@@ -12,11 +12,9 @@ func main() {
 	if err != nil {
 		log.Fatal(err)
 	}
-
 	fmt.Printf("%d issues:\n", result.TotalCount)
 	for _, item := range result.Items {
-		fmt.Printf("#%-5d %9.9s %.55s\n", 
-				item.Number, iterm.User, item.User.Login, item.Tile)
-
+		fmt.Printf("#%-5d %9.9s %.55s\n",
+			item.Number, item.User.Login, item.Title)
 	}
 }
