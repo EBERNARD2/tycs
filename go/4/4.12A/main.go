@@ -29,6 +29,8 @@ func main() {
 
 	// fetch current number of comics 
 	currentNumOfComics := runSetup()
+	buildIndex(currentNumOfComics)
+
 	// for every request, create a comic
 }
 
@@ -63,3 +65,23 @@ func runSetup() int {
 	return currentComics
 }
 
+
+func buildIndex(comicNum int) {
+	for i := 1; i < comicNum; i++ {
+		url := fmt.SprintF("https://xkcd.com/%d/info.0.json", i)
+
+		esp, err := http.Get(url)
+
+		if err != nil {
+			log.Fatal(err)
+			os.Exit(1)
+		}
+
+		if resp.StatusCode != http.StatusOK {
+			resp.Body.Close()
+			fmt.Errorf("Get request %d failed: %s", i, resp.Status)
+			os.Exit(1)
+		}
+
+	}
+}
