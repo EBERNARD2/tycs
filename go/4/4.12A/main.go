@@ -75,9 +75,9 @@ func buildIndex(comics int) {
 	}
 
 	for i := 1; i < comics; i++ {
-		url := fmt.SprintF("https://xkcd.com/%d/info.0.json", i)
+		url := fmt.Sprintf("https://xkcd.com/%d/info.0.json", i)
 
-		esp, err := http.Get(url)
+		resp, err := http.Get(url)
 
 		if err != nil {
 			log.Fatal(err)
@@ -98,9 +98,13 @@ func buildIndex(comics int) {
 			os.Exit(1)
 		}
 
-		formatS := SprintF("%d", i)
+		fmt.Printf("Processing Commic %d\n", i)
+		formatS := fmt.Sprintf("%d\t\t%s\t\t%s\t\t%s\n", comic.Num, comic.Title, comic.Transcript, comic.Img)
 
-		err := f.Write(byte())
+		if _, err := f.Write([]byte(formatS)); err != nil {
+			log.Fatal(err)
+			os.Exit(1)
+		}
 
 	}
 }
