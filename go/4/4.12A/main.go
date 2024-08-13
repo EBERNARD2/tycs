@@ -76,18 +76,20 @@ func buildIndex(comics int) {
 
 	for i := 1; i < comics; i++ {
 		url := fmt.Sprintf("https://xkcd.com/%d/info.0.json", i)
+		fmt.Printf("Processing Comic #%d\n", i)
+
 
 		resp, err := http.Get(url)
 
 		if err != nil {
 			log.Fatal(err)
-			os.Exit(1)
+			continue
 		}
 
 		if resp.StatusCode != http.StatusOK {
 			resp.Body.Close()
 			fmt.Errorf("Get request %d failed: %s", i, resp.Status)
-			os.Exit(1)
+			continue
 		}
 
 		var comic ComicData
@@ -95,15 +97,15 @@ func buildIndex(comics int) {
 		if err := json.NewDecoder(resp.Body).Decode(&comic); err != nil {
 			resp.Body.Close()
 			fmt.Errorf("Failed to parse body: %s", err)
-			os.Exit(1)
+			continue
 		}
 
-		fmt.Printf("Processing Commic %d\n", i)
+		fmt.Println(comic.Transcript)
 		formatS := fmt.Sprintf("%d\t\t%s\t\t%s\t\t%s\n", comic.Num, comic.Title, comic.Transcript, comic.Img)
 
 		if _, err := f.Write([]byte(formatS)); err != nil {
 			log.Fatal(err)
-			os.Exit(1)
+			continue
 		}
 
 	}
