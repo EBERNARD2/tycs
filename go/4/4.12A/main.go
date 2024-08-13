@@ -66,8 +66,15 @@ func runSetup() int {
 }
 
 
-func buildIndex(comicNum int) {
-	for i := 1; i < comicNum; i++ {
+func buildIndex(comics int) {
+	f, err := os.Create("index.txt")
+
+	if err != nil {
+		fmt.Errorf("Failed to create index file in buildIndex: %s", err)
+		os.Exit(1)
+	}
+
+	for i := 1; i < comics; i++ {
 		url := fmt.SprintF("https://xkcd.com/%d/info.0.json", i)
 
 		esp, err := http.Get(url)
@@ -82,6 +89,18 @@ func buildIndex(comicNum int) {
 			fmt.Errorf("Get request %d failed: %s", i, resp.Status)
 			os.Exit(1)
 		}
+
+		var comic ComicData
+
+		if err := json.NewDecoder(resp.Body).Decode(&comic); err != nil {
+			resp.Body.Close()
+			fmt.Errorf("Failed to parse body: %s", err)
+			os.Exit(1)
+		}
+
+		formatS := SprintF("%d", i)
+
+		err := f.Write(byte())
 
 	}
 }
