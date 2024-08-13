@@ -16,7 +16,7 @@ type ComicData struct {
 	Year		   string	`json:"year"`
 	News 		   string `json:"news"`
 	SafeTitle  string `json:"safe_title"`
-	Transcript string `json:"tanscript"`
+	Transcript string `json:"transcript"`
 	Alt 			 string `json:"alt"`
 	Img				 string `json:"img"`
 	Title 		 string `json:"title"`
@@ -101,7 +101,7 @@ func buildIndex(comics int) {
 		}
 
 		fmt.Println(comic.Transcript)
-		formatS := fmt.Sprintf("%d\t\t%s\t\t%s\t\t%s\n", comic.Num, comic.Title, comic.Transcript, comic.Img)
+		formatS := fmt.Sprintf("%d\t\t%s\t\t%v\t\t%s\n", comic.Num, comic.Title, comic.Transcript, comic.Img)
 
 		if _, err := f.Write([]byte(formatS)); err != nil {
 			log.Fatal(err)
