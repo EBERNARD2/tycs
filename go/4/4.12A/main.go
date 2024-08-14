@@ -35,6 +35,30 @@ func main() {
 }
 
 
+func fetchComic(url string) *ComicData {
+	resp, err := http.Get(url)
+
+		if err != nil {
+			log.Fatal(err)
+			continue
+		}
+
+		if resp.StatusCode != http.StatusOK {
+			resp.Body.Close()
+			fmt.Errorf("Get request %d failed: %s", i, resp.Status)
+			continue
+		}
+
+		var comic ComicData
+
+		if err := json.NewDecoder(resp.Body).Decode(&comic); err != nil {
+			resp.Body.Close()
+			fmt.Errorf("Failed to parse body: %s", err)
+			continue
+		}
+
+}
+
 
 func runSetup() int {
 	// fetch current number of comics 
@@ -79,28 +103,7 @@ func buildIndex(comics int) {
 		fmt.Printf("Processing Comic #%d\n", i)
 
 
-		resp, err := http.Get(url)
-
-		if err != nil {
-			log.Fatal(err)
-			continue
-		}
-
-		if resp.StatusCode != http.StatusOK {
-			resp.Body.Close()
-			fmt.Errorf("Get request %d failed: %s", i, resp.Status)
-			continue
-		}
-
-		var comic ComicData
-
-		if err := json.NewDecoder(resp.Body).Decode(&comic); err != nil {
-			resp.Body.Close()
-			fmt.Errorf("Failed to parse body: %s", err)
-			continue
-		}
-
-		fmt.Println(comic.Transcript)
+		
 		formatS := fmt.Sprintf("%d\t\t%s\t\t%v\t\t%s\n", comic.Num, comic.Title, comic.Transcript, comic.Img)
 
 		if _, err := f.Write([]byte(formatS)); err != nil {
