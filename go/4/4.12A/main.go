@@ -23,6 +23,13 @@ type ComicData struct {
 	Day 			 string `json:"day"`
 }
 
+
+// Index --> Comic Data
+const indexOfComics = make(map[int]*ComicData)
+
+// Transcript -> Index
+const TranscriptIndexes = make(map[string]int)
+
 const BaseUrl = "https://xkcd.com/info.0.json"
 
 func main() {
@@ -99,6 +106,8 @@ func buildIndex(comics int) {
 			continue
 		}
 
+		indexOfComics[i] = comic; 
+		TranscriptIndexes[comic.Transcript] = i; 
 		fmt.Println(comic.Transcript)
 		formatS := fmt.Sprintf("%d\t\t%s\t\t%v\t\t%s\n", comic.Num, comic.Title, comic.Transcript, comic.Img)
 
