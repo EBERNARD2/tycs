@@ -8,8 +8,18 @@
 void grayscale(unsigned char *pixels, int32_t width, int32_t height) {
   int x, y, offset;
   unsigned char lum;
-  for (x = 0; x < width; x++) {
-    for (y = 0; y < height; y++) {
+
+  /* - In modern processors, 64 bytes are retrived and placed in a cache line at a time
+    - Multi Dimensional arrays are stored in a continguous array of bytes throughout memory
+    - If height is in the inner loop, every loop iteration would be a cache miss so we would need 
+      15-20 clock cycles to fetch the next value from RAM
+    - Using width in the inner loop let's 16 width values to be cached at a time (64 b / 4 byte int32_t size)
+    - Ultimately there will be more cache hits thus limiting the amount of fetches to RAM improving program performance
+  
+  */
+
+  for (y = 0; y < height; y++) {
+    for (x = 0; x < width; x++) {
       offset = 3 * (y * width + x);
       lum = 0.0722 * (double)pixels[offset] +
             0.7152 * (double)pixels[offset + 1] +
