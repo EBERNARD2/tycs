@@ -24,11 +24,11 @@ type ComicData struct {
 }
 
 
-// Index --> Comic Data
-const indexOfComics = make(map[int]*ComicData)
+type Comics struct {
+	ComicIndex map[int]ComicData
+	TranscriptIndexes map[string]int
+}
 
-// Transcript -> Index
-const TranscriptIndexes = make(map[string]int)
 
 const BaseUrl = "https://xkcd.com/info.0.json"
 
@@ -73,6 +73,12 @@ func runSetup() int {
 
 
 func buildIndex(comics int) {
+	// Index --> Comic Data
+	indexOfComics := make(map[int]ComicData)
+
+	// Transcript -> Index
+	TranscriptIndexes := make(map[string]int)
+
 	f, err := os.Create("index.txt")
 
 	if err != nil {
@@ -108,13 +114,20 @@ func buildIndex(comics int) {
 
 		indexOfComics[i] = comic; 
 		TranscriptIndexes[comic.Transcript] = i; 
-		fmt.Println(comic.Transcript)
-		formatS := fmt.Sprintf("%d\t\t%s\t\t%v\t\t%s\n", comic.Num, comic.Title, comic.Transcript, comic.Img)
+	}
 
-		if _, err := f.Write([]byte(formatS)); err != nil {
-			log.Fatal(err)
-			continue
-		}
+	data := Comics{
+		ComicIndex: indexOfComics,
+		TranscriptIndexes: TranscriptIndexes,
+	}
 
+	jsonData, err := json.Marshal(data)
+	if err != nil {
+			log.Fatalf("failed to marshal: %v", err)
+	}
+	fmt.Println(string(jsonData))
+
+	if _, err := f.WriteString(string(jsonData)); err != nil {
+		log.Fatal(err)
 	}
 }
