@@ -20,6 +20,7 @@ type ComicData struct {
 	Img				 string `json:"img"`
 	Title 		 string `json:"title"`
 	Day 			 string `json:"day"`
+	Url 			 string 
 }
 
 type Comics struct {
@@ -37,13 +38,13 @@ func main() {
 
 	str := strings.Join(os.Args[1:], " ")
 	fmt.Println(str)
-	unmarshalData()
-
+	
+	data := unmarshalData()
+	searchAndPrint(strings.Join(os.Args[1:], " "), data)
 }
 
 
-func unmarshalData() {
-	// get data from file
+func unmarshalData() *Comics{
 	file, err := os.Open("index.txt")
 
 	if err != nil {
@@ -63,6 +64,27 @@ func unmarshalData() {
 		log.Fatalf("JSON unmarshalling failed: %s", err)
 	}
 
-	fmt.Println(data)
+	return &data
+}
 
+
+func searchAndPrint(query string, data *Comics) {
+	var foundComics []ComicData
+
+	for tString, index := range data.TranscriptIndexes {
+		if strings.Contains(tString, query) {
+			foundComics = append(foundComics, data.ComicIndex[index])
+		}
+	}
+
+	if len(foundComics) == 0 {
+		fmt.Printf("No results found for query: %s\n", query)
+	} else {
+
+		fmt.Printf("COMICS FOUND %d\n\nComic URL \t\t\tTranscript\n\n", len(foundComics))
+	}
+
+	for _,c := range foundComics {
+		fmt.Printf("%s\t\t%s\n\n", c.Url, c.Transcript)
+	}	
 }

@@ -21,6 +21,7 @@ type ComicData struct {
 	Img				 string `json:"img"`
 	Title 		 string `json:"title"`
 	Day 			 string `json:"day"`
+	Url 			 string 
 }
 
 
@@ -112,7 +113,8 @@ func buildIndex(comics int) {
 			continue
 		}
 
-		indexOfComics[i] = comic; 
+		comic.Url = url
+ 		indexOfComics[i] = comic; 
 		TranscriptIndexes[comic.Transcript] = i; 
 	}
 
