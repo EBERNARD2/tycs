@@ -8,7 +8,7 @@ import (
 	"log"
 	"strings"
 	"net/http"
-	// "image"
+	"io"
 )
 
 type Movie struct {
@@ -93,22 +93,20 @@ func printPosterImg(movie *Movie) {
 		os.Exit(1)
 	}
 
-	// img, _, err := image.Decode(resp.Body)
-	 
-	// if err != nil {
-	// 	log.Fatal(err)
-	// }
+	filename := fmt.Sprintf("%s.jpg", movie.Title)
+	f, er := os.Create(filename)
 
-
-	var b []byte
-
-	if err := json.NewDecoder(resp.Body).Decode(&b); err != nil {
-		resp.Body.Close()
-		fmt.Fprintf(os.Stderr, "Error decoding poster image: %v\n", err)
+	if er != nil {
+		log.Fatal(err)
 		os.Exit(1)
 	}
 
- 
-	fmt.Printf("%v\n", b)
-	// fmt.Println(resp.Body)
+	_, err = io.Copy(f, resp.Body)
+
+	if err != nil {
+		log.Fatal(err)
+		os.Exit(1)
+	}
+	
+
 }
