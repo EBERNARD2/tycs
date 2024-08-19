@@ -5,6 +5,9 @@ import (
 	"fmt"
 	"os"
 	"encoding/json"
+	"log"
+	"strings"
+	"net/http"
 )
 
 type Movie struct {
@@ -22,7 +25,6 @@ type Movie struct {
   Country      string               
   Awards       string    
   Poster       string                   
-  Ratings      string  
   Metascore    string       
   imdbRating   string        
   imdbVotes    string       
@@ -36,5 +38,41 @@ type Movie struct {
 } 
 
 func main() {
+	if len(os.Args) == 1 {
+		log.Fatalf("Usage: filename {search query}\n")
+		os.Exit(1)
+	}
+
+	getData(strings.Join(os.Args[1:], " "))
+
+}
+
+
+func getData(movie string) {
+	url := fmt.Sprintf("http://www.omdbapi.com/?apikey=ab60e53e&t=%s", movie)
+
+	resp, err := http.Get(url)
+
+	if err != nil {
+		fmt.Fprintf(os.Stderr, "Error fetching movie: %v\n", err)
+		os.Exit(1)
+	}
+
+	if resp.StatusCode != http.StatusOK {
+		resp.Body.Close()
+		fmt.Fprintf(os.Stderr, "Error fetching movie: %v\n", err)
+		os.Exit(1)
+	}
+
+	var movieData Movie
+
+	if err := json.NewDecoder(resp.Body).Decode(&movieData); err != nil {
+		resp.Body.Close()
+		fmt.Fprintf(os.Stderr, "Error decoding movie data: %v\n", err)
+		os.Exit(1)
+	}
+	
+	fmt.Println(movieData)
+
 
 }
