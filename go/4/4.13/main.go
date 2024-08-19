@@ -8,6 +8,7 @@ import (
 	"log"
 	"strings"
 	"net/http"
+	// "image"
 )
 
 type Movie struct {
@@ -43,12 +44,13 @@ func main() {
 		os.Exit(1)
 	}
 
-	getData(strings.Join(os.Args[1:], " "))
+	movie := getData(strings.Join(os.Args[1:], " "))
 
+	printPosterImg(movie)
 }
 
 
-func getData(movie string) {
+func getData(movie string) *Movie{
 	url := fmt.Sprintf("http://www.omdbapi.com/?apikey=ab60e53e&t=%s", movie)
 
 	resp, err := http.Get(url)
@@ -72,7 +74,41 @@ func getData(movie string) {
 		os.Exit(1)
 	}
 	
-	fmt.Println(movieData)
+	return &movieData
+}
 
 
+func printPosterImg(movie *Movie) {
+
+	resp, err := http.Get(movie.Poster)
+
+	if err != nil {
+		fmt.Fprintf(os.Stderr, "Error fetching poster image: %v\n", err)
+		os.Exit(1)
+	}
+
+	if resp.StatusCode != http.StatusOK {
+		resp.Body.Close()
+		fmt.Fprintf(os.Stderr, "Error fetching poster image: %v\n", err)
+		os.Exit(1)
+	}
+
+	// img, _, err := image.Decode(resp.Body)
+	 
+	// if err != nil {
+	// 	log.Fatal(err)
+	// }
+
+
+	var b []byte
+
+	if err := json.NewDecoder(resp.Body).Decode(&b); err != nil {
+		resp.Body.Close()
+		fmt.Fprintf(os.Stderr, "Error decoding poster image: %v\n", err)
+		os.Exit(1)
+	}
+
+ 
+	fmt.Printf("%v\n", b)
+	// fmt.Println(resp.Body)
 }
