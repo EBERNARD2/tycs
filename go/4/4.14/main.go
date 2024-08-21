@@ -8,7 +8,7 @@ import (
 	"net/http"
 )
 
-var templ = template.Must(template.New("issueList").Parse(`
+var mainTempl = template.Must(template.New("issueList").Parse(`
 <h1>{{.TotalCount}} issues</h1>
 <table>
 <tr style='text-align: left'>
@@ -26,8 +26,7 @@ var templ = template.Must(template.New("issueList").Parse(`
 </tr>
 {{end}}
 </table>
-`))
-
+`))z
 
 func main() {
 	result, err := github.SearchIssues(os.Args[1:])
@@ -37,7 +36,7 @@ func main() {
 	}
 
 	http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
-		if templ.Execute(w, result); err != nil {
+		if mainTempl.Execute(w, result); err != nil {
 			log.Fatal(err)
 		}
 	})
