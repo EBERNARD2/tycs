@@ -17,6 +17,8 @@ func main() {
 	for _, link := range visit(nil, doc){
 		fmt.Println(link)
 	}
+
+	fmt.Println(doc.Data)
 }
 
 
