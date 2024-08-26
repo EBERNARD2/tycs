@@ -1,10 +1,19 @@
-package wait
+package main
 
 import (
+	"fmt"
 	"time"
 	"http/net"
 	"log"
+	"os"
 )
+
+func main() {
+	if err := WaitForServer("https://gopl.io"); err != nil {
+		fmt.Fprintf(os.Stderr, "Site is down: %v\n", err)
+		os.Exit
+	}
+}
 
 func WaitForServer(url string) error {
 	const timeout = 1 * time.Minute
