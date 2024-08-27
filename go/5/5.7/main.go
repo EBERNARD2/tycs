@@ -41,34 +41,35 @@ func outline(url string) error {
 }
 
 func forEachNode(n *html.Node, pre, post func(n *html.Node)) {
-	if pre != nil {
+	if pre != nil && n.FirstChild != nil{
 		pre(n)
+	}
+
+	if n.FirstChild == nil {
+		shorthandElement(n)
 	}
 
 	for c := n.FirstChild; c != nil; c = c.NextSibling {
 		forEachNode(c, pre, post)
 	}
-
-	if post != nil {
+	
+	if post != nil && n.FirstChild != nil {
 		post(n)
 	}
 }
 
-// func shorthandElement(n *html.Node) {
-// 	if n.
-// }
+func shorthandElement(n *html.Node) {
+	if n.Type == html.ElementNode {
+		s := getAttr(n)
+		fmt.Printf("%*s<%s %s/>\n", depth*2, "", n.Data, s)
+	}
+}
 
 func startElement(n *html.Node) {
 	if n.Type == html.ElementNode {
-		s := ""
-		for _, a := range n.Attr {
-			s += fmt.Sprintf(" %s=%s", a.Key, a.Val)
-		}
-
-		if len(s) > 1 {
-			fmt.Println(s, "value to print")
-		}
-		fmt.Printf("%*s<%s>\n", depth*2, "", n.Data)
+		s := getAttr(n)
+		
+		fmt.Printf("%*s<%s %s>\n", depth*2, "", n.Data, s)
 		depth++
 	}
 }
@@ -79,4 +80,14 @@ func endElement(n *html.Node) {
 		fmt.Printf("%*s</%s>\n", depth*2, "", n.Data)
 		depth++
 	}
+}
+
+
+func getAttr(n *html.Node) string{
+	s := ""
+	for _, a := range n.Attr {
+		s += fmt.Sprintf(" %s=%s", a.Key, a.Val)
+	}
+
+	return s
 }
