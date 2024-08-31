@@ -62,7 +62,7 @@ func forEachNode(n *html.Node, query string, pre, post func(n *html.Node, query 
 	}
 
 	for c := n.FirstChild; c != nil; c = c.NextSibling {
-		node := forEachNode(c, pre, post, query)
+		node := forEachNode(c, query, pre, post)
 
 		if node != nil {
 			return node
