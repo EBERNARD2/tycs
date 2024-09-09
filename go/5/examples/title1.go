@@ -31,4 +31,4 @@ func title(url string) error {
 				fmt.Println(n.FirstChild.Data)
 			}
 	}
-}
+=
