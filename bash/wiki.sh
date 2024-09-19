@@ -3,8 +3,14 @@ if [ $# -lt 1 ]; then
   exit 1
 fi
 
-DATA="$(curl -L https://en.wikipedia.org/wiki/$1)"
-# echo $DATA | grep mw-heading
+DATA="$(curl -L -s https://en.wikipedia.org/wiki/$1)"
+ 
+IFS="<ul class="vector-toc-contents
 
-HEADINGS=$((read -a array <<< "$DATA" ))
-echo $HEADINGS
+read -ra newarr <<< "$DATA"
+
+echo ${#newarr}
+ 
+ 
+
+
