@@ -5,11 +5,11 @@ fi
 
 DATA="$(curl -L -s https://en.wikipedia.org/wiki/$1)"
  
-IFS="<ul class="vector-toc-contents
+# IFS="<ul class="vector-toc-contents
 
-read -ra newarr <<< "$DATA"
+#read -ra newarr <<< "$DATA"
 
-echo ${#newarr}
+echo ${#DATA}
  
  
 
