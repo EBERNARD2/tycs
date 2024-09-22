@@ -27,3 +27,12 @@ func main() {
 
 	stats(email)
 }
+
+
+func scan(folder string) {
+	fmt.Printf("Found folders:\n\n")
+	repositories := recursiveScanFolders(folder)
+	filePath := getDotFilePath()
+	addNewSliceElementstoFile(filePath, repositories)
+	fmt.Printf("\n\nSuccessfully added\n\n")
+}
