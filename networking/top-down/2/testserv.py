@@ -26,6 +26,8 @@ while True:
         data = fi.read()
     else:
       fi = open("404.html", "r")
+      data = fi.read()
+
       if not data:
         break
       while data:
