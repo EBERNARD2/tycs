@@ -9,6 +9,8 @@ DATA="$(curl -L -s https://en.wikipedia.org/wiki/$1)"
 
 #read -ra newarr <<< "$DATA"
 
+delimiter="<ul class="vector-toc-contents""
+
 echo ${#DATA}
  
  
