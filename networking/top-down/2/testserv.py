@@ -1,4 +1,5 @@
 from socket import *
+import datetime
 import os
 
 
@@ -19,11 +20,13 @@ while True:
     if os.path.isfile(path):
       fi = open(path, "r")
       data = fi.read()
+
+      body = ''
       if not data:
         break
       while data:
-        connectionSocket.send(data.encode())
-        data = fi.read()
+        body = body + data
+      print(body)
     else:
       fi = open("404.html", "r")
       data = fi.read()
