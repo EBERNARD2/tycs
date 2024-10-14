@@ -2,12 +2,14 @@ package main
 
 import (
 	"fmt"
+	"log"
 	"os"
+	"strings"
 	"syscall"
 )
 
 var (
-	PORT  = 8080
+	PORT  = 8888
 	ADDR  = [4]byte{127, 0, 0, 1}
 	BYTES = 1024
 )
@@ -37,14 +39,16 @@ func main() {
 	fmt.Printf("Server ready on port %d...\n", PORT)
 
 	for {
-		var buff []byte
-		n, from, err := syscall.Recvfrom(serverFd, buff, syscall.MSG_WAITALL)
+		buff := make([]byte, 1024)
+
+		_, from, err := syscall.Recvfrom(serverFd, buff, syscall.MSG_WAITALL)
 
 		if err != nil {
-
+			log.Fatal("Unable to process message")
 		}
 
-	}
+		msg := strings.ToUpper(string(buff[:]))
 
-	// recieve a message
+		syscall.Sendto(serverFd, []byte(msg), syscall.MSG_DONTROUTE, from)
+	}
 }
