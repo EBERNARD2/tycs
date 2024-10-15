@@ -1,10 +1,12 @@
 package main
 
 import (
+	"encoding/json"
 	"fmt"
 	"log"
 	"strings"
 	"syscall"
+	"time"
 )
 
 var (
@@ -46,20 +48,6 @@ func main() {
 
 }
 
-func createResponseJson(buf []byte, length int) {
-	// Process string
-	for _, line := range strings.Split(string(buf[:length]), "\n") {
-
-		t := strings.SplitN(line, ":", 2)
-
-		if len(t) > 1 {
-			fmt.Printf("%s\n\n", t[0])
-			fmt.Printf("%s\n\n", t[1])
-		}
-
-	}
-}
-
 func connection(fileDescriptor int) {
 	for {
 		// Establish TCP connection with client and create unique socket for two way communication w/ client
@@ -80,13 +68,39 @@ func connection(fileDescriptor int) {
 		}
 
 		// turn http headers into json so browser (the client) can render to page
-		createResponseJson(buff[:], n)
+		resBody := createResponseJson(buff[:], n)
 
-		t := []byte("this is a test")
+		date := time.Now().String()
 
-		syscall.Write(nfd, t)
+		res := fmt.Sprintf(
+			"HTTP/1.1 200 OK\nConnection: close\nDate:%s\nServer: Macintosh; Intel Mac OS X 10_15_7\nLast-Modified: %s\nContent-Length: %d\nContent-Type: application/json\n%v", date, len(resBody), resBody)
+
+		fmt.Println(res)
+
+		syscall.Write(nfd, []byte(res))
 
 		syscall.Close(nfd)
 
 	}
+}
+
+func createResponseJson(buf []byte, length int) []byte {
+
+	responseObj := make(map[string]string)
+	// Process string
+	for _, line := range strings.Split(string(buf[:length]), "\n") {
+
+		if l := strings.SplitN(line, ":", 2); len(l) > 1 {
+			responseObj[l[0]] = l[1]
+		}
+	}
+
+	res, err := json.Marshal(responseObj)
+
+	if err != nil {
+		log.Fatalf("Error creating json object")
+	}
+
+	return res
+
 }
