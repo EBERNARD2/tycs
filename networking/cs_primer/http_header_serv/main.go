@@ -73,9 +73,7 @@ func connection(fileDescriptor int) {
 		date := time.Now().String()
 
 		res := fmt.Sprintf(
-			"HTTP/1.1 200 OK\nConnection: close\nDate:%s\nServer: Macintosh; Intel Mac OS X 10_15_7\nLast-Modified: %s\nContent-Length: %d\nContent-Type: application/json\n%v", date, len(resBody), resBody)
-
-		fmt.Println(res)
+			"HTTP/1.1 200 OK\nConnection: close\nDate:%s\nServer: Macintosh; Intel Mac OS X 10_15_7\nLast-Modified: %s\nContent-Length: %d\nContent-Type: application/json\r\n\r\n%s", date, date, len(resBody), string(resBody))
 
 		syscall.Write(nfd, []byte(res))
 
