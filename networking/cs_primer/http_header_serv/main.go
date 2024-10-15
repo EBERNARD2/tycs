@@ -3,6 +3,7 @@ package main
 import (
 	"fmt"
 	"log"
+	"strings"
 	"syscall"
 )
 
@@ -41,9 +42,28 @@ func main() {
 
 	fmt.Printf("Listening on port %d...\n", PORT)
 
+	connection(fd)
+
+}
+
+func createResponseJson(buf []byte, length int) {
+	// Process string
+	for _, line := range strings.Split(string(buf[:length]), "\n") {
+
+		t := strings.SplitN(line, ":", 2)
+
+		if len(t) > 1 {
+			fmt.Printf("%s\n\n", t[0])
+			fmt.Printf("%s\n\n", t[1])
+		}
+
+	}
+}
+
+func connection(fileDescriptor int) {
 	for {
 		// Establish TCP connection with client and create unique socket for two way communication w/ client
-		nfd, _, err := syscall.Accept(fd)
+		nfd, _, err := syscall.Accept(fileDescriptor)
 
 		if err != nil {
 			log.Fatalf("Error connecting to client: %v\n", err)
@@ -59,9 +79,9 @@ func main() {
 			log.Fatalf("Error reading client msg: %v\n", err)
 		}
 
-		fmt.Println(string(buff[:n]))
-
 		// turn http headers into json so browser (the client) can render to page
+		createResponseJson(buff[:], n)
+
 		t := []byte("this is a test")
 
 		syscall.Write(nfd, t)
@@ -69,5 +89,4 @@ func main() {
 		syscall.Close(nfd)
 
 	}
-
 }
