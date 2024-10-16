@@ -51,7 +51,7 @@ func main() {
 func connection(fileDescriptor int) {
 	for {
 		// Establish TCP connection with client and create unique socket for two way communication w/ client
-		nfd, _, err := syscall.Accept(fileDescriptor)
+		connFd, _, err := syscall.Accept(fileDescriptor)
 
 		if err != nil {
 			log.Fatalf("Error connecting to client: %v\n", err)
@@ -61,7 +61,7 @@ func connection(fileDescriptor int) {
 		buff := make([]byte, 1024)
 
 		// Read request headers
-		n, err := syscall.Read(nfd, buff)
+		n, err := syscall.Read(connFd, buff)
 
 		if err != nil {
 			log.Fatalf("Error reading client msg: %v\n", err)
@@ -75,9 +75,9 @@ func connection(fileDescriptor int) {
 		res := fmt.Sprintf(
 			"HTTP/1.1 200 OK\nConnection: close\nDate:%s\nServer: Macintosh; Intel Mac OS X 10_15_7\nLast-Modified: %s\nContent-Length: %d\nContent-Type: application/json\r\n\r\n%s", date, date, len(resBody), string(resBody))
 
-		syscall.Write(nfd, []byte(res))
+		syscall.Write(connFd, []byte(res))
 
-		syscall.Close(nfd)
+		syscall.Close(connFd)
 
 	}
 }

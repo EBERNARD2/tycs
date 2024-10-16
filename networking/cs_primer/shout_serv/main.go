@@ -19,7 +19,7 @@ func main() {
 	serverFd, err := syscall.Socket(syscall.AF_INET, syscall.SOCK_DGRAM, syscall.IPPROTO_IP)
 
 	if err != nil {
-		fmt.Errorf("There was a problem creating the socket. Please run program again\n")
+		fmt.Printf("There was a problem creating the socket. Please run program again\n")
 		os.Exit(1)
 	}
 
@@ -32,7 +32,7 @@ func main() {
 	err = syscall.Bind(serverFd, &sockIO)
 
 	if err != nil {
-		fmt.Errorf("There was a problem binding to the socket port. Please run program again\n")
+		fmt.Printf("There was a problem binding to the socket port. Please run program again\n")
 		os.Exit(1)
 	}
 
