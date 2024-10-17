@@ -104,7 +104,7 @@ func createHeader() [12]byte {
 	return t
 }
 
-func createQuestionForm() []byte {
+func createQuestion() []byte {
 	var t []byte
 	return t
 }
