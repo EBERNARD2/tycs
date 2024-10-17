@@ -1,24 +1,24 @@
 package main
 
 import (
+	"bytes"
 	"fmt"
 	"log"
 	"os"
-	"syscall"
 )
 
 /*
-	using https://www.ietf.org/rfc/rfc1035.txt as a guide to build dns client header
+	using RFC 1035 https://www.ietf.org/rfc/rfc1035.txt as a guide to build dns query
 	Header format:
 
 		2 bytes per row
 
-		1st row - Identification --- Will probably be 0x0000 as this query is our first communicationg
+		1st row - Identification --- Will probably be 0x0000 as this query is our first
 			ID - 2 bytes
 
 		2nd row:
 
-			1 bit will be 0 to reprensent a query
+			1 bit will be 0 to reprensent that this is a query
 			next 4 bits will be 0x0 to represnet a standard query
 			1 bit is 0 as Authoratative answer is only valid in responses
 			1 bit is 0 for truncation... will assume we will have enought bytes
@@ -75,12 +75,17 @@ func main() {
 	readClArgs()
 
 	// Create UDP socket to query DNS resolver
-	sock, err := syscall.Socket(syscall.AF_INET, syscall.SOCK_DGRAM, syscall.IPPROTO_IP)
+	// sock, err := syscall.Socket(syscall.AF_INET, syscall.SOCK_DGRAM, syscall.IPPROTO_IP)
 
-	if err != nil {
-		log.Fatalf("Error creating socket... Please run client again\n")
+	// if err != nil {
+	// 	log.Fatalf("Error creating socket... Please run client again\n")
+	// }
+
+	fmt.Println(createQueryHeader())
+
+	for _, domain := range os.Args[1:] {
+		fmt.Println([]byte(domain))
 	}
-
 	// Query DNS resolver (HOW?)
 
 	// Parse the response
@@ -99,9 +104,34 @@ func readClArgs() {
 	fmt.Printf("This is a valid argument: %s\n", arg)
 }
 
-func createHeader() [12]byte {
-	var t [12]byte
-	return t
+func createQueryHeader() [12]byte {
+	var header bytes.Buffer
+
+	// Row 1
+	header.WriteByte(0x00)
+	header.WriteByte(0x00)
+
+	// Row 2 write bytes for QR|  Opcode  |AA|TC|RD|RA |  Z    |   RCODE
+	header.WriteByte(0x80)
+	header.WriteByte(0x00)
+
+	// Row 3 get number of queries we'll have
+	count := len(os.Args[1:])
+
+	header.WriteByte(byte(count & 0xFF00))
+	header.WriteByte(byte(count & 0x00FF))
+
+	// Row 3
+	header.WriteByte(0x00)
+	header.WriteByte(0x00)
+	// Row 4
+	header.WriteByte(0x00)
+	header.WriteByte(0x00)
+	// Row 5
+	header.WriteByte(0x00)
+	header.WriteByte(0x00)
+
+	return [12]byte(header.Bytes())
 }
 
 func createQuestion() []byte {
