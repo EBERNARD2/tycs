@@ -83,12 +83,11 @@ func main() {
 
 	dnsQuery := createQueryHeader()
 
-	fmt.Println(dnsQuery, "before")
 	for _, domain := range os.Args[1:] {
 		dnsQuery = append(dnsQuery, createQuestion(domain)...)
 	}
 
-	fmt.Println(dnsQuery, "after")
+	fmt.Println(dnsQuery)
 	// Query DNS resolver (HOW?)
 
 	// Parse the response
@@ -111,12 +110,13 @@ func createQueryHeader() []byte {
 	var header bytes.Buffer
 
 	// Row 1
-	header.WriteByte(0x00)
-	header.WriteByte(0x00)
+	// header.Write([]byte{0x})
+	header.WriteByte(0xb7)
+	header.WriteByte(0x3e)
 
 	// Row 2 write bytes for QR|  Opcode  |AA|TC|RD|RA |  Z    |   RCODE
-	header.WriteByte(0x00)
 	header.WriteByte(0x01)
+	header.WriteByte(0x00)
 
 	// Row 3 get number of queries we'll have
 	count := len(os.Args[1:])
@@ -141,9 +141,13 @@ func createQuestion(domain string) []byte {
 	var question bytes.Buffer
 
 	for _, entry := range strings.Split(domain, ".") {
-		question.WriteByte(byte(len(entry)))
-		question.WriteString(entry)
+		question.WriteByte(byte(len(entry))) // write length of
+		question.WriteString(entry)          // write domain
 	}
+
+	question.WriteByte(0x00)       // Terminate domain query
+	question.Write([]byte{0x0001}) // Add Type - A record
+	question.Write([]byte{0x0001}) // Class - the internet
 
 	return question.Bytes()
 }
