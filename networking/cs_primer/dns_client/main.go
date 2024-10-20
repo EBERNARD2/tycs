@@ -6,6 +6,7 @@ import (
 	"log"
 	"os"
 	"strings"
+	"syscall"
 )
 
 /*
@@ -69,17 +70,12 @@ import (
 
 var (
 	resolverAddr = [4]byte{1, 1, 1, 1} // This is the address for cloudflare's public dns resolver
+	PORT         = 80                  // This is the DNS PORT
 )
 
 // Get CLI Arguments
 func main() {
 	readClArgs()
-	// Create UDP socket to query DNS resolver
-	// sock, err := syscall.Socket(syscall.AF_INET, syscall.SOCK_DGRAM, syscall.IPPROTO_IP)
-
-	// if err != nil {
-	// 	log.Fatalf("Error creating socket... Please run client again\n")
-	// }
 
 	dnsQuery := createQueryHeader()
 
@@ -87,10 +83,40 @@ func main() {
 		dnsQuery = append(dnsQuery, createQuestion(domain)...)
 	}
 
-	fmt.Println(dnsQuery)
-	// Query DNS resolver (HOW?)
-
 	// Parse the response
+	sendDnsQuery(dnsQuery)
+
+}
+
+// Query DNS resolver
+
+func sendDnsQuery(dnsQuery []byte) {
+	// Create UDP socket to query DNS resolver
+	sock, err := syscall.Socket(syscall.AF_INET, syscall.SOCK_DGRAM, syscall.IPPROTO_IP)
+
+	if err != nil {
+		log.Fatalf("Error creating socket... Please run client again\n")
+	}
+
+	var dnsAddr syscall.SockaddrInet4
+	dnsAddr.Addr = resolverAddr
+	dnsAddr.Port = PORT
+
+	msg := make([]byte, 1024)
+	syscall.Sendto(sock, dnsQuery, syscall.MSG_OOB, &dnsAddr)
+	_, _, err = syscall.Recvfrom(sock, msg, syscall.MSG_WAITALL)
+
+	if err != nil {
+		fmt.Println(err)
+	}
+
+	fmt.Println(msg)
+
+	err = syscall.Close(sock)
+
+	if err != nil {
+		fmt.Printf("Error closing sockiet: %s\n", err)
+	}
 
 }
 
@@ -99,11 +125,7 @@ func readClArgs() {
 		log.Fatalf("Usage: file-name {domain name}\n")
 	}
 
-	arg := os.Args[1]
-
 	// maybe add some validation here to make sure its what a DNS server expects
-
-	fmt.Printf("This is a valid argument: %s\n", arg)
 }
 
 func createQueryHeader() []byte {
