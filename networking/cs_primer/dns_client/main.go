@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"log"
 	"os"
+	"strings"
 )
 
 /*
@@ -82,9 +83,8 @@ func main() {
 	// }
 
 	fmt.Println(createQueryHeader())
-
 	for _, domain := range os.Args[1:] {
-		fmt.Println([]byte(domain))
+		createQuestion(domain)
 	}
 	// Query DNS resolver (HOW?)
 
@@ -112,8 +112,8 @@ func createQueryHeader() [12]byte {
 	header.WriteByte(0x00)
 
 	// Row 2 write bytes for QR|  Opcode  |AA|TC|RD|RA |  Z    |   RCODE
-	header.WriteByte(0x80)
 	header.WriteByte(0x00)
+	header.WriteByte(0x01)
 
 	// Row 3 get number of queries we'll have
 	count := len(os.Args[1:])
@@ -134,7 +134,13 @@ func createQueryHeader() [12]byte {
 	return [12]byte(header.Bytes())
 }
 
-func createQuestion() []byte {
-	var t []byte
-	return t
+func createQuestion(domain string) []byte {
+	var question bytes.Buffer
+
+	for _, entry := range strings.Split(domain, ".") {
+		question.WriteByte(byte(len(entry)))
+		question.WriteString(entry)
+	}
+
+	return question.Bytes()
 }
