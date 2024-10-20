@@ -74,7 +74,6 @@ var (
 // Get CLI Arguments
 func main() {
 	readClArgs()
-
 	// Create UDP socket to query DNS resolver
 	// sock, err := syscall.Socket(syscall.AF_INET, syscall.SOCK_DGRAM, syscall.IPPROTO_IP)
 
@@ -82,10 +81,14 @@ func main() {
 	// 	log.Fatalf("Error creating socket... Please run client again\n")
 	// }
 
-	fmt.Println(createQueryHeader())
+	dnsQuery := createQueryHeader()
+
+	fmt.Println(dnsQuery, "before")
 	for _, domain := range os.Args[1:] {
-		createQuestion(domain)
+		dnsQuery = append(dnsQuery, createQuestion(domain)...)
 	}
+
+	fmt.Println(dnsQuery, "after")
 	// Query DNS resolver (HOW?)
 
 	// Parse the response
@@ -104,7 +107,7 @@ func readClArgs() {
 	fmt.Printf("This is a valid argument: %s\n", arg)
 }
 
-func createQueryHeader() [12]byte {
+func createQueryHeader() []byte {
 	var header bytes.Buffer
 
 	// Row 1
@@ -131,7 +134,7 @@ func createQueryHeader() [12]byte {
 	header.WriteByte(0x00)
 	header.WriteByte(0x00)
 
-	return [12]byte(header.Bytes())
+	return header.Bytes()
 }
 
 func createQuestion(domain string) []byte {
