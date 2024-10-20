@@ -111,8 +111,8 @@ func createQueryHeader() []byte {
 
 	// Row 1
 	// header.Write([]byte{0x})
-	header.WriteByte(0xb7)
-	header.WriteByte(0x3e)
+	header.WriteByte(0x00)
+	header.WriteByte(0x00)
 
 	// Row 2 write bytes for QR|  Opcode  |AA|TC|RD|RA |  Z    |   RCODE
 	header.WriteByte(0x01)
@@ -140,9 +140,9 @@ func createQueryHeader() []byte {
 func createQuestion(domain string) []byte {
 	var question bytes.Buffer
 
-	for _, entry := range strings.Split(domain, ".") {
-		question.WriteByte(byte(len(entry))) // write length of
-		question.WriteString(entry)          // write domain
+	for _, segment := range strings.Split(domain, ".") {
+		question.WriteByte(byte(len(segment))) // write length
+		question.WriteString(segment)          // write domain segment
 	}
 
 	question.WriteByte(0x00)       // Terminate domain query
