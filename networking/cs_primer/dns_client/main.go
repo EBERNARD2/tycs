@@ -1,9 +1,10 @@
 package main
 
 import (
-	"bytes"
+	"encoding/binary"
 	"fmt"
 	"log"
+	"math/rand"
 	"os"
 	"strings"
 	"syscall"
@@ -69,8 +70,8 @@ import (
 */
 
 var (
-	resolverAddr = [4]byte{1, 1, 1, 1} // This is the address for cloudflare's public dns resolver
-	PORT         = 80                  // This is the DNS PORT
+	resolverAddr = [4]byte{8, 8, 8, 8} // This is the address for google's public dns resolver
+	PORT         = 53                  // This is the DNS PORT
 )
 
 // Get CLI Arguments
@@ -83,6 +84,7 @@ func main() {
 		dnsQuery = append(dnsQuery, createQuestion(domain)...)
 	}
 
+	fmt.Println(dnsQuery)
 	// Parse the response
 	sendDnsQuery(dnsQuery)
 
@@ -98,19 +100,18 @@ func sendDnsQuery(dnsQuery []byte) {
 		log.Fatalf("Error creating socket... Please run client again\n")
 	}
 
-	var dnsAddr syscall.SockaddrInet4
-	dnsAddr.Addr = resolverAddr
-	dnsAddr.Port = PORT
+	dnsAddr := syscall.SockaddrInet4{Addr: resolverAddr, Port: PORT}
 
-	msg := make([]byte, 1024)
-	syscall.Sendto(sock, dnsQuery, syscall.MSG_OOB, &dnsAddr)
-	_, _, err = syscall.Recvfrom(sock, msg, syscall.MSG_WAITALL)
+	msg := make([]byte, 512)
+	syscall.Sendto(sock, dnsQuery, 0, &dnsAddr)
+
+	_, from, err := syscall.Recvfrom(sock, msg, syscall.MSG_WAITALL)
 
 	if err != nil {
-		fmt.Println(err)
+		log.Fatalf("Error recieving DNS message: %v\n", err)
 	}
 
-	fmt.Println(msg)
+	fmt.Println(msg, from, "Data")
 
 	err = syscall.Close(sock)
 
@@ -129,47 +130,32 @@ func readClArgs() {
 }
 
 func createQueryHeader() []byte {
-	var header bytes.Buffer
+	head := make([]byte, 12)
 
+	// TODO: Change these bytes to big endian as I forgot Apple machines use little endian.. We need to explicity set these
 	// Row 1
-	// header.Write([]byte{0x})
-	header.WriteByte(0x00)
-	header.WriteByte(0x00)
+	id := rand.Intn(65535)
+	binary.BigEndian.PutUint16(head[0:2], uint16(id))
 
 	// Row 2 write bytes for QR|  Opcode  |AA|TC|RD|RA |  Z    |   RCODE
-	header.WriteByte(0x01)
-	header.WriteByte(0x00)
+	binary.BigEndian.PutUint16(head[2:4], 0x0100)
 
 	// Row 3 get number of queries we'll have
-	count := len(os.Args[1:])
+	binary.BigEndian.PutUint16(head[4:6], uint16(len(os.Args[1:])))
 
-	header.WriteByte(byte(count & 0xFF00))
-	header.WriteByte(byte(count & 0x00FF))
-
-	// Row 3
-	header.WriteByte(0x00)
-	header.WriteByte(0x00)
-	// Row 4
-	header.WriteByte(0x00)
-	header.WriteByte(0x00)
-	// Row 5
-	header.WriteByte(0x00)
-	header.WriteByte(0x00)
-
-	return header.Bytes()
+	// Rows 4 5 and 6 are set will be set to 0
+	return head
 }
 
 func createQuestion(domain string) []byte {
-	var question bytes.Buffer
 
+	var question []byte
 	for _, segment := range strings.Split(domain, ".") {
-		question.WriteByte(byte(len(segment))) // write length
-		question.WriteString(segment)          // write domain segment
+		question = append(question, byte(len(segment))) // write length
+		question = append(question, []byte(segment)...) // write domain segment
 	}
 
-	question.WriteByte(0x00)       // Terminate domain query
-	question.Write([]byte{0x0001}) // Add Type - A record
-	question.Write([]byte{0x0001}) // Class - the internet
+	question = append(question, []byte{0x00, 0x00, 0x01, 0x00, 0x01}...)
 
-	return question.Bytes()
+	return question
 }
