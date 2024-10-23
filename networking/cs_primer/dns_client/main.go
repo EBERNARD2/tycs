@@ -84,15 +84,17 @@ func main() {
 		dnsQuery = append(dnsQuery, createQuestion(domain)...)
 	}
 
-	fmt.Println(dnsQuery)
+	id := dnsQuery[0:2]
 	// Parse the response
-	sendDnsQuery(dnsQuery)
+	response := sendDnsQuery(dnsQuery)
+
+	parseResponse(response, id)
 
 }
 
 // Query DNS resolver
 
-func sendDnsQuery(dnsQuery []byte) {
+func sendDnsQuery(dnsQuery []byte) []byte {
 	// Create UDP socket to query DNS resolver
 	sock, err := syscall.Socket(syscall.AF_INET, syscall.SOCK_DGRAM, syscall.IPPROTO_IP)
 
@@ -105,20 +107,19 @@ func sendDnsQuery(dnsQuery []byte) {
 	msg := make([]byte, 512)
 	syscall.Sendto(sock, dnsQuery, 0, &dnsAddr)
 
-	_, from, err := syscall.Recvfrom(sock, msg, syscall.MSG_WAITALL)
+	_, _, err = syscall.Recvfrom(sock, msg, syscall.MSG_WAITALL)
 
 	if err != nil {
 		log.Fatalf("Error recieving DNS message: %v\n", err)
 	}
 
-	fmt.Println(msg, from, "Data")
-
 	err = syscall.Close(sock)
 
 	if err != nil {
-		fmt.Printf("Error closing sockiet: %s\n", err)
+		log.Fatalf("Error closing sockiet: %s\n", err)
 	}
 
+	return msg
 }
 
 func readClArgs() {
@@ -158,4 +159,38 @@ func createQuestion(domain string) []byte {
 	question = append(question, []byte{0x00, 0x00, 0x01, 0x00, 0x01}...)
 
 	return question
+}
+
+// We will need to check the queries section of the response to see if there is
+func parseResponse(res []byte, id []byte) {
+	//check response header and match with id
+	if res[0] != id[0] || res[1] != id[1] {
+		log.Fatalf("Request and response ids don't match: %v and %v\n", res[0:2], id)
+	}
+
+	fmt.Println(res[3] & 0xF) // check Rcode
+
+	if res[3]&0xf != 0 {
+		log.Fatal("Error fetching Domain ip address.. Please try again")
+	}
+
+	// Skip the query section of the response
+	i := 12
+	for ; res[i] != 0; i++ {
+	}
+
+	i = i + 5
+
+	fmt.Printf("Ip address(es) for domain: %s\n\n", os.Args[1])
+	// Answer section (Stop 10 bytes before reaching max of 512):
+	for ; i < 502; i += 16 {
+		//2 bytes for compressed / hashed resource name
+		// 2 bytes for type
+		// 2 bytes for class
+		// 2 bytes for TTL
+		// 2 bytes for Data length - Will always be 4 bytes for A records
+		if res[i+11] == 0x04 {
+			fmt.Printf("%d.%d.%d.%d\n", uint8(res[i+12]), uint8(res[i+13]), uint8(res[i+14]), uint8(res[i+15]))
+		}
+	}
 }
