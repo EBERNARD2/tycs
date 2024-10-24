@@ -1,6 +1,7 @@
 package main
 
 import (
+	"bytes"
 	"encoding/binary"
 	"fmt"
 	"log"
@@ -168,8 +169,7 @@ func parseResponse(res []byte, id []byte) {
 		log.Fatalf("Request and response ids don't match: %v and %v\n", res[0:2], id)
 	}
 
-	fmt.Println(res[3] & 0xF) // check Rcode
-
+	// check rcode
 	if res[3]&0xf != 0 {
 		log.Fatal("Error fetching Domain ip address.. Please try again")
 	}
@@ -181,16 +181,22 @@ func parseResponse(res []byte, id []byte) {
 
 	i = i + 5
 
-	fmt.Printf("Ip address(es) for domain: %s\n\n", os.Args[1])
-	// Answer section (Stop 10 bytes before reaching max of 512):
-	for ; i < 502; i += 16 {
-		//2 bytes for compressed / hashed resource name
-		// 2 bytes for type
-		// 2 bytes for class
-		// 2 bytes for TTL
-		// 2 bytes for Data length - Will always be 4 bytes for A records
-		if res[i+11] == 0x04 {
-			fmt.Printf("%d.%d.%d.%d\n", uint8(res[i+12]), uint8(res[i+13]), uint8(res[i+14]), uint8(res[i+15]))
+	fmt.Printf("Relevant Ip address for %s:\n", os.Args[1])
+	//2 bytes for compressed / hashed resource name
+	// 2 bytes for type
+	// 2 bytes for class
+	// 2 bytes for TTL
+	// 2 bytes for Data length - Will always be 4 bytes for A records
+	for _, answer := range bytes.Split(res[i:], []byte{192}) {
+
+		if len(answer) < 15 {
+			continue
 		}
+
+		if answer[1] == 0x0 && answer[2] == 0x1 {
+
+			fmt.Printf("%d.%d.%d.%d\n", answer[11], answer[12], answer[13], answer[14])
+		}
+
 	}
 }
