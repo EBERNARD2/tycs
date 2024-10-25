@@ -79,7 +79,6 @@ func readClArgs() {
 func createQueryHeader() []byte {
 	head := make([]byte, 12)
 
-	// TODO: Change these bytes to big endian as I forgot Apple machines use little endian.. We need to explicity set these
 	// Row 1
 	id := rand.Intn(65535)
 	binary.BigEndian.PutUint16(head[0:2], uint16(id))
@@ -132,6 +131,8 @@ func parseResponse(res []byte, id []byte) {
 	// 2 bytes for class
 	// 2 bytes for TTL
 	// 2 bytes for Data length - Will always be 4 bytes for A records
+
+	// Split bytes at domanin name pointer
 	for _, answer := range bytes.Split(res[i:], []byte{192}) {
 
 		if len(answer) < 15 {
