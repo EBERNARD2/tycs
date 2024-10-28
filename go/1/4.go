@@ -2,11 +2,10 @@ package main
 
 import (
 	"fmt"
-	"os"
 	"io/ioutil"
+	"os"
 	"strings"
 )
-
 
 func main() {
 	counts := make(map[string]int)
@@ -15,7 +14,7 @@ func main() {
 
 	for _, filename := range files {
 		file, err := ioutil.ReadFile(filename)
-		
+
 		if err != nil {
 			fmt.Fprintf(os.Stderr, "dup %v\n", err)
 			continue
@@ -26,8 +25,8 @@ func main() {
 		for _, line := range strings.Split(string(file), "\n") {
 			counts[line]++
 			lineValuesFound[line] = true
- 		}
-		
+		}
+
 		for line := range lineValuesFound {
 			output[line] += filename + " "
 		}
