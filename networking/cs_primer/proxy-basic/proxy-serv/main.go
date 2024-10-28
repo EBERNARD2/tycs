@@ -11,7 +11,7 @@ import (
 var (
 	ADDR        = [4]byte{127, 0, 0, 1}
 	PORT        = 8001
-	STATIC_PORT = 3000
+	STATIC_PORT = 3005
 )
 
 func main() {
@@ -150,5 +150,5 @@ func fetchDataFromOrgin(socket syscall.SockaddrInet4, httpMsg []byte) []byte {
 
 	syscall.Close(clientSocket)
 
-	return res[:]
+	return res
 }

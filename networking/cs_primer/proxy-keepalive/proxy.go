@@ -54,7 +54,13 @@ func acceptConnections(socket int) {
 			continue
 		}
 
-		connectUpstream(connection, message[:n])
+		res := connectUpstream(message[:n])
+
+		_, err = syscall.Write(connection, res)
+		if err != nil {
+			fmt.Fprintf(os.Stderr, "Error writing to client socket: %s\n", err)
+			return
+		}
 
 		if err = syscall.Close(connection); err != nil {
 			fmt.Fprintf(os.Stderr, "Error closing client socket: %s\n", err)
@@ -64,58 +70,55 @@ func acceptConnections(socket int) {
 	}
 }
 
-func connectUpstream(clientConnection int, message []byte) {
+func connectUpstream(message []byte) []byte {
 	// create upstream socket
 	upstreamAddr := syscall.SockaddrInet4{Port: UPSTREAM_PORT, Addr: ADDR}
 	upstreamSocket, err := syscall.Socket(syscall.AF_INET, syscall.SOCK_STREAM, syscall.IPPROTO_IP)
 
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "Error creating upstream socket: %s\n", err)
-		return
+		return defualtVal()
 	}
 
 	err = syscall.Connect(upstreamSocket, &upstreamAddr)
 
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "Error connecting to upstream server: %s\n", err)
-		return
+		return defualtVal()
 	}
 
 	_, err = syscall.Write(upstreamSocket, message[:])
 
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "Error writing to upstream server: %s\n", err)
-		return
+		return defualtVal()
 	}
 
 	var res []byte
-	buffer := make([]byte, 4096)
+	buff := make([]byte, 4096)
 
 	for {
-		n, err := syscall.Read(upstreamSocket, buffer)
-		res = append(res, buffer[:n]...)
+		n, err := syscall.Read(upstreamSocket, buff)
 
-		if n == 0 || n < 4096 {
+		if n == 0 {
 			break
 		}
-
-		fmt.Println("2")
 
 		if err != nil {
-			fmt.Fprintf(os.Stderr, "Error reading from upstream socket: %s\n", err)
-			break
+			log.Fatalf("Error reading from static server socket: %s\n", err)
 		}
 
-	}
-	_, err = syscall.Write(clientConnection, res[:])
-
-	if err != nil {
-		fmt.Fprintf(os.Stderr, "Error writing to client socket: %s\n", err)
-		return
+		res = append(res, buff[:n]...)
 	}
 
 	if err = syscall.Close(upstreamSocket); err != nil {
 		fmt.Fprintf(os.Stderr, "Error closing upstream socket: %s\n", err)
-		return
+		return defualtVal()
 	}
+
+	return res
+}
+
+func defualtVal() []byte {
+	return []byte("HTTP/1.1 200 OK")
 }
