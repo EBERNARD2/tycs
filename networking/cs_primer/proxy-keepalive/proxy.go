@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"io"
 	"log"
 	"os"
 	"syscall"
@@ -15,28 +16,28 @@ var (
 
 func main() {
 	ownSocket := syscall.SockaddrInet4{Port: OWN_PORT, Addr: ADDR}
-	sock, err := syscall.Socket(syscall.AF_INET, syscall.SOCK_STREAM, syscall.IPPROTO_IP)
+	proxySocket, err := syscall.Socket(syscall.AF_INET, syscall.SOCK_STREAM, syscall.IPPROTO_IP)
 
 	if err != nil {
 		log.Fatalf("Error creating socket: %s\n", err)
 	}
 
-	if err = syscall.Bind(sock, &ownSocket); err != nil {
+	if err = syscall.Bind(proxySocket, &ownSocket); err != nil {
 		log.Fatalf("Error binding socket: %s\n", err)
 	}
 
-	if err = syscall.Listen(sock, 100); err != nil {
+	if err = syscall.Listen(proxySocket, 100); err != nil {
 		log.Fatalf("Error listening on socket: %s\n", err)
 	}
 
 	fmt.Printf("Sever listening on PORT %d...\n", OWN_PORT)
 
-	acceptConnections(sock)
+	acceptConnections(proxySocket)
 }
 
-func acceptConnections(socket int) {
+func acceptConnections(proxySocket int) {
 	for {
-		connection, addr, err := syscall.Accept(socket)
+		connection, addr, err := syscall.Accept(proxySocket)
 
 		if err != nil {
 			fmt.Fprintf(os.Stderr, "Error establishing socket connection: %s\n", err)
@@ -87,7 +88,7 @@ func connectUpstream(message []byte) []byte {
 		return defualtVal()
 	}
 
-	_, err = syscall.Write(upstreamSocket, message[:])
+	_, err = syscall.Write(upstreamSocket, message)
 
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "Error writing to upstream server: %s\n", err)
@@ -95,7 +96,13 @@ func connectUpstream(message []byte) []byte {
 	}
 
 	var res []byte
-	buff := make([]byte, 4096)
+	buff := make([]byte, 1024)
+
+	timeout := syscall.Timeval{Sec: 1, Usec: 0}
+	if err := syscall.SetsockoptTimeval(upstreamSocket, syscall.SOL_SOCKET, syscall.SO_RCVTIMEO, &timeout); err != nil {
+		fmt.Fprintf(os.Stderr, "Error setting socket read timeout: %s\n", err)
+		return defualtVal()
+	}
 
 	for {
 		n, err := syscall.Read(upstreamSocket, buff)
@@ -103,18 +110,17 @@ func connectUpstream(message []byte) []byte {
 		if n == 0 {
 			break
 		}
-
 		if err != nil {
-			log.Fatalf("Error reading from static server socket: %s\n", err)
+			if err == io.EOF {
+				break
+			}
+			fmt.Fprintf(os.Stderr, "Error reading upstream server message: %s\n", err)
+			break
 		}
-
 		res = append(res, buff[:n]...)
 	}
 
-	if err = syscall.Close(upstreamSocket); err != nil {
-		fmt.Fprintf(os.Stderr, "Error closing upstream socket: %s\n", err)
-		return defualtVal()
-	}
+	syscall.Close(upstreamSocket)
 
 	return res
 }
