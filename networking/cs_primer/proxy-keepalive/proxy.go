@@ -88,6 +88,8 @@ func connectUpstream(message []byte) []byte {
 		return defualtVal()
 	}
 
+	fmt.Println(string(message))
+
 	_, err = syscall.Write(upstreamSocket, message)
 
 	if err != nil {
@@ -119,6 +121,15 @@ func connectUpstream(message []byte) []byte {
 		}
 		res = append(res, buff[:n]...)
 	}
+
+	/*
+		TODO: Parse incoming request headers and see if connection is 'keep-alive'
+
+		if connection is keep alive then use a set time out and read from clientSocket
+
+		Keep doing this until there aren't anymore requests coming in
+
+	*/
 
 	syscall.Close(upstreamSocket)
 
