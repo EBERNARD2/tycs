@@ -57,12 +57,15 @@ func acceptClientConnections(proxyFd int, serverSocket syscall.SockaddrInet4) {
 			log.Fatalf("Error creating TCP connection: %v\n", err)
 		}
 
+		fmt.Printf("Processing request for connection: %v", addr)
 		_, err = syscall.Read(connection, httpMsg[:])
 
 		if err != nil {
 			log.Fatalf("Error reading TCP message: %v\n", err)
 		}
 		fmt.Printf("New connection from %v\n\n", addr)
+
+		fmt.Printf("Processing request for connection: %v\n", addr)
 
 		// create TCP connection with origin static server
 
@@ -71,6 +74,8 @@ func acceptClientConnections(proxyFd int, serverSocket syscall.SockaddrInet4) {
 		} // Delete
 
 		res := fetchDataFromOrgin(serverSocket, httpMsg[:])
+
+		fmt.Printf("Processing complete writing to connection socket: %v\n", addr)
 
 		// write response from origin server to client
 		_, err = syscall.Write(connection, res[:])

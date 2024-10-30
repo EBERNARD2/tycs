@@ -5,6 +5,7 @@ import (
 	"io"
 	"log"
 	"os"
+	"strings"
 	"syscall"
 )
 
@@ -46,22 +47,43 @@ func acceptConnections(proxySocket int) {
 
 		fmt.Printf("Established connection with: %v\n", addr)
 
-		var message [4096]byte
+		// wrap in loop
 
-		n, err := syscall.Read(connection, message[:])
+		// set time out of 10 seconds of no requests from client to close socket as a safety net
 
-		if err != nil {
-			fmt.Fprintf(os.Stderr, "Error reading from client socket: %s\n", err)
-			continue
+		timeout := syscall.Timeval{Sec: 2, Usec: 0}
+
+		if err := syscall.SetsockoptTimeval(connection, syscall.SOL_SOCKET, syscall.SO_RCVTIMEO, &timeout); err != nil {
+			fmt.Fprintf(os.Stderr, "Error setting time interval on socket: %s\n", err)
 		}
 
-		res := connectUpstream(message[:n])
+		fmt.Printf("Started processing requests for connection: %v", addr)
 
-		_, err = syscall.Write(connection, res)
-		if err != nil {
-			fmt.Fprintf(os.Stderr, "Error writing to client socket: %s\n", err)
-			return
+		for {
+			var message [4096]byte
+			// read from socket
+			n, err := syscall.Read(connection, message[:])
+
+			if err != nil {
+				fmt.Fprintf(os.Stderr, "Error reading from client socket: %s\n", err)
+				break
+			}
+
+			res := connectUpstream(message[:n])
+			_, err = syscall.Write(connection, res)
+			if err != nil {
+				fmt.Fprintf(os.Stderr, "Error writing to client socket: %s\n", err)
+				break
+			}
+
+			if shoulCloseConnection(message[:]) {
+				break
+			}
+
 		}
+
+		fmt.Printf("Finished processing requests for connection: %v", addr)
+		// if the clients wants to close the connection break out of loop
 
 		if err = syscall.Close(connection); err != nil {
 			fmt.Fprintf(os.Stderr, "Error closing client socket: %s\n", err)
@@ -100,7 +122,7 @@ func connectUpstream(message []byte) []byte {
 	var res []byte
 	buff := make([]byte, 1024)
 
-	timeout := syscall.Timeval{Sec: 1, Usec: 0}
+	timeout := syscall.Timeval{Sec: 0, Usec: 5000}
 	if err := syscall.SetsockoptTimeval(upstreamSocket, syscall.SOL_SOCKET, syscall.SO_RCVTIMEO, &timeout); err != nil {
 		fmt.Fprintf(os.Stderr, "Error setting socket read timeout: %s\n", err)
 		return defualtVal()
@@ -122,15 +144,6 @@ func connectUpstream(message []byte) []byte {
 		res = append(res, buff[:n]...)
 	}
 
-	/*
-		TODO: Parse incoming request headers and see if connection is 'keep-alive'
-
-		if connection is keep alive then use a set time out and read from clientSocket
-
-		Keep doing this until there aren't anymore requests coming in
-
-	*/
-
 	syscall.Close(upstreamSocket)
 
 	return res
@@ -138,4 +151,19 @@ func connectUpstream(message []byte) []byte {
 
 func defualtVal() []byte {
 	return []byte("HTTP/1.1 200 OK")
+}
+
+func shoulCloseConnection(msg []byte) bool {
+	for _, headerLine := range strings.Split(string(msg), "\r\n") {
+		if strings.HasPrefix(headerLine, "Connection:") {
+			connectionString := strings.Split(headerLine, ":")
+			fmt.Println(connectionString)
+			if connectionString[1] == "close" {
+				return true
+			} else {
+				return false
+			}
+		}
+	}
+	return false
 }
