@@ -51,29 +51,30 @@ func acceptConnections(proxySocket int) {
 
 		// set time out of 10 seconds of no requests from client to close socket as a safety net
 
-		timeout := syscall.Timeval{Sec: 2, Usec: 0}
+		// timeout := syscall.Timeval{Sec: 2, Usec: 0}
 
-		if err := syscall.SetsockoptTimeval(connection, syscall.SOL_SOCKET, syscall.SO_RCVTIMEO, &timeout); err != nil {
-			fmt.Fprintf(os.Stderr, "Error setting time interval on socket: %s\n", err)
-		}
+		// if err := syscall.SetsockoptTimeval(connection, syscall.SOL_SOCKET, syscall.SO_RCVTIMEO, &timeout); err != nil {
+		// 	fmt.Fprintf(os.Stderr, "Error setting time interval on socket: %s\n", err)
+		// 	continue
+		// }
 
-		fmt.Printf("Started processing requests for connection: %v", addr)
+		fmt.Printf("Started processing requests for connection: %v\n", addr)
 
 		for {
 			var message [4096]byte
-			// read from socket
-			n, err := syscall.Read(connection, message[:])
 
+			n, err := syscall.Read(connection, message[:])
 			if err != nil {
 				fmt.Fprintf(os.Stderr, "Error reading from client socket: %s\n", err)
 				break
 			}
 
 			res := connectUpstream(message[:n])
+
 			_, err = syscall.Write(connection, res)
 			if err != nil {
 				fmt.Fprintf(os.Stderr, "Error writing to client socket: %s\n", err)
-				break
+				continue
 			}
 
 			if shoulCloseConnection(message[:]) {
