@@ -64,6 +64,7 @@ func acceptConnections(proxySocket int) {
 			var message [4096]byte
 
 			n, err := syscall.Read(connection, message[:])
+			// syscall.FcntlFlock(uintptr(connection), syscall.F_SETFL, syscall.O_NONBLOCK)
 			if err != nil {
 				fmt.Fprintf(os.Stderr, "Error reading from client socket: %s\n", err)
 				break
