@@ -106,6 +106,9 @@ func fetchDataFromOrgin(socket syscall.SockaddrInet4, httpMsg []byte) []byte {
 		log.Fatalf("Error connecting to Static server: %v", err)
 	}
 
+	fmt.Println(string(httpMsg))
+	fmt.Println(httpMsg)
+
 	// read HTTP request
 	var req []byte
 
