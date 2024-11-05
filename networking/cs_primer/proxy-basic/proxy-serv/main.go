@@ -84,6 +84,9 @@ func acceptClientConnections(proxyFd int, serverSocket syscall.SockaddrInet4) {
 			log.Fatalf("Error reading from static server socket: %s\n", err)
 		}
 
+		fmt.Println(res)
+		fmt.Println(len(res))
+
 		syscall.Close(connection)
 
 	}
@@ -105,9 +108,6 @@ func fetchDataFromOrgin(socket syscall.SockaddrInet4, httpMsg []byte) []byte {
 	if err != nil {
 		log.Fatalf("Error connecting to Static server: %v", err)
 	}
-
-	fmt.Println(string(httpMsg))
-	fmt.Println(httpMsg)
 
 	// read HTTP request
 	var req []byte
