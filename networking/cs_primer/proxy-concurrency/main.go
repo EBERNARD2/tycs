@@ -8,8 +8,8 @@ import (
 
 var (
 	ADDR          = []byte{127, 0, 0, 1}
-	OWN_PORT      = 3030
-	UPSTREAM_PORT = 8001
+	OWN_PORT      = 8080
+	UPSTREAM_PORT = 3005
 )
 
 func main() {
@@ -29,18 +29,18 @@ func main() {
 
 		var msg []byte
 
-		_, err = syscall.Read(clientSock, msg)
+		n, err := syscall.Read(clientSock, msg)
 		if err != nil {
 			log.Printf("Error reading from client socket: %v", err)
 			continue
 		}
 
-		connectClientAndUpstream(clientSock, upstreamAddr)
+		connectClientUpstream(clientSock, msg[:n], upstreamAddr, clientAddr)
 
 	}
 }
 
-func connectClientAndUpstream(clientSock int, upstreamAddr syscall.SockaddrInet4) {
+func connectClientUpstream(clientSock int, msg []byte, upstreamAddr syscall.SockaddrInet4, clientAddr syscall.Sockaddr) {
 	upstreamSocket, err := syscall.Socket(syscall.AF_INET, syscall.SOCK_STREAM, syscall.IPPROTO_IP)
 
 	if err != nil {
@@ -55,10 +55,21 @@ func connectClientAndUpstream(clientSock int, upstreamAddr syscall.SockaddrInet4
 		return
 	}
 
-	for {
-		var msg []byte
+	err = syscall.Sendto(upstreamSocket, msg[:], 0, nil)
+	if err != nil {
+		log.Printf("Error sending upstream: %v\n", err)
+		return
+	}
 
-		n, err := syscall.Read(upstreamSocket, msg)
+	for {
+		var res []byte
+
+		n, _, err := syscall.Recvfrom(upstreamSocket, res, 0)
+
+		fmt.Println(n)
+		if n == 0 {
+			break
+		}
 
 		if err != nil {
 			log.Printf("Failure reading from upstream server: %v\n", err)
@@ -67,17 +78,11 @@ func connectClientAndUpstream(clientSock int, upstreamAddr syscall.SockaddrInet4
 
 		fmt.Printf("Read %d bytes\n", n)
 
-		if n <= 0 {
-			break
-		}
-
-		n, err = syscall.Write(clientSock, msg)
+		err = syscall.Sendto(clientSock, res, int(0), clientAddr)
 		if err != nil {
 			log.Printf("Failure writing to client: %v\n", err)
 			continue
 		}
-
-		fmt.Printf("Wrote %d bytes\n", n)
 
 	}
 
