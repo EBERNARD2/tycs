@@ -1,15 +1,14 @@
-package main
+package httpMessageBuilder
 
 import (
 	"bytes"
 	"fmt"
-	"log"
 	"slices"
 	"strings"
 )
 
-var ACCEPTED_METHODS = []string{"GET", "PUT", "PATCH", "DELETE"}
-var ACCEPTED_VERSIONS = []string{"HTTP/1.0", "HTTP/1.1", "HTTP/2"}
+var acceptedMethods = []string{"GET", "POST", "PATCH", "DELETE"}
+var acceptedVersions = []string{"HTTP/1.0", "HTTP/1.1", "HTTP/2"}
 
 type HTTPMessage struct {
 	Method  string
@@ -19,8 +18,9 @@ type HTTPMessage struct {
 	Body    []byte
 }
 
-func Parser(b []byte) (*HTTPMessage, error) {
-	parseRequest := bytes.Split(b, []byte{0x0d, 0x0a})
+func buildMessage(b []byte) (*HTTPMessage, error) {
+	bodyStartIndex := bytes.Index(b, []byte{0x0d, 0x0a, 0x0d, 0x0a})
+	parseRequest := bytes.Split(b[:bodyStartIndex], []byte{0x0d, 0x0a})
 	var message HTTPMessage
 
 	requestLine := bytes.Split(parseRequest[0], []byte{32})
@@ -29,11 +29,11 @@ func Parser(b []byte) (*HTTPMessage, error) {
 	message.Uri = string(requestLine[1])
 	message.Version = string(requestLine[2])
 
-	if !slices.Contains(ACCEPTED_METHODS, message.Method) {
+	if !slices.Contains(acceptedMethods, message.Method) {
 		return nil, fmt.Errorf("Method not accepted: %s", message.Method)
 	}
 
-	if !slices.Contains(ACCEPTED_VERSIONS, message.Version) {
+	if !slices.Contains(acceptedVersions, message.Version) {
 		return nil, fmt.Errorf("Version not accepted: %s", message.Version)
 	}
 
@@ -42,25 +42,12 @@ func Parser(b []byte) (*HTTPMessage, error) {
 
 	for i := 1; i < len(parseRequest); i++ {
 		header := strings.Split(string(parseRequest[i]), ": ")
-
-		if len(header) < 2 {
-			continue
-		}
 		message.Headers[header[0]] = header[1]
 	}
 
-	fmt.Println(message.Headers)
+	// add body to http message body.. Skip CRLF
+	message.Body = b[bodyStartIndex+4:]
 
 	return &message, nil
 
-}
-
-func main() {
-	req, err := Parser([]byte("GET / HTTP/1.0\r\nHOST: google.come\r\nConnection: keep-alive\r\n\r\n"))
-
-	if err != nil {
-		log.Fatal(err)
-	}
-
-	fmt.Println(req.Headers["Connection"])
 }
