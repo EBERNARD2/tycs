@@ -4,6 +4,8 @@ import (
 	"fmt"
 	"log"
 	"syscall"
+
+	"proxy-concurrency/httpMessageBuilder"
 )
 
 var (
@@ -39,6 +41,14 @@ func main() {
 			continue
 		}
 
+		req, err := httpMessageBuilder.BuildMessage(msg[:n])
+
+		if err != nil {
+			log.Printf("Error building http message: %v", err)
+			continue
+		}
+
+		fmt.Println(req)
 		go connectClientUpstream(clientSock, msg[:n], upstreamAddr)
 
 	}

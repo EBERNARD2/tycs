@@ -18,7 +18,7 @@ type HTTPMessage struct {
 	Body    []byte
 }
 
-func buildMessage(b []byte) (*HTTPMessage, error) {
+func BuildMessage(b []byte) (*HTTPMessage, error) {
 	bodyStartIndex := bytes.Index(b, []byte{0x0d, 0x0a, 0x0d, 0x0a})
 	parseRequest := bytes.Split(b[:bodyStartIndex], []byte{0x0d, 0x0a})
 	var message HTTPMessage
