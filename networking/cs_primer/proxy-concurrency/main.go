@@ -27,8 +27,8 @@ func main() {
 		}
 		fmt.Printf("New Connection from %v\n", clientAddr)
 
-		var msg = make([]byte, 1500)
-		n, _, err := syscall.Recvfrom(clientSock, msg, 0)
+		var msg = make([]byte, 4096)
+		n, err := syscall.Read(clientSock, msg)
 
 		if n == 0 {
 			continue
@@ -39,67 +39,18 @@ func main() {
 			continue
 		}
 
-		upstreamSocket, err := syscall.Socket(syscall.AF_INET, syscall.SOCK_STREAM, syscall.IPPROTO_IP)
-
-		if err != nil {
-			syscall.Close(upstreamSocket)
-			continue
-		}
-
-		err = syscall.Connect(upstreamSocket, &upstreamAddr)
-		if err != nil {
-			syscall.Close(upstreamSocket)
-			continue
-		}
-
-		n, err = syscall.Write(upstreamSocket, msg)
-
-		if err != nil {
-			log.Printf("Error sending upstream: %v\n", err)
-			syscall.Close(upstreamSocket)
-			continue
-		}
-
-		syscall.Close(upstreamSocket)
-
-		for {
-			var res = make([]byte, 4096)
-
-			n, _, err := syscall.Recvfrom(upstreamSocket, res, 0)
-
-			if n == 0 {
-				break
-			}
-
-			if err != nil {
-				log.Printf("Failure reading from upstream server: %v\n", err)
-				continue
-			}
-
-			fmt.Printf("Read %d bytes\n", n)
-
-			n, err = syscall.Write(clientSock, res[:n])
-			if err != nil {
-				log.Printf("Failure writing to client: %v\n", err)
-				continue
-			}
-
-			fmt.Printf("Wrote %d bytes\n", n)
-
-		}
-		// connectClientUpstream(clientSock, msg[:n], upstreamAddr, clientAddr)
+		go connectClientUpstream(clientSock, msg[:n], upstreamAddr)
 
 	}
 }
 
-func connectClientUpstream(clientSock int, msg []byte, upstreamAddr syscall.SockaddrInet4, clientAddr syscall.Sockaddr) {
-	upstreamSocket, err := syscall.Socket(syscall.AF_INET, syscall.SOCK_STREAM, 0)
+func connectClientUpstream(clientSock int, msg []byte, upstreamAddr syscall.SockaddrInet4) {
+	upstreamSocket, err := syscall.Socket(syscall.AF_INET, syscall.SOCK_STREAM, syscall.IPPROTO_IP)
 
 	if err != nil {
 		log.Printf("Error creating upstream socket: %v\n", err)
 		return
 	}
-	defer syscall.Close(upstreamSocket)
 
 	err = syscall.Connect(upstreamSocket, &upstreamAddr)
 	if err != nil {
@@ -119,7 +70,7 @@ func connectClientUpstream(clientSock int, msg []byte, upstreamAddr syscall.Sock
 	for {
 		var res = make([]byte, 4096)
 
-		n, _, err := syscall.Recvfrom(upstreamSocket, res, 0)
+		n, err := syscall.Read(upstreamSocket, res)
 
 		if n == 0 {
 			break
@@ -139,9 +90,20 @@ func connectClientUpstream(clientSock int, msg []byte, upstreamAddr syscall.Sock
 		}
 
 		fmt.Printf("Wrote %d bytes\n", n)
-
+	}
+	err = syscall.Close(upstreamSocket)
+	if err != nil {
+		log.Printf("Error closing upstream socket: %v\n", err)
+		return
 	}
 
+	err = syscall.Close(clientSock)
+	if err != nil {
+		log.Printf("Error closing client socket: %v\n", err)
+		return
+	}
+
+	fmt.Println("Closed upstrean and client sockets")
 }
 
 func bindAndListen(sock int) {
