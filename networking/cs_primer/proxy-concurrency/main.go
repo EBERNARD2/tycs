@@ -31,8 +31,6 @@ func main() {
 	defer syscall.Close(sock)
 	bindAndListen(sock)
 
-	upstreamAddr := syscall.SockaddrInet4{Port: UPSTREAM_PORT, Addr: [4]byte(ADDR)}
-
 	for {
 		clientSock, clientAddr, err := syscall.Accept(sock)
 		if err != nil {
@@ -41,6 +39,15 @@ func main() {
 		}
 		fmt.Printf("New Connection from %v\n", clientAddr)
 
+		go clientConnection(clientSock)
+
+	}
+}
+
+func clientConnection(clientSock int) {
+	upstreamAddr := syscall.SockaddrInet4{Port: UPSTREAM_PORT, Addr: [4]byte(ADDR)}
+
+	for {
 		var msg = make([]byte, 4096)
 		n, err := syscall.Read(clientSock, msg)
 
@@ -60,13 +67,29 @@ func main() {
 			continue
 		}
 
+		// if connection is keep alive continue else close connection
 		fmt.Println(req.Method)
-		fmt.Println(req.Headers["Connection: "])
+		fmt.Println(req.Headers)
+		fmt.Println(req.Headers["Connection"])
 		fmt.Print(req.Body)
 
 		go connectClientUpstream(clientSock, msg[:n], upstreamAddr)
 
+		if req.Headers["Connection"] == "keep-alive" {
+			continue
+		}
+
+		// if the connection is not keep alive then break out of loop
+		break
 	}
+
+	// close client socket
+	err := syscall.Close(clientSock)
+	if err != nil {
+		log.Printf("Error closing client socket: %v\n", err)
+		return
+	}
+
 }
 
 func connectClientUpstream(clientSock int, msg []byte, upstreamAddr syscall.SockaddrInet4) {
@@ -116,19 +139,14 @@ func connectClientUpstream(clientSock int, msg []byte, upstreamAddr syscall.Sock
 
 		fmt.Printf("Wrote %d bytes\n", n)
 	}
+
 	err = syscall.Close(upstreamSocket)
 	if err != nil {
 		log.Printf("Error closing upstream socket: %v\n", err)
 		return
 	}
 
-	err = syscall.Close(clientSock)
-	if err != nil {
-		log.Printf("Error closing client socket: %v\n", err)
-		return
-	}
-
-	fmt.Println("Closed upstrean and client sockets")
+	fmt.Println("Closed upstrean socket")
 }
 
 func bindAndListen(sock int) {
