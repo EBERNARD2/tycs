@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"fmt"
 	"log"
+	"os"
 	"slices"
 	"strings"
 	"syscall"
@@ -29,6 +30,7 @@ type HTTPMessage struct {
 func logger(err error, fatal bool) {
 	if fatal && err != nil {
 		log.Fatal(err)
+		os.Exit(1)
 	} else if err != nil {
 		log.Print(err)
 	}
@@ -164,6 +166,8 @@ func bindAndListen(sock int) {
 
 func createSocket() int {
 	sock, err := syscall.Socket(syscall.AF_INET, syscall.SOCK_STREAM, syscall.IPPROTO_IP)
+	logger(syscall.SetsockoptInt(sock, syscall.SOL_SOCKET, syscall.SO_REUSEADDR, 1), true)
+	logger(syscall.SetNonblock(sock, true), true)
 
 	logger(err, true)
 
