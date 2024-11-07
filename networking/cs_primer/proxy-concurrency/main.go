@@ -26,6 +26,14 @@ type HTTPMessage struct {
 	Body    []byte
 }
 
+func logger(err error, fatal bool) {
+	if fatal && err != nil {
+		log.Fatal(err)
+	} else if err != nil {
+		log.Print(err)
+	}
+}
+
 func main() {
 	sock := createSocket()
 	defer syscall.Close(sock)
@@ -67,14 +75,9 @@ func clientConnection(clientSock int) {
 			continue
 		}
 
-		// if connection is keep alive continue else close connection
-		fmt.Println(req.Method)
-		fmt.Println(req.Headers)
-		fmt.Println(req.Headers["Connection"])
-		fmt.Print(req.Body)
-
 		go connectClientUpstream(clientSock, msg[:n], upstreamAddr)
 
+		// if connection is keep alive continue else close connection
 		if req.Headers["Connection"] == "keep-alive" {
 			continue
 		}
@@ -152,29 +155,28 @@ func connectClientUpstream(clientSock int, msg []byte, upstreamAddr syscall.Sock
 func bindAndListen(sock int) {
 	proxyAddr := syscall.SockaddrInet4{Port: OWN_PORT, Addr: [4]byte(ADDR)}
 
-	err := syscall.Bind(sock, &proxyAddr)
-	if err != nil {
-		log.Fatal(err)
-	}
+	logger(syscall.Bind(sock, &proxyAddr), true)
 
-	err = syscall.Listen(sock, 50)
-	if err != nil {
-		log.Fatal(err)
-	}
+	logger(syscall.Listen(sock, 50), true)
 
 	fmt.Printf("Server listening on port %d...\n", proxyAddr.Port)
 }
 
 func createSocket() int {
 	sock, err := syscall.Socket(syscall.AF_INET, syscall.SOCK_STREAM, syscall.IPPROTO_IP)
-	if err != nil {
-		log.Fatal(err)
-	}
+
+	logger(err, true)
+
 	return sock
 }
 
 func BuildMessage(b []byte) (*HTTPMessage, error) {
 	bodyStartIndex := bytes.Index(b, []byte{0x0d, 0x0a, 0x0d, 0x0a})
+
+	if bodyStartIndex == -1 {
+		return nil, fmt.Errorf("message not properly formated")
+	}
+
 	parseRequest := bytes.Split(b[:bodyStartIndex], []byte{0x0d, 0x0a})
 	var message HTTPMessage
 
