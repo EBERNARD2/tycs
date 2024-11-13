@@ -8,6 +8,8 @@ import (
 	"slices"
 	"strings"
 	"syscall"
+
+	"golang.org/x/sys/unix"
 )
 
 var (
@@ -41,16 +43,32 @@ func main() {
 	defer syscall.Close(sock)
 	bindAndListen(sock)
 
+	// Create a File descriptor set
+	var readSet unix.FdSet
+	readSet.Set(sock)
+
 	for {
-		clientSock, clientAddr, err := syscall.Accept(sock)
-		if err != nil {
-			log.Printf("Error establishing connection with client: %v", err)
-			continue
+		newReadSet := readSet
+		// Build FD set to poll
+		if _, err := unix.Select(unix.FD_SETSIZE, &newReadSet, nil, nil, nil); err != nil {
+			logger(fmt.Errorf("error building select sockets: %v", err), true)
 		}
-		fmt.Printf("New Connection from %v\n", clientAddr)
 
-		go clientConnection(clientSock)
+		// iterate through available sockets
+		for clientSock := 0; clientSock < unix.FD_SETSIZE; clientSock++ {
+			// check if the current value is in the socket
+			// if the current socket is proxy socket - acceppt connection
+			if sock == clientSock {
+				conn, clientAddr, err := syscall.Accept(sock)
+				if err != nil {
+					log.Printf("Error establishing connection with client: %v", err)
+					continue
+				}
 
+				fmt.Printf("New Connection from %v\n", clientAddr)
+				go clientConnection(conn)
+			}
+		}
 	}
 }
 
@@ -67,7 +85,7 @@ func clientConnection(clientSock int) {
 
 		if err != nil {
 			log.Printf("Error reading from client socket: %v", err)
-			continue
+			break
 		}
 
 		req, err := BuildMessage(msg[:n])
@@ -89,11 +107,7 @@ func clientConnection(clientSock int) {
 	}
 
 	// close client socket
-	err := syscall.Close(clientSock)
-	if err != nil {
-		log.Printf("Error closing client socket: %v\n", err)
-		return
-	}
+	logger(syscall.Close(clientSock), false)
 
 }
 
@@ -105,11 +119,7 @@ func connectClientUpstream(clientSock int, msg []byte, upstreamAddr syscall.Sock
 		return
 	}
 
-	err = syscall.Connect(upstreamSocket, &upstreamAddr)
-	if err != nil {
-		log.Printf("Failure connectiing to port upstream\n")
-		return
-	}
+	logger(syscall.Connect(upstreamSocket, &upstreamAddr), false)
 
 	n, err := syscall.Write(upstreamSocket, msg)
 
@@ -134,7 +144,7 @@ func connectClientUpstream(clientSock int, msg []byte, upstreamAddr syscall.Sock
 			continue
 		}
 
-		fmt.Printf("Read %d bytes\n", n)
+		fmt.Printf("Read %d bytes from upstream server\n", n)
 
 		n, err = syscall.Write(clientSock, res[:n])
 		if err != nil {
@@ -142,7 +152,7 @@ func connectClientUpstream(clientSock int, msg []byte, upstreamAddr syscall.Sock
 			continue
 		}
 
-		fmt.Printf("Wrote %d bytes\n", n)
+		fmt.Printf("Wrote %d bytes to client\n", n)
 	}
 
 	err = syscall.Close(upstreamSocket)
@@ -151,14 +161,13 @@ func connectClientUpstream(clientSock int, msg []byte, upstreamAddr syscall.Sock
 		return
 	}
 
-	fmt.Println("Closed upstrean socket")
+	fmt.Println("Closed upstream socket")
 }
 
 func bindAndListen(sock int) {
 	proxyAddr := syscall.SockaddrInet4{Port: OWN_PORT, Addr: [4]byte(ADDR)}
 
 	logger(syscall.Bind(sock, &proxyAddr), true)
-
 	logger(syscall.Listen(sock, 50), true)
 
 	fmt.Printf("Server listening on port %d...\n", proxyAddr.Port)
@@ -166,9 +175,6 @@ func bindAndListen(sock int) {
 
 func createSocket() int {
 	sock, err := syscall.Socket(syscall.AF_INET, syscall.SOCK_STREAM, syscall.IPPROTO_IP)
-	logger(syscall.SetsockoptInt(sock, syscall.SOL_SOCKET, syscall.SO_REUSEADDR, 1), true)
-	logger(syscall.SetNonblock(sock, true), true)
-
 	logger(err, true)
 
 	return sock
