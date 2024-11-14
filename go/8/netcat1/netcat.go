@@ -1,4 +1,4 @@
-package netcat
+package main
 
 import (
 	"io"
