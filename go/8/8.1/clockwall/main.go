@@ -1,6 +1,7 @@
 package main
 
 import (
+	"io"
 	"log"
 	"net"
 	"os"
@@ -21,14 +22,18 @@ func main() {
 		}
 
 		conn, err := net.Dial("tcp", values[1]) // create a new connection
-
 		if err != nil {
 			log.Fatal(err)
 		}
 
+		defer conn.Close()
+
+		go handleConn(conn, values[0])
 	}
 }
 
-func writeConn(c *net.Conn, loc string) {
-
+func handleConn(c io.Reader, loc string) {
+	if _, err := io.Copy(os.Stdout, c); err != nil {
+		log.Fatal(err)
+	}
 }
