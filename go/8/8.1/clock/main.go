@@ -39,30 +39,36 @@ func handleConn(c net.Conn) {
 	// get timezone
 	timeZone := os.Getenv("TZ")
 
-	var timeString string
+	var location *time.Location
+	sendWithLocation := false
 
-	if timeZone == "" {
-		// machine location will be default timezone
-		timeString = time.Now().Format("15:04:05\n")
+	if timeZone != "" {
+		val, err := time.LoadLocation(timeZone)
 
-	} else {
-
-		// get the tim
-		loc, err := time.LoadLocation(timeZone)
 		if err != nil {
 			log.Printf("Error processing %s timezone: %v", timeZone, err)
 			return // close connection if timezone wrong
 		}
 
-		timeString = time.Now().In(loc).Format("15:04:05\n")
+		location = val
+		sendWithLocation = true
 	}
 
 	for {
+		var timeString string
+
+		if sendWithLocation {
+			timeString = time.Now().In(location).Format("15:04:05\n")
+		} else {
+			timeString = time.Now().Format("15:04:05\n")
+		}
+
 		_, err := io.WriteString(c, timeString) // write string to connection
 
 		if err != nil {
 			return
 		}
+
 		time.Sleep(1 * time.Second)
 	}
 }
