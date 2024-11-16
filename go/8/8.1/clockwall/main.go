@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"io"
 	"log"
 	"net"
@@ -32,8 +33,22 @@ func main() {
 	}
 }
 
-func handleConn(c io.Reader, loc string) {
-	if _, err := io.Copy(os.Stdout, c); err != nil {
-		log.Fatal(err)
+func handleConn(c net.Conn, loc string) {
+
+	// read from connection
+
+	for {
+		buff := make([]byte, 1024)
+		n, err := c.Read(buff)
+		if err != nil {
+			if err == io.EOF {
+				break
+			} else {
+				log.Printf("Error reading: %v \n", err)
+				break
+			}
+		}
+		fmt.Printf("Time in %s: %s \n", loc, string(buff[:n]))
+
 	}
 }
