@@ -28,6 +28,13 @@ def reduce(f, xs, init=None):
     {'foo': 'foo', 'bar': 'bar'}
     """
     pass
+    acc = 0
+    if not init == None:
+        acc = init
+    for val in xs:
+        acc = f(acc, val)
+    
+    return acc
 
 
 def product(nums):
@@ -43,6 +50,10 @@ def product(nums):
     """
     pass
 
+    def multiply(x, y):
+        return x * y
+    return reduce(multiply, nums, 1)
+
 
 def my_map(f, xs):
     """
@@ -52,6 +63,14 @@ def my_map(f, xs):
     [1, 4, 9, 16]
     """
     pass
+    
+    output = []
+    for x in xs:
+        output.append(f(x))
+
+    return output
+
+    
 
 
 def my_filter(f, xs):
@@ -66,6 +85,19 @@ def my_filter(f, xs):
     """
     pass
 
+    output = []
+
+    for x in xs:
+        if f(x):
+            output.append(x)
+
+    return output     
+
+
+    
+
+        
+
 
 def my_zip(*iters):
     """
@@ -76,6 +108,18 @@ def my_zip(*iters):
     [['a', 'd', 1], ['b', 'e', 2], ['c', 'f', 3]]
     """
     pass
+
+    output = []
+    for i, _ in enumerate(iters):
+        zipper = []
+        for x in iters:
+            zipper.append(x[i])
+
+        output.append(zipper)
+    
+    return output
+        
+
 
 
 if __name__ == "__main__":
