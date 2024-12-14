@@ -64,11 +64,11 @@ def my_map(f, xs):
     """
     pass
     
-    output = []
-    for x in xs:
-        output.append(f(x))
+    def mapper(acc, val):
+        acc.append(f(val))
+        return acc
 
-    return output
+    return reduce(mapper, xs, [])
 
     
 
@@ -85,19 +85,16 @@ def my_filter(f, xs):
     """
     pass
 
-    output = []
 
-    for x in xs:
-        if f(x):
-            output.append(x)
+    def filter_test(acc, val):
+        if f(val):
+            acc.append(val)
+        return acc
 
-    return output     
+    return reduce(filter_test, xs, []) 
 
 
     
-
-        
-
 
 def my_zip(*iters):
     """
@@ -110,14 +107,16 @@ def my_zip(*iters):
     pass
 
     output = []
-    for i, _ in enumerate(iters):
-        zipper = []
-        for x in iters:
-            zipper.append(x[i])
 
-        output.append(zipper)
+    for _ in range(len(iters[0])):
+        output.append([])
+
+    def zippper(acc, val):
+        for i, x in enumerate(val):
+            acc[i].append(x)
+        return acc
     
-    return output
+    return reduce(zippper, iters, output)
         
 
 
