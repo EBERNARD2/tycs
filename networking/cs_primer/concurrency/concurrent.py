@@ -1,10 +1,13 @@
 import socket, sys
+import select
 
 ADDR = ("0.0.0.0", 8000)
 UPSTREAM = ("127.0.0.1", 3005)
 
 def log(err):
   print(err, file=sys.stderr)
+
+
 
 
 sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -14,26 +17,35 @@ log(f"Accepting connections on port {ADDR}")
 
 while True:
   try:
-    clientSock, clientAddr = sock.accept()
-    log(f'New connection from {clientAddr}')
+    keepAlive = True
+    while keepAlive:
 
-    data = clientSock.recv(4096)
-    log(f'Recieved {data} from {clientAddr}')
+      clientSock, clientAddr = sock.accept()
+      log(f'New connection from {clientAddr}')
 
-    upstreamSock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-    upstreamSock.connect(UPSTREAM)
+      data = clientSock.recv(4096)
+      log(f'Recieved {data} from {clientAddr}')
 
-    log(f'connected to upstream server')
-    upstreamSock.send(data)
-    log(f'Sent {len(data)}B upstream')
+      for line in bytes(data).decode("utf-8").split("\r\n"):
+        if line.startswith("Connection: "):
+          connectionStatus = line.replace("Connection: ", "")
+          if connectionStatus != "keep-alive":
+            keepAlive = False
+          
+      upstreamSock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+      upstreamSock.connect(UPSTREAM)
+
+      log(f'Connected to upstream server')
+      upstreamSock.send(data)
+      log(f'Sent {len(data)}B upstream')
 
 
-    while True:
-     res = upstreamSock.recv(4096)
-     if not res:
-      break
-     clientSock.send(res)
-     log(f'Sent {len(data)}B to client')
+      while True:
+        res = upstreamSock.recv(4096)
+        if not res:
+          break
+        clientSock.send(res)
+        log(f'Sent {len(data)}B to client')
 
   except ConnectionRefusedError:
     clientSock.send(b'HTTP/1.1 502 Bad Gateway\r\n\r\n')
