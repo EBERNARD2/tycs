@@ -3,7 +3,7 @@ import sys
 
 
 OWN_ADDR = ('0.0.0.0', 8000)
-UPSTREAM_ADDR = ('127.0.0.1', 9000)
+UPSTREAM_ADDR = ('127.0.0.1', 3005)
 
 
 def log(s):
