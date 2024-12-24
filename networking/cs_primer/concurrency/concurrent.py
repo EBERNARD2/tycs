@@ -17,26 +17,33 @@ def log(err):
 
 def main():
   serverSock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-  serverSock.setblocking(0)
+  serverSock.setblocking(False)
 
   serverSock.bind(ADDR)
   serverSock.listen(20)
   log(f"Accepting connections on port {ADDR}")
 
   upstreamSock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-  upstreamSock.setblocking(0)
-  upstreamSock.bind(UPSTREAM)
+  upstreamSock.setblocking(False)
 
-  log(f"Connected to upstream socket on {UPSTREAM}")
+  try:
+    upstreamSock.connect(UPSTREAM)
+  except Exception as e:
+    print(f"Error {e}")
+  finally:
+    log(f"Connected to upstream socket on {UPSTREAM}")
+
+
 
   # Create sockets to read from 
   inputSockets = [serverSock]
   # Create sockets to write to
   outputSockets = []
 
+
   while True:
   # create new select sockets
-    readable, writable, exceptions = select.select(inputSockets, outputSockets, serverSock)
+    readable, writable, exceptions = select.select(inputSockets, outputSockets, inputSockets)
     
     for sock in readable:
       # Accept connections if the socket is the server socket
@@ -80,11 +87,18 @@ def main():
         outputSockets.remove(sock)
 
     for sock in exceptions:
-      print()
- 
+      print(f"Handling exception for", sock.getpeername())
+      if not sock is serverSock or not sock is upstreamSock:
+        inputSockets.remove(sock)
 
+        if sock in outputSockets:
+          outputSockets.remove(sock)
+        sock.close()
+        del MESSAGE_QUEUES[sock]
 
-        
+  serverSock.close()
+  upstreamSock.close()
+      
 
 
 def keep_alive(data) -> bool:
