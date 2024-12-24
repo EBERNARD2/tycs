@@ -30,6 +30,7 @@ while True:
 
         while True:
             res = upstream_sock.recv(4096)
+            print(res, 'res')
             log(f'   * <- {len(res)}B')
 
             if not res:
