@@ -36,7 +36,7 @@ def main():
 
 
   # Create sockets to read from 
-  inputSockets = [serverSock]
+  inputSockets = [serverSock, upstreamSock]
   # Create sockets to write to
   outputSockets = []
 
@@ -58,9 +58,14 @@ def main():
         data = upstreamSock.recv(4096)
         if data:
           log(f'Read {len(data)} bytes from upstream server')
+          print(data[len(data) - 2:], "len")
 
           writableSock = MESSAGE_QUEUES["downstream_socket_addresses"].get()
-          MESSAGE_QUEUES[writableSock].append(data)
+          print(writableSock, 'writable socket')
+          if not writableSock in MESSAGE_QUEUES:
+            MESSAGE_QUEUES[writableSock] = queue.Queue()
+          
+          MESSAGE_QUEUES[writableSock].put(data)
           outputSockets.append(writableSock)
       else:
         # Else read client socket
@@ -71,17 +76,22 @@ def main():
           if not upstreamSock in outputSockets:
             outputSockets.append(upstreamSock)
           # Add client request to upstream socket writable
-          MESSAGE_QUEUES[upstreamSock].append(data)
+          if not upstreamSock in MESSAGE_QUEUES:
+            MESSAGE_QUEUES[upstreamSock] = queue.Queue()
+          
+          MESSAGE_QUEUES[upstreamSock].put(data)
           # Add socket to downstream queue
           MESSAGE_QUEUES["downstream_socket_addresses"].put(sock)
       
 
     for sock in writable:
       # If there are messages in the queue for this socket send them to socket
-      if len(MESSAGE_QUEUES[sock]) > 0:
-          for msg in MESSAGE_QUEUES[sock]:
+      if sock in MESSAGE_QUEUES and not MESSAGE_QUEUES[sock].empty():
+          # Add upstream socket to inputs
+          for msg in MESSAGE_QUEUES[sock].queue:
             log(f'Writing {len(msg)} bytes to socket: {sock.getsockname()}')
             sock.send(msg)
+          del MESSAGE_QUEUES[sock]
       else:
         # Else remove socket
         outputSockets.remove(sock)
@@ -98,6 +108,16 @@ def main():
 
   serverSock.close()
   upstreamSock.close()
+      
+
+def more_chunks(data, currentChunkLen):
+  for line in data.decode("utf-8").split("\r\n"):
+    if line.startswith("Content-Length"):
+      totalChunkLen = int(line.split("Content-Length: ")[0]) 
+  
+      if totalChunkLen - currentChunkLen > 0:
+        return True
+  return False
       
 
 
