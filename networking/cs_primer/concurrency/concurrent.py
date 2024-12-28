@@ -1,5 +1,7 @@
 import socket, sys
 import select, queue
+import io
+from enum import Enum, auto
 
 ADDR = ("0.0.0.0", 8000)
 UPSTREAM = ("127.0.0.1", 3005)
@@ -8,8 +10,34 @@ MESSAGE_QUEUES = {
   "downstream_socket_addresses": queue.Queue()
 }
 
+"""
+
+  Make an HTTP Request class that stores state
+
+  tied to the socket
 
 
+"""
+class HttpState(Enum):
+  START = auto()
+  HEADERS = auto()
+
+class HTTPRequest(object):
+  def __init__(self):
+    self.headers = {}
+
+  def parse(self, data):
+    bs = io.BytesIO(data)
+
+    if self.state is HttpState.START:
+      requestLine = bs.readline()
+      self.method, self.uri, self.version = requestLine.rstrip().split(b" ")
+    while True:
+      fieldLine = bs.readline()
+      if fieldLine == b'\r\n':
+        break
+      fieldName, fieldValue = fieldLine.rstrip().split(": ")
+      self.headers[fieldName.lower()] = fieldValue
 
 def log(err):
   print(err, file=sys.stderr)
@@ -39,12 +67,13 @@ def main():
   inputSockets = [serverSock, upstreamSock]
   # Create sockets to write to
   outputSockets = []
-
+  upstreamResponsesForClient = {}
+  clientRequestsForUpstream = {}
 
   while True:
   # create new select sockets
     readable, writable, exceptions = select.select(inputSockets, outputSockets, inputSockets)
-    
+
     for sock in readable:
       # Accept connections if the socket is the server socket
       if sock is serverSock:
@@ -60,7 +89,11 @@ def main():
           log(f'Read {len(data)} bytes from upstream server')
           print(data[len(data) - 2:], "len")
 
+          # get writable socket
           writableSock = MESSAGE_QUEUES["downstream_socket_addresses"].get()
+
+          # if the 
+          
           print(writableSock, 'writable socket')
           if not writableSock in MESSAGE_QUEUES:
             MESSAGE_QUEUES[writableSock] = queue.Queue()
