@@ -4,9 +4,29 @@ import sys
 
 from parser import HttpRequest, HttpState
 
+'''
+    Goals:
+        -  Header modfication:
+            Req:    x-forward-for : <ip addr>
+            Res: Foo : Bar
+        - Gzip
+            Use zlib 
+            Take Response from origin server and zip. 
+            Alter headers so browser can make sense of response
+
+        - Content Cache:
+            in memory cache of upstream response
+
+        - Other? 
+
+        Steps.. 
+
+         - Parse client req
+        
+'''
 
 OWN_ADDR = ('0.0.0.0', 8000)
-UPSTREAM_ADDR = ('127.0.0.1', 9000)
+UPSTREAM_ADDR = ('127.0.0.1', 3005)
 
 
 def log(s):
@@ -61,6 +81,11 @@ if __name__ == '__main__':
                 log(f'-> *    {len(data)}B')
                 if data:
                     req.parse(data)
+                    # we are going to want to read the headers
+                    print(listener)
+                    print(req.headers)
+                    print(req.body)
+                    print(req.residual)
                     upstream_sock.send(data)
                     log(f'   * -> {len(data)}B')
                 else:
