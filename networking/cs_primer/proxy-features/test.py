@@ -57,10 +57,18 @@ class HttpMessage(object):
                     break
                 field_name, field_value = field_line.rstrip().split(b': ')
                 self.headers[field_name.lower()] = field_value
-
         if self.state is HttpState.BODY:
             self.body += bs.read()
 
+    def create_message(self):
+      output = self.method + b' ' + self.uri + b' ' + self.version + b'\r\n'
+      # process headers
+      for header in self.headers:
+         output = output + header.title() + b" : " + self.headers[header] + b"\r\n"
+       
+      output = output + b'\r\n' + self.body
+      return output
+         
 def is_upstream_socket(sock):
    s = sock.getpeername()
    if s[0] == '127.0.0.1' and s[1] == 3005:
@@ -84,11 +92,13 @@ if __name__ == "__main__":
 
   client_upstream_connection = {}
   upstream_client_connection = {}
+  messages_queue = {}
   http_messages = {} 
   
   # serve client requests indefinitely
   while True:
     readable, writable, exceptions = select.select(inputs, outputs, inputs + outputs) # each iteration set selectable sockets
+    
 
     for s in readable:
       # if the socket is the server accept request
@@ -146,15 +156,15 @@ if __name__ == "__main__":
           # or if it isn't add upstream to output if it isn't in there
           elif not is_upstream and upstream_conn not in outputs:
              outputs.append(upstream_conn)
-          print(outputs)
           # or if it isn't add upstream to output if it isn't in there
         else:
           # set message state to end
-         
           message.state = HttpState.END
-    
-    for s in writable:
-      if is_upstream_socket(s):
+           
+
+    for s in writable:      
+      writable_upstream_sock = is_upstream_socket(s)
+      if writable_upstream_sock:
         # get client message to send upstream
         message = http_messages[upstream_client_connection[s]]
       else: 
@@ -163,32 +173,45 @@ if __name__ == "__main__":
       
       # If the message is no longer being chunked then create message and send client
       if message.state == HttpState.END:
+        # send message
+        msg = message.create_message()
+        s.send(msg)
+        print(f'Wrote {len(msg)} bytes to {s.getpeername()}')
          
-         print(message, "message")
-          #  s.close()
-          #  del http_messages[s]
+        # if we just wrote to an upstream socket cleanup
+        if writable_upstream_sock:
+          # remove socket from outputs and our in memory messages cache
+          # Note that we are keeping the socket open in readables since we want to parse the response
+          print(f'Cleanup for {s.getpeername()}')
+          outputs.remove(s)
+          inputs.append(s)
+          del http_messages[upstream_client_connection[s]]
+        else:
+          print(f'Cleanup for {s.getpeername()}')
+          # close upstream connection and cleanup
+          upstream_sock = client_upstream_connection[s]
+          del upstream_client_connection[upstream_sock]
+          inputs.remove(upstream_sock)
+          upstream_sock.close()
 
-          #  del client_upstream_connection[s]
-          #  inputs.remove(s)
-           
+          # close client connection and cleanup      
+          del http_messages[client_upstream_connection[s]] 
+          del client_upstream_connection[s]
+          inputs.remove(s)
+          outputs.remove(s)
+          s.close() 
+      
+    for s in exceptions:
+      print(s.getpeername(), "exceptions")
+
   server_sock.close()
 
 
 
 
   '''
-    What happens when the message is ready to be sent? 
+    Current bug:
 
-    - We build the message (formatted properly for http)
-    - Send the message 
-    - How do we determine if we should close the socket? 
-      - If it is an upstream socket:
-        - Remove from writables but keep socket open and in readables because we want the response
-      - if it is a client socket we just wrote to:
-        - Check if the  connection is keep-alive:
-        - if not close socket
-        - Remove socket from writables but make sure it is still in readables 
-        - also close the upstream socket associated to it
-
+      The client is sending mutliple messages but we are closing the connection too early
 
   '''
