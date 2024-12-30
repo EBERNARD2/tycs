@@ -4,26 +4,6 @@ import sys
 
 from parser import HttpRequest, HttpState
 
-'''
-    Goals:
-        -  Header modfication:
-            Req:    x-forward-for : <ip addr>
-            Res: Foo : Bar
-        - Gzip
-            Use zlib 
-            Take Response from origin server and zip. 
-            Alter headers so browser can make sense of response
-
-        - Content Cache:
-            in memory cache of upstream response
-
-        - Other? 
-
-        Steps.. 
-
-         - Parse client req
-        
-'''
 
 OWN_ADDR = ('0.0.0.0', 8000)
 UPSTREAM_ADDR = ('127.0.0.1', 3005)

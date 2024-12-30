@@ -15,9 +15,6 @@ class HttpRequest(object):
         self.residual = b''
         self.state = HttpState.START
         self.body = b''
-
-    def add_header(self, header_key, header_val):
-        self.headers[header_key.lower()] = header_val
         
     def parse(self, data):
         bs = io.BytesIO(self.residual + data)

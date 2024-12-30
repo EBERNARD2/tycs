@@ -1,5 +1,6 @@
 import socket
 import select
+import zlib
 
 from enum import Enum, auto
 import io
@@ -9,8 +10,22 @@ import io
 
     1. We want the abilitiy to accept mutiple connections on the same thread - Done
     2. We want to parse a HTTP Message - done
-    3. We want to use high order multiplexing to connect client to upstream and vice versa (two way connection)
+    3. We want to use high order multiplexing to connect client to upstream and vice versa (two way connection) - done
     4. Then add features
+
+    Feature Goals:
+        -  Header modfication: - done
+            Req:    x-forward-for : <ip addr>
+            Res: Foo : Bar
+        - Gzip
+            Use zlib 
+            Take Response from origin server and zip. 
+            Alter headers so browser can make sense of response
+
+        - Content Cache:
+            in memory cache of upstream response
+
+        - Other? 
 
 """
 
@@ -59,6 +74,8 @@ class HttpMessage(object):
                 self.headers[field_name.lower()] = field_value
         if self.state is HttpState.BODY:
             self.body += bs.read()
+    def add_header(self, field, value):
+      self.headers[bytes(field, 'utf-8')] = bytes(value, 'utf-8')
 
     def create_message(self):
       output = self.method + b' ' + self.uri + b' ' + self.version + b'\r\n'
@@ -93,13 +110,13 @@ if __name__ == "__main__":
   client_upstream_connection = {}
   upstream_client_connection = {}
   messages_queue = {}
+  accepted_formats = {}
   http_messages = {} 
   
   # serve client requests indefinitely
   while True:
     readable, writable, exceptions = select.select(inputs, outputs, inputs + outputs) # each iteration set selectable sockets
     
-
     for s in readable:
       # if the socket is the server accept request
       if s is server_sock:
@@ -138,15 +155,21 @@ if __name__ == "__main__":
 
         # see if we are currently building an HTTP message for socket in question
         try:
-           message = http_messages[s]
+          message = http_messages[s]
         except KeyError:
-           # if not create request
-           message = HttpMessage()
-           http_messages[s] = message
+          # if not create request
+          message = HttpMessage()
+          http_messages[s] = message
         
         # get data from socket
         data = s.recv(4096)
         if data:
+          try: 
+            message.headers[b"x-forwarded-for"]
+          except KeyError:
+            # Add forwarded for header
+            message.add_header("x-forwarded-for", s.getpeername()[0])
+
           print(f"Recieved {len(data)} bytes from {s.getpeername()}")
           message.parse(data)
 
@@ -170,10 +193,12 @@ if __name__ == "__main__":
       else: 
         # get upstream response to send to client
         message = http_messages[client_upstream_connection[s]] 
+        # If the message is no longer being chunked then create message and send client
       
-      # If the message is no longer being chunked then create message and send client
+      
+
       if message.state == HttpState.END:
-        # send message
+        # send message           
         msg = message.create_message()
         s.send(msg)
         print(f'Wrote {len(msg)} bytes to {s.getpeername()}')
@@ -205,13 +230,3 @@ if __name__ == "__main__":
       print(s.getpeername(), "exceptions")
 
   server_sock.close()
-
-
-
-
-  '''
-    Current bug:
-
-      The client is sending mutliple messages but we are closing the connection too early
-
-  '''
