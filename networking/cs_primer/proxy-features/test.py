@@ -8,9 +8,9 @@ import io
   Goals:
 
     1. We want the abilitiy to accept mutiple connections on the same thread - Done
-    2. We want to parse a HTTP Message
-
-    3. Then add features
+    2. We want to parse a HTTP Message - done
+    3. We want to use high order multiplexing to connect client to upstream and vice versa (two way connection)
+    4. Then add features
 
 """
 
@@ -21,7 +21,7 @@ class HttpState(Enum):
     END = auto()
 
 
-class HttpRequest(object):
+class HttpMessage(object):
     def __init__(self):
         self.headers = {}
         self.residual = b''
@@ -61,7 +61,11 @@ class HttpRequest(object):
         if self.state is HttpState.BODY:
             self.body += bs.read()
 
-
+def is_upstream_socket(sock):
+   s = sock.getpeername()
+   if s[0] == '127.0.0.1' and s[1] == 3005:
+      return True
+   return False
 
 
 if __name__ == "__main__":
@@ -79,7 +83,8 @@ if __name__ == "__main__":
   outputs = []
 
   client_upstream_connection = {}
-  client_requests = {} 
+  upstream_client_connection = {}
+  http_messages = {} 
   
   # serve client requests indefinitely
   while True:
@@ -93,41 +98,97 @@ if __name__ == "__main__":
         conn.setblocking(False)
         inputs.append(conn)
       else:
+        # if socket is upstream sock 
         # Get client - upstream connection for each readable client socket
-        try:
-          upstream_conn = client_upstream_connection[s]
-        except KeyError:
-          # if there isn't an existing upstream connection create one
-          upstream_sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-          upstream_sock.connect(UPSTREAM_ADDR)
-          client_upstream_connection[s] = upstream_sock
-          upstream_conn = upstream_sock
+        is_upstream = is_upstream_socket(s) 
+        
+        # if the socket is an upstream connection 
+        if is_upstream:
+          # Try to get the corresponding client connection
+          try:
+             client_conn = upstream_client_connection[s]
+          except KeyError:
+            for client, upstream_conn in enumerate(upstream_client_connection):
+              if s is upstream_conn:
+                client_conn = client
+                break
+            upstream_client_connection[s] = client
+        # otherwise it's a client connection and we should try to get the upstream connection
+        else:
+          try:
+            upstream_conn = client_upstream_connection[s]
+          except KeyError:
+            # if there isn't an existing upstream connection create one
+            upstream_sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+            upstream_sock.connect(UPSTREAM_ADDR)
+            client_upstream_connection[s] = upstream_sock
+            upstream_client_connection[upstream_sock] = s
+            upstream_conn = upstream_sock
 
-        # see if we are currently building requests for a socket
+
+        # see if we are currently building an HTTP message for socket in question
         try:
-           req = client_requests[s]
+           message = http_messages[s]
         except KeyError:
            # if not create request
-           req = HttpRequest()
-           client_requests[s] = req
+           message = HttpMessage()
+           http_messages[s] = message
         
-        # get data
+        # get data from socket
         data = s.recv(4096)
         if data:
           print(f"Recieved {len(data)} bytes from {s.getpeername()}")
-          req.parse(data)
-          print(req.headers)
+          message.parse(data)
+
+          # if this is an upstream socket add client to writables
+          if is_upstream and client_conn not in outputs:
+             outputs.append(client_conn)
+          # or if it isn't add upstream to output if it isn't in there
+          elif not is_upstream and upstream_conn not in outputs:
+             outputs.append(upstream_conn)
+          print(outputs)
+          # or if it isn't add upstream to output if it isn't in there
         else:
-           # close connection and check if upstream socket is in writable
-           s.close()
-           del client_requests[s]
-           del client_upstream_connection[s]
-           inputs.remove(s)
+          # set message state to end
+         
+          message.state = HttpState.END
+    
+    for s in writable:
+      if is_upstream_socket(s):
+        # get client message to send upstream
+        message = http_messages[upstream_client_connection[s]]
+      else: 
+        # get upstream response to send to client
+        message = http_messages[client_upstream_connection[s]] 
+      
+      # If the message is no longer being chunked then create message and send client
+      if message.state == HttpState.END:
+         
+         print(message, "message")
+          #  s.close()
+          #  del http_messages[s]
 
-
+          #  del client_upstream_connection[s]
+          #  inputs.remove(s)
+           
   server_sock.close()
 
 
 
 
-  
+  '''
+    What happens when the message is ready to be sent? 
+
+    - We build the message (formatted properly for http)
+    - Send the message 
+    - How do we determine if we should close the socket? 
+      - If it is an upstream socket:
+        - Remove from writables but keep socket open and in readables because we want the response
+      - if it is a client socket we just wrote to:
+        - Check if the  connection is keep-alive:
+        - if not close socket
+        - Remove socket from writables but make sure it is still in readables 
+        - also close the upstream socket associated to it
+
+
+  '''
