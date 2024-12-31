@@ -57,7 +57,8 @@ class HttpMessage(object):
               self.method, self.uri, self.version = \
                 request_line.rstrip().split(b' ')
             except Exception:
-               self.residual = request_line
+               print(request_line.rstrip().split(b' ', 3))
+               self.version, self.status, self.msg = request_line.rstrip().split(b' ', 2)
                return
             
             self.state = HttpState.HEADERS
@@ -116,7 +117,7 @@ if __name__ == "__main__":
 
   client_upstream_connection = {}
   upstream_client_connection = {}
-  messages_queue = {}
+  mem_cache = {}
   accepted_encodings = {}
   http_messages = {} 
   
@@ -174,17 +175,17 @@ if __name__ == "__main__":
           print(f"Recieved {len(data)} bytes from {s.getpeername()}")
           message.parse(data)
 
-          try: 
-            if is_upstream:
-              message.headers[b"x-forwarded-for"]
-          except KeyError:
-            # Add forwarded for header
-            message.add_header("x-forwarded-for", s.getpeername()[0])
+          try:
+            send_cache = message.status == b'304'
+          except Exception as e:
+            send_cache = False
 
-          if not is_upstream:
-            if not s in accepted_encodings:
-              accepted_client_encodings = message.headers[b'accept-encoding']
-              accepted_encodings[s] = accepted_client_encodings
+          if not is_upstream and not s in accepted_encodings and not send_cache:
+              try:  
+                accepted_client_encodings = message.headers[b'accept-encoding']
+                accepted_encodings[s] = accepted_client_encodings
+              except KeyError:
+                 print("Request does not have accept-encoding header")
             
           # if this is an upstream socket add client to writables
           if is_upstream and client_conn not in outputs:
@@ -216,14 +217,18 @@ if __name__ == "__main__":
         except Exception as e:
           print(f"Error compressing body. Sending uncompressed body... {e}")
        
+      
         # If the message is no longer being chunked then create message and send client
+      if writable_upstream_sock:
+        message.add_header("x-forwarded-for", s.getpeername()[0])
+
       
       
 
-      if message.state == HttpState.END:
-        # send message           
+      if message.state == HttpState.END :
+        # send message   
         msg = message.create_message()
-        print(msg)
+
         s.send(msg)
         print(f'Wrote {len(msg)} bytes to {s.getpeername()}')
         
