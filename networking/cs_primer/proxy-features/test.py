@@ -52,11 +52,18 @@ class HttpMessage(object):
             if request_line[-1:] != b'\n':
                 self.residual = request_line
                 return
-            self.method, self.uri, self.version = \
+            print(request_line, 'line')
+            try:
+              self.method, self.uri, self.version = \
                 request_line.rstrip().split(b' ')
+            except Exception:
+               self.residual = request_line
+               return
+            
             self.state = HttpState.HEADERS
 
         if self.state is HttpState.HEADERS:
+            print(data, "data")
             while True:
                 field_line = bs.readline()
                 if not field_line:
@@ -81,7 +88,7 @@ class HttpMessage(object):
       output = self.method + b' ' + self.uri + b' ' + self.version + b'\r\n'
       # process headers
       for header in self.headers:
-         output = output + header.title() + b" : " + self.headers[header] + b"\r\n"
+         output = output + header.title() + b": " + self.headers[header] + b"\r\n"
        
       output = output + b'\r\n' + self.body
       return output
@@ -110,7 +117,7 @@ if __name__ == "__main__":
   client_upstream_connection = {}
   upstream_client_connection = {}
   messages_queue = {}
-  accepted_formats = {}
+  accepted_encodings = {}
   http_messages = {} 
   
   # serve client requests indefinitely
@@ -164,15 +171,21 @@ if __name__ == "__main__":
         # get data from socket
         data = s.recv(4096)
         if data:
+          print(f"Recieved {len(data)} bytes from {s.getpeername()}")
+          message.parse(data)
+
           try: 
-            message.headers[b"x-forwarded-for"]
+            if is_upstream:
+              message.headers[b"x-forwarded-for"]
           except KeyError:
             # Add forwarded for header
             message.add_header("x-forwarded-for", s.getpeername()[0])
 
-          print(f"Recieved {len(data)} bytes from {s.getpeername()}")
-          message.parse(data)
-
+          if not is_upstream:
+            if not s in accepted_encodings:
+              accepted_client_encodings = message.headers[b'accept-encoding']
+              accepted_encodings[s] = accepted_client_encodings
+            
           # if this is an upstream socket add client to writables
           if is_upstream and client_conn not in outputs:
              outputs.append(client_conn)
@@ -193,6 +206,16 @@ if __name__ == "__main__":
       else: 
         # get upstream response to send to client
         message = http_messages[client_upstream_connection[s]] 
+        try:
+          body =  zlib.compress(message.body)
+          body_byte_len = len(body).bit_length + 7 // 8
+          message.headers[b"content-length"] = len(body).to_bytes(body_byte_len, "big")
+          message.add_header("content-encoding", "gzip")
+          message.body = body
+
+        except Exception as e:
+          print(f"Error compressing body. Sending uncompressed body... {e}")
+       
         # If the message is no longer being chunked then create message and send client
       
       
@@ -200,9 +223,10 @@ if __name__ == "__main__":
       if message.state == HttpState.END:
         # send message           
         msg = message.create_message()
+        print(msg)
         s.send(msg)
         print(f'Wrote {len(msg)} bytes to {s.getpeername()}')
-         
+        
         # if we just wrote to an upstream socket cleanup
         if writable_upstream_sock:
           # remove socket from outputs and our in memory messages cache
