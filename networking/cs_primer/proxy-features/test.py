@@ -52,19 +52,18 @@ class HttpMessage(object):
             if request_line[-1:] != b'\n':
                 self.residual = request_line
                 return
-            print(request_line, 'line')
             try:
+              # process requests
               self.method, self.uri, self.version = \
                 request_line.rstrip().split(b' ')
             except Exception:
-               print(request_line.rstrip().split(b' ', 3))
+               # process responses
                self.version, self.status, self.msg = request_line.rstrip().split(b' ', 2)
                return
             
             self.state = HttpState.HEADERS
 
         if self.state is HttpState.HEADERS:
-            print(data, "data")
             while True:
                 field_line = bs.readline()
                 if not field_line:
@@ -208,12 +207,9 @@ if __name__ == "__main__":
         # get upstream response to send to client
         message = http_messages[client_upstream_connection[s]] 
         try:
-          body =  zlib.compress(message.body)
-          body_byte_len = len(body).bit_length + 7 // 8
-          message.headers[b"content-length"] = len(body).to_bytes(body_byte_len, "big")
+          message.body =  zlib.compress(message.body)
+          message.headers[b"content-length"] = str(len(message.body)).encode()
           message.add_header("content-encoding", "gzip")
-          message.body = body
-
         except Exception as e:
           print(f"Error compressing body. Sending uncompressed body... {e}")
        
@@ -226,11 +222,18 @@ if __name__ == "__main__":
       
 
       if message.state == HttpState.END :
-        # send message   
-        msg = message.create_message()
-
-        s.send(msg)
-        print(f'Wrote {len(msg)} bytes to {s.getpeername()}')
+        # check if message is a response or req
+        
+        # send message  
+        try: 
+          if message.status == b'304':
+             # Tell client that resource hasn't changed
+             s.send(b"HTTP/1.1 304 Not Modified\r\n")  
+      
+        except AttributeError:
+          msg = message.create_message()
+          s.send(msg)
+          print(f'Wrote {len(msg)} bytes to {s.getpeername()}')
         
         # if we just wrote to an upstream socket cleanup
         if writable_upstream_sock:
