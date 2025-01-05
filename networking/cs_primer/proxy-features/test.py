@@ -1,6 +1,7 @@
 import socket
 import select
 import zlib
+import gzip
 
 from enum import Enum, auto
 import io
@@ -207,7 +208,7 @@ if __name__ == "__main__":
         # get upstream response to send to client
         message = http_messages[client_upstream_connection[s]] 
         try:
-          message.body =  zlib.compress(message.body)
+          message.body =  gzip.compress(message.body)
           message.headers[b"content-length"] = str(len(message.body)).encode()
           message.add_header("content-encoding", "gzip")
         except Exception as e:
@@ -226,12 +227,15 @@ if __name__ == "__main__":
         
         # send message  
         try: 
+          # check if message is a response
           if message.status == b'304':
              # Tell client that resource hasn't changed
              s.send(b"HTTP/1.1 304 Not Modified\r\n")  
       
         except AttributeError:
+          # For Requests
           msg = message.create_message()
+          print(msg, "MSG TO SEND")
           s.send(msg)
           print(f'Wrote {len(msg)} bytes to {s.getpeername()}')
         
