@@ -7,6 +7,8 @@ GOOGLE_PUBLIC_DNS = ('8.8.8.8', 53)
 
 
 def skip_name(res, i):
+    if i == None:
+        return i
     while True:
         x = res[i]
         if x & 0b11000000:
@@ -18,19 +20,7 @@ def skip_name(res, i):
     return i
 
 def parse_name(res, i):
-    """
-        Deal with question: (We've already established 
-        that we are dealing with one question)
-
-        - Parse name 
-        - Parse Type
-        - Skip class
-        - get Length
-        - Print Data with with name
-
-    """
     i = skip_name(res, i) # skip name in answer
-
     rtype, rclass, ttl, rdlength = struct.unpack('!HHIH', res[i:i+10])
     i += 10
 
@@ -49,12 +39,12 @@ def parse_name(res, i):
     
     try:
         # assert byte is a pointer
-        assert res[i] == 0xC0
+        assert i < len(res)
+        assert res[i] == 0xC0 
     except AssertionError:
         # else we are out of range
-        return
+        return 
     
-
     i += 1 
     offset = int(res[i])
     i += 1
@@ -62,7 +52,7 @@ def parse_name(res, i):
     domain_name = b''
     # get name chunks until it terminates
     while res[offset] != 0x00:
-        # get location
+        # length of current part
         partlen = int(res[offset])
         # Location will start with length of value so by pass that and get part
         partname = res[offset + 1: offset + 1 + partlen]
@@ -71,12 +61,10 @@ def parse_name(res, i):
         # get next offset location
         offset += partlen + 1
 
+        # get next location
         if res[offset] == 0xC0:
             offset = int(res[offset + 1])
         
-
-
-
     print(nsname + domain_name)
 
     return i
@@ -114,3 +102,5 @@ if __name__ == '__main__':
     # iterate over all answers
     for _ in range(ancount):
         i = parse_name(res, i)
+        if i == None:
+            break
