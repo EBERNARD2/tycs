@@ -66,7 +66,6 @@ def parse_name(res, i):
             offset = int(res[offset + 1])
         
     print(nsname + domain_name)
-
     return i
 
 if __name__ == '__main__':
