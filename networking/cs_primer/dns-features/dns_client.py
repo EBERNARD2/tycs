@@ -2,6 +2,7 @@ import sys
 import socket
 import struct
 import random
+import ipaddress
 
 GOOGLE_PUBLIC_DNS = ('8.8.8.8', 53)
 
@@ -101,7 +102,6 @@ if __name__ == '__main__':
     i += 4  # skip qtype and qclass
 
     print(ancount, nscount, arcount)
-    print(res[2:4])
     # Answer Section
     for idx in range(ancount):
       name, i = parse_name(res, i)
@@ -116,12 +116,8 @@ if __name__ == '__main__':
           name, i = parse_name(res, i+12)
           print(name)
       elif rtype == 28:
-          labels = []
-          for b in range(0, 16):
-              labels.append(res[i+10+b])
-              print(res[i+10+b])
-          print('.'.join(labels))
-          # parse_ipv6()
+          print(str(ipaddress.IPv6Address(res[i+10:i+10+rdlength])))
+          
 
     # Name Server Authority section 
     for idx in range(nscount):
@@ -134,8 +130,8 @@ if __name__ == '__main__':
 
 
     if rtype == 16:
-      # rtype, rclass, ttl, rdlength = struct.unpack('!HHIH', res[i:i+10])
-      print(res[:])
+      rtype, rclass, ttl, rdlength = struct.unpack('!HHIH', res[i:i+10])
+      
     
         
 
