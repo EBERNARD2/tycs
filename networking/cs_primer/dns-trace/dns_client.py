@@ -7,7 +7,7 @@ import random
 import sys
 
 GOOGLE_PUBLIC_DNS = ('8.8.8.8', 53)
-
+L_ROOT_SERVER_DNS = ('199.7.83.42', 53) # https://www.iana.org/domains/root/servers
 
 class InvalidCompression(RuntimeError):
     pass
@@ -30,7 +30,7 @@ class RType(enum.Enum):
     TXT = 16
     AAAA = 28
     ANY = 255
-
+    
 
 def parse_name(res, i):
     r"""
@@ -78,6 +78,10 @@ def parse_name(res, i):
             i += b + 1
     return (b'.'.join(labels)).decode('utf8') + '.', next_i
 
+def encode_hostname(hostname):
+    return b''.join(
+        len(p).to_bytes(1, 'big') + p.encode('ascii')
+        for p in hostname.split('.')) + b'\x00'
 
 def format_rdata(rtype, data, i, rdlength):
     r"""
@@ -119,8 +123,10 @@ if __name__ == '__main__':
     parser.add_argument('hostname', nargs='?')
     parser.add_argument('rtype', nargs='?', default='A')
     parser.add_argument('-x', dest='reverse')
+    parser.add_argument('-trace', action='store_true')
     parser.add_argument('--test', action='store_true')
     args = parser.parse_args()
+    
     if args.test:
         import doctest
         doctest.testmod()
@@ -137,22 +143,20 @@ if __name__ == '__main__':
             rtype = RType.A
     s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
     xid = random.randint(0, 0xffff)
-    flags = 0x0100
+    flags = 0x0000 
     query = struct.pack('!HHHHHH', xid, flags, 1, 0, 0, 1)
-    qname = b''.join(
-        len(p).to_bytes(1, 'big') + p.encode('ascii')
-        for p in hostname.split('.')) + b'\x00'
+    qname = encode_hostname(hostname)
     query += qname
     query += struct.pack('!HH', rtype.value, 1)
     # add OPT pseudo RR to extend UDP payload size, see RFC 6891
     query += b'\x00' + struct.pack('!HHIH', 41, 4096, 0, 0)
-    s.sendto(query, GOOGLE_PUBLIC_DNS)
+    s.sendto(query, L_ROOT_SERVER_DNS)
     # loop until we get the response to our answer
     while True:
         res, sender = s.recvfrom(4096)
-        if sender != GOOGLE_PUBLIC_DNS:
+        if sender != L_ROOT_SERVER_DNS:
             continue
-        rxid, rflags, qdcount, ancount, _, _ = \
+        rxid, rflags, qdcount, ancount, athcount, addcount = \
             struct.unpack('!HHHHHH', res[:12])
         if rxid == xid:
             break
@@ -160,9 +164,125 @@ if __name__ == '__main__':
     i = 12
     name, i = parse_name(res, i)
     i += 4  # skip qtype and qclass
-    for idx in range(ancount):
+
+    # 1 0000 0 0 0 1 000 0010 
+
+
+    for _ in range(ancount):
         name, i = parse_name(res, i)
         rtype, rclass, ttl, rdlength = struct.unpack('!HHIH', res[i:i+10])
         rdata = format_rdata(RType(rtype), res, i+10, rdlength)
         print(f'{name}\t{ttl}\t{RClass(rclass).name}\t{RType(rtype).name}\t{rdata}')
         i += 10 + rdlength
+    
+    if args.trace:
+        tld_server = None
+        print(f"Recieved {len(res)} bytes from {L_ROOT_SERVER_DNS[0]}")
+        for _ in range(athcount):
+            name, i = parse_name(res, i)
+            rtype, rclass, ttl, rdlength = struct.unpack('!HHIH', res[i:i+10])
+            rdata = format_rdata(RType(rtype), res, i+10, rdlength)
+            print(f'{name}\t{ttl}\t{RClass(rclass).name}\t{RType(rtype).name}\t{rdata}')
+            i += 10 + rdlength
+        
+        for _ in range(addcount):
+            name, i = parse_name(res, i)
+            rtype, rclass, ttl, rdlength = struct.unpack('!HHIH', res[i:i+10])
+            rdata = format_rdata(RType(rtype), res, i+10, rdlength)
+            if tld_server == None:
+                tld_server = rdata
+                break
+            print(f'{name}\t{ttl}\t{RClass(rclass).name}\t{RType(rtype).name}\t{rdata}')
+            i += 10 + rdlength
+
+
+        print(f"Querying top level domain server {tld_server}")
+        tld_addr = (tld_server, 53)
+        s.sendto(query, tld_addr)
+
+        while True:
+            res, sender = s.recvfrom(4096)
+            if sender != tld_addr:
+                continue
+            rxid, rflags, qdcount, ancount, athcount, addcount = \
+                struct.unpack('!HHHHHH', res[:12])
+            if rxid == xid:
+                break
+
+        i = 12
+
+        name, i = parse_name(res, i)
+        i += 4  # skip qtype and qclass
+        
+        print(f"Authority servers for {hostname}", end="\n\n")
+        for _ in range(athcount):
+           name, i = parse_name(res, i)
+           rtype, rclass, ttl, rdlength = struct.unpack('!HHIH', res[i:i+10])
+           rdata = format_rdata(RType(rtype), res, i+10, rdlength)
+           print(f'{name}\t{ttl}\t{RClass(rclass).name}\t{RType(rtype).name}\t{rdata}')
+           i += 10 + rdlength
+        
+        auth_server = None
+        for _ in range(addcount):
+            name, i = parse_name(res, i)
+            rtype, rclass, ttl, rdlength = struct.unpack('!HHIH', res[i:i+10])
+            rdata = format_rdata(RType(rtype), res, i+10, rdlength)
+            if auth_server == None and RType(rtype).name == 'A':
+                auth_server = rdata
+                break 
+            print(f'{name}\t{ttl}\t{RClass(rclass).name}\t{RType(rtype).name}\t{rdata}')
+            i += 10 + rdlength
+
+        print(f"Querying authorization server: {auth_server}", end="\n\n\n\n")
+        auth_addr = (auth_server, 53)
+        s.sendto(query, auth_addr)
+
+        while True:
+            res, sender = s.recvfrom(4096)
+            if sender != auth_addr:
+                continue
+            rxid, rflags, qdcount, ancount, athcount, addcount = \
+                struct.unpack('!HHHHHH', res[:12])
+            if rxid == xid:
+                break
+
+        i = 12
+
+        name, i = parse_name(res, i)
+        i += 4  # skip qtype and qclass
+        print(ancount, athcount, athcount)
+        for _ in range(ancount):
+            name, i = parse_name(res, i)
+            rtype, rclass, ttl, rdlength = struct.unpack('!HHIH', res[i:i+10])
+            rdata = format_rdata(RType(rtype), res, i+10, rdlength)
+            print(f'{name}\t{ttl}\t{RClass(rclass).name}\t{RType(rtype).name}\t{rdata}')
+            i += 10 + rdlength
+        # for _ in range(athcount):
+        #    name, i = parse_name(res, i)
+        #    rtype, rclass, ttl, rdlength = struct.unpack('!HHIH', res[i:i+10])
+        #    rdata = format_rdata(RType(rtype), res, i+10, rdlength)
+        #    print(f'{name}\t{ttl}\t{RClass(rclass).name}\t{RType(rtype).name}\t{rdata}')
+        #    i += 10 + rdlength
+        
+        # auth_server = None
+        # for _ in range(addcount):
+        #     name, i = parse_name(res, i)
+        #     rtype, rclass, ttl, rdlength = struct.unpack('!HHIH', res[i:i+10])
+        #     rdata = format_rdata(RType(rtype), res, i+10, rdlength)
+        #     if auth_server == None and RType(rtype).name == 'A':
+        #         auth_server = rdata
+        #         break 
+        #     print(f'{name}\t{ttl}\t{RClass(rclass).name}\t{RType(rtype).name}\t{rdata}')
+        #     i += 10 + rdlength
+        print(auth_server)
+
+
+
+
+
+    
+
+        
+        
+
+        
