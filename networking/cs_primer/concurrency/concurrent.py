@@ -31,13 +31,16 @@ class HTTPRequest(object):
 
     if self.state is HttpState.START:
       requestLine = bs.readline()
+      
       self.method, self.uri, self.version = requestLine.rstrip().split(b" ")
-    while True:
-      fieldLine = bs.readline()
-      if fieldLine == b'\r\n':
-        break
-      fieldName, fieldValue = fieldLine.rstrip().split(": ")
-      self.headers[fieldName.lower()] = fieldValue
+    
+    if self.state is HttpState.HEADERS:
+      while True:
+        fieldLine = bs.readline()
+        if fieldLine == b'\r\n':
+          break
+        fieldName, fieldValue = fieldLine.rstrip().split(": ")
+        self.headers[fieldName.lower()] = fieldValue
 
 def log(err):
   print(err, file=sys.stderr)
