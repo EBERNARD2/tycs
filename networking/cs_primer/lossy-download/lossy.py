@@ -2,7 +2,7 @@ import struct
 import ipaddress
 
 """
-  Reconstruct and image using OSI Model:
+  Reconstruct an image using OSI Model:
 
   https://en.wikipedia.org/wiki/OSI_model
 
@@ -44,7 +44,8 @@ with open("lossy.pcap", "rb") as f:
     print(f"Src {output_str(mac_src)} --> Dest {output_str(mac_dest)}")
 
     # if the client mac address is the destination
-    if mac_dest == (164, 94, 96, 223, 46, 27):
+    # mac_dest == (164, 94, 96, 223, 46, 27)
+    if True:
       count +=1
       ether_type = struct.unpack("!H", packet[12:14])[0]
 
@@ -71,8 +72,8 @@ with open("lossy.pcap", "rb") as f:
       source = ipaddress.IPv4Address(packet[26:30])
       dest = ipaddress.IPv4Address(packet[30:34])
 
-      assert source == ipaddress.IPv4Address("192.30.252.154")
-      assert dest == ipaddress.IPv4Address("192.168.0.101")
+      # assert source == ipaddress.IPv4Address("192.30.252.154")
+      # assert dest == ipaddress.IPv4Address("192.168.0.101")
 
 
       """
@@ -80,6 +81,20 @@ with open("lossy.pcap", "rb") as f:
 
         TCP header starts at byte 34
       """
+      # Get headers
+      src_port, dest_port, seq_num, ack_num, _, flags = struct.unpack("!HHIIBB", packet[34:48])
+       
+      # verify HTTP ports
+      # assert src_port == 80
+      # assert dest_port == 59295 # client process port
+
+      # determine if sequence / ack is meaningful by flags
+      syn_bit = (flags & 0x02) >> 1
+      ack_bit = (flags & 0x10) >> 4
+      print(syn_bit, ack_bit)
+      print(seq_num, ack_num)
+
+    
             
 
 
