@@ -63,7 +63,7 @@ with open("lossy.pcap", "rb") as f:
       ihl = (packet[14] & 0b00001111)
       assert version == 4
       assert ihl == 5 # meaning header size is 20 bytes
-
+      ip_header_len = (ihl * 32) / 8
       # get ipv4 packet length
       ipv4_len = struct.unpack("!H", packet[16:18])[0]
       protocol = packet[23] & 0xf
@@ -80,19 +80,53 @@ with open("lossy.pcap", "rb") as f:
         Get TCP header info - see https://en.wikipedia.org/wiki/Transmission_Control_Protocol
 
         TCP header starts at byte 34
+
+        client send syn with seq number
+
+        server responce with Syn and ACK bits. AWK Number is client seq
+
+        For data, the client will send a seq number
+
+        The server responsed with the seq number as the ack number
+
+
+        The length of the data section is not specified in the segment header; 
+        it can be calculated by subtracting the combined length of the segment 
+        header and IP header from the total IP datagram length specified in the 
+        IP header
       """
       # Get headers
-      src_port, dest_port, seq_num, ack_num, _, flags = struct.unpack("!HHIIBB", packet[34:48])
+      src_port, dest_port, seq_num, ack_num, data_offset, flags = struct.unpack("!HHIIBB", packet[34:48])
        
+
+      if source == ipaddress.IPv4Address("192.30.252.154"):
+        tcp_header_size = (data_offset>> 4) * 32; # Specifies the size of the TCP header in 32-bit words
+        # get syn and ack bits
+        syn_bit = (flags & 0x02) >> 1
+        ack_bit = (flags & 0x10) >> 4    
+        finish = (flags & 0x01)    
+
+        tcp_packet_len = int(ipv4_len - (tcp_header_size + ip_header_len))
+
+        data_offset = data_offset >> 4
+
+        i = data_offset + 54
+        print(packet[i: tcp_packet_len])
+
+        print(syn_bit, ack_bit)
+        print(seq_num, ack_num)
+        print(f"Data offset: {data_offset}")
+        print(f"Port: {src_port}")
+        print(f"Finish {finish}")
+
+        print("---" * 25)
+
       # verify HTTP ports
       # assert src_port == 80
       # assert dest_port == 59295 # client process port
+    
 
-      # determine if sequence / ack is meaningful by flags
-      syn_bit = (flags & 0x02) >> 1
-      ack_bit = (flags & 0x10) >> 4
-      print(syn_bit, ack_bit)
-      print(seq_num, ack_num)
+      # also need to grab the data offset 
 
     
             
