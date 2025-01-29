@@ -11,6 +11,10 @@ import ipaddress
 def output_str(tuple):
   return ''. join(f"{str(val)}." for val in tuple)
 
+
+http_packets = {}
+
+
 with open("lossy.pcap", "rb") as f:
   magic_number, _, _, _, _, snp_len, llh = struct.unpack("<IHHIIII", f.read(24))
   assert magic_number == 0xa1b2c3d4
@@ -18,6 +22,8 @@ with open("lossy.pcap", "rb") as f:
   assert llh == 1
 
   count = 0
+  last_seq_num = None 
+
   while True:
     pack_header = f.read(16)
 
@@ -45,38 +51,38 @@ with open("lossy.pcap", "rb") as f:
 
     # if the client mac address is the destination
     # mac_dest == (164, 94, 96, 223, 46, 27)
-    if True:
-      count +=1
-      ether_type = struct.unpack("!H", packet[12:14])[0]
 
-      # confirm that this is an IPV4 packet see https://en.wikipedia.org/wiki/EtherType#values
-      assert ether_type == 0x0800 
+    count +=1
+    ether_type = struct.unpack("!H", packet[12:14])[0]
 
-      """
-        Parsing IPV4 Header 
+    # confirm that this is an IPV4 packet see https://en.wikipedia.org/wiki/EtherType#values
+    assert ether_type == 0x0800 
+
+    """
+      Parsing IPV4 Header 
         
         see  https://en.wikipedia.org/wiki/IPv4#header
-      """
+  """
       
-      # verify version and ihl from heaers
-      version = (packet[14] & 0b11110000) >> 4
-      ihl = (packet[14] & 0b00001111)
-      assert version == 4
-      assert ihl == 5 # meaning header size is 20 bytes
-      ip_header_len = (ihl * 32) / 8
-      # get ipv4 packet length
-      ipv4_len = struct.unpack("!H", packet[16:18])[0]
-      protocol = packet[23] & 0xf
+    # verify version and ihl from heaers
+    version = (packet[14] & 0b11110000) >> 4
+    ihl = (packet[14] & 0b00001111)
+    assert version == 4
+    assert ihl == 5 # meaning header size is 20 bytes
+    ip_header_len = (ihl * 32) / 8
+    # get ipv4 packet length
+    ipv4_len = struct.unpack("!H", packet[16:18])[0]
+    protocol = packet[23] & 0xf
 
-      assert protocol == 6 # verifiy packet transmission protocol is TCP 
-      source = ipaddress.IPv4Address(packet[26:30])
-      dest = ipaddress.IPv4Address(packet[30:34])
+    assert protocol == 6 # verifiy packet transmission protocol is TCP 
+    source = ipaddress.IPv4Address(packet[26:30])
+    dest = ipaddress.IPv4Address(packet[30:34])
 
-      # assert source == ipaddress.IPv4Address("192.30.252.154")
-      # assert dest == ipaddress.IPv4Address("192.168.0.101")
+    # assert source == ipaddress.IPv4Address("192.30.252.154")
+    # assert dest == ipaddress.IPv4Address("192.168.0.101")
 
 
-      """
+    """
         Get TCP header info - see https://en.wikipedia.org/wiki/Transmission_Control_Protocol
 
         TCP header starts at byte 34
@@ -94,32 +100,40 @@ with open("lossy.pcap", "rb") as f:
         it can be calculated by subtracting the combined length of the segment 
         header and IP header from the total IP datagram length specified in the 
         IP header
-      """
+    """
       # Get headers
-      src_port, dest_port, seq_num, ack_num, data_offset, flags = struct.unpack("!HHIIBB", packet[34:48])
+    src_port, dest_port, seq_num, ack_num, data_offset, flags = struct.unpack("!HHIIBB", packet[34:48])
        
+    if src_port == 80:
+      tcp_header_size = (data_offset>> 4) * 32; # Specifies the size of the TCP header in 32-bit words
+      # get syn and ack bits
+      syn_bit = (flags & 0x02) >> 1
+      ack_bit = (flags & 0x10) >> 4    
+      finish = (flags & 0x01)    
 
-      if source == ipaddress.IPv4Address("192.30.252.154"):
-        tcp_header_size = (data_offset>> 4) * 32; # Specifies the size of the TCP header in 32-bit words
-        # get syn and ack bits
-        syn_bit = (flags & 0x02) >> 1
-        ack_bit = (flags & 0x10) >> 4    
-        finish = (flags & 0x01)    
+      tcp_packet_len = int(ipv4_len - (tcp_header_size + ip_header_len))
 
-        tcp_packet_len = int(ipv4_len - (tcp_header_size + ip_header_len))
+      data_offset = data_offset >> 4
 
-        data_offset = data_offset >> 4
+      i = data_offset + 54
 
-        i = data_offset + 54
-        print(packet[i: tcp_packet_len])
+      print(syn_bit, ack_bit)
+      print(seq_num, ack_num)
+      print(f"Data offset: {data_offset}")
+      print(f"Port: {src_port}")
+      print(f"Finish {finish}")
 
-        print(syn_bit, ack_bit)
-        print(seq_num, ack_num)
-        print(f"Data offset: {data_offset}")
-        print(f"Port: {src_port}")
-        print(f"Finish {finish}")
+        
+      if not seq_num in http_packets and not syn_bit: 
+        http_packets[seq_num] = packet[i: tcp_packet_len]
+        
+      # parse http message:
+      print("---" * 25)
 
-        print("---" * 25)
+      """"
+        What we neeed to get done 
+      
+      """
 
       # verify HTTP ports
       # assert src_port == 80
@@ -129,7 +143,18 @@ with open("lossy.pcap", "rb") as f:
       # also need to grab the data offset 
 
     
-            
-
-
   print(f"{count} packets counted")
+
+
+sorted_seq_numbers = http_packets.keys()
+print(sorted_seq_numbers)
+http_res =  b""
+for key in sorted(http_packets.keys()):
+  http_res += http_packets[key]
+
+headers, body = http_res.split(b"\r\n\r\n")
+# print(headers.split(b"\n", 1))
+print(len(body))
+
+# with open("lossy.jpeg", "wb") as f:
+#   f.write(body)
