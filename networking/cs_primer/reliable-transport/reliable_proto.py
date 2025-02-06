@@ -1,43 +1,61 @@
+import socket
+
+
 class ReliableTransferProtocol:
-  def __init__(self, socket, mode):
+  def __init__(self, socket : socket.socket, mode):
     self.socket = socket
     self.mode = mode
     self.connection = None
+    self.seq = 1
+    self.packet_queue = []
+    self.recieve_buffer = []
     pass
 
-  def connect_to_server(self, server): # 3 way handshake
+  def __connect_to_server(self, serverADDR): # 3 way handshake
+    # send server a syn pack
+    self.socket.sendto(b"1", serverADDR)
+    
+    # if server doesnt respond, retry in 20ms
     pass
 
-  def sendmsg(self, msg):
+  def establish_conn(self, msg, addr):
+    print(msg, "onserver")
+    self.socket.sendto(b"1Ack", addr)
+
+  def send_msg(self, msg, serverAddr):
+    self.__connect_to_server(serverAddr)
     pass
+
+  def rcv_msg(sef, msg):
+    pass
+
+  def segment_msg(self, msg):
+    pass
+
 
 
 
 """"
-
   High level overview:
 
-     To send message...
-
-      Add seq number 
-
-      ACK Msgs 
+  Step 1 connect client to server
 
 
-      Handshake- Client sends seq number... Server Acks, client ack with seg 1
 
-
-      - Client start sending messages.
-
-        ** This strategy will be implemented with head of line blocking for simplicity***
-
-        if the client doesn't recieve an ack after x ms (timeout) then it will retry packet
-
-        If server recieves packet out of order it should discard packet
-
-        Continue to do this until msg is sent
-
-        - Same sequence should happen when server is responding
+    At the sender:
+      - The sender will keep a list of all of its outstanding packets. We’ll call that list
+      outstanding_packets; initially it is empty.
+      - If len(outstanding_packets) < W, transmit the next packet (call it packet k). Store packet
+      k and the current time in outstanding_packets.
+      - When an ACK for packet k is received, remove k from outstanding_packets.
+      - Periodically check the packets in outstanding_packets; if any were received more than
+      RTO seconds ago, re-transmit them.
+    
+    At the receiver:
+      - Send an ACK for every received packet.
+      - Save delivered packets — ignoring duplicates — in a local buffer.
+      - Keep track of the next packet the receiving application expects. After each reception,
+      deliver as many in-order packets as possible.
 
       
       
@@ -60,5 +78,8 @@ class ReliableTransferProtocol:
 
     - when message is done send close connnection msg
 
+    
+
+    Client stores messages (breaks it down into segements) and stores in packet queue 
 
 """

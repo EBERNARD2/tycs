@@ -17,8 +17,8 @@ if __name__ == '__main__':
     parser.add_argument('--upstream_host', help='Host to which the upstream server is bound', default='127.0.0.1')
     parser.add_argument('--upstream_port', type=int, help='Port to which the upstream server is bound', default=8000)
     parser.add_argument('--inbound_port', type=int, help='Port to which the client should send data', default=7000)
-    parser.add_argument('--drop_rate', type=float, default=0.1)
-    parser.add_argument('--dup_rate', type=float, default=0.1)
+    parser.add_argument('--drop_rate', type=float, default=0.7)
+    parser.add_argument('--dup_rate', type=float, default=0.0)
     parser.add_argument('--reorder_rate', type=float, default=0.1)
     args = parser.parse_args()
 
