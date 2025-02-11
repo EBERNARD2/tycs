@@ -1,41 +1,96 @@
 import socket
 
 
+
+class RTPBlock:
+  def __init__(self):
+    self.data_packets = []
+    self.seq_number = None
+
+  def addpacket(self, segment):
+    self.data_packets.append(segment)
+
+    # read seq header
+  
+
+  
 class ReliableTransferProtocol:
-  def __init__(self, socket : socket.socket, mode):
-    self.socket = socket
-    self.mode = mode
-    self.connection = None
-    self.seq = 1
-    self.packet_queue = []
-    self.recieve_buffer = []
-    pass
+  def __init__(self):
+    self.hostsocket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+    self.current_connections = {}
+    self.seq_number = None
 
-  def __connect_to_server(self, serverADDR): # 3 way handshake
-    # send server a syn pack
-    self.socket.sendto(b"1", serverADDR)
+
+  def connect(self, addr):
+    # implement 3 way handshake
+    if addr in self.current_connections:
+      raise Exception(f"Connection with {addr} already exists")
     
-    # if server doesnt respond, retry in 20ms
+    connection_block = self.current_connections[addr] = RTPBlock()
+
+    # add handshake seqment
+    self.seq_number = 0
+    msg = f"syn={self.seq_number} ack=0"
+    self.hostsocket.sendto(bytes(msg, "utf-8"), addr)
+
+    while True:
+      data, addr = self.hostsocket.recvfrom(4096)
+      print(data)
+      return
+      # get ack 
+
+      
+      
     pass
 
-  def establish_conn(self, msg, addr):
-    print(msg, "onserver")
-    self.socket.sendto(b"1Ack", addr)
+  def bind(self, addr):
+    # bind to port
+    self.hostsocket.bind(addr)
+    print(f"Server listening on port {addr[1]}")
 
-  def send_msg(self, msg, serverAddr):
-    self.__connect_to_server(serverAddr)
+
+  def listen(self):
+    # await udp segments to arrive
+    while True:
+      data, addr = self.hostsocket.recvfrom(4096)
+      # do some work...
+      # if the connecttion doesn't exist execute the 3 way handshake
+      if not addr in self.current_connections:
+        # add connectioon to current connections
+        self.current_connections[addr] = RTPBlock()
+
+        print(data)
+        return # for now
+
+        # read syn 
+      else:
+        # add packet to queue
+        datablock = self.current_connections[addr]
+        datablock.addpacket(data)
+        # ack packet
+
+        pass
+
+  def send(self, buffer):
+    if self.seq_number is None:
+      self.seq_number = 0;
+    
+
+    # add sequence number to packet 
     pass
 
-  def rcv_msg(sef, msg):
-    pass
-
-  def segment_msg(self, msg):
-    pass
-
-
-
+    
 
 """"
+
+
+  Server
+
+  - create socket
+  - bind to socket 
+
+
+
   High level overview:
 
   Step 1 connect client to server
